@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pokédex — Explora información detallada de todos los Pokémon.">
+    <title>{% block title %}Pokédex{% endblock %}</title>
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ── Navbar ─────────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div
+            style="max-width:1280px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;width:100%;gap:1.5rem">
+
+            <!-- Brand -->
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <span class="pokeball-icon">◓</span>
+                Pokédex
+            </a>
+
+            <!-- Nav links -->
+            <ul style="display:flex;list-style:none;gap:0.5rem;margin:0;padding:0">
+                <li><a class="nav-link" href="{{ url_for('index') }}">Explorar</a></li>
+            </ul>
+
+            <!-- Spacer -->
+            <div style="flex:1"></div>
+
+            <!-- Search -->
+            <form action="{{ url_for('search') }}" method="GET" role="search"
+                style="display:flex;align-items:center;gap:0.5rem">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input class="search-input" type="search" name="q" placeholder="Buscar Pokémon…" aria-label="Buscar"
+                        id="search-input" autocomplete="off">
+                </div>
+                <button class="btn-search ripple-container" type="submit" id="search-btn">Buscar</button>
+            </form>
+
+        </div>
+    </nav>
+
+    <!-- ── Main Content ──────────────────────────────────────── -->
+    <main style="max-width:1280px;margin:0 auto;padding:0 1.25rem">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ── Footer ────────────────────────────────────────────── -->
+    <footer>
+        <div>
+            Pokédex &mdash; Datos por
+            <a href="https://pokeapi.co/" target="_blank" rel="noopener">PokeAPI</a>
+            &nbsp;·&nbsp; Diseño moderno ✦
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+
+</html>
