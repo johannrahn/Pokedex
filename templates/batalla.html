@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Batalla Pokémon — Pokédex{% endblock %}
+
+{% block content %}
+
+<div class="battle-page">
+
+    <!-- ── Header ────────────────────────────────────────────── -->
+    <div class="battle-header">
+        <h1 class="battle-title">⚔️ Arena de Batalla</h1>
+        <p class="battle-subtitle">Elige dos Pokémon y descubre quién ganaría</p>
+    </div>
+
+    <!-- ── Selector Cards ────────────────────────────────────── -->
+    <div class="battle-selector-row">
+
+        <!-- P1 Card -->
+        <div class="battle-pick-card" id="pick-card-1" onclick="openModal(1)">
+            <div class="pick-card-empty" id="pick-empty-1">
+                <div class="pick-ball">◓</div>
+                <div class="pick-label">Elige tu Pokémon</div>
+                <div class="pick-hint">Haz click para seleccionar</div>
+            </div>
+            <div class="pick-card-filled" id="pick-filled-1" style="display:none">
+                <img class="pick-sprite" id="pick-sprite-1" src="" alt="">
+                <div class="pick-name" id="pick-name-1"></div>
+                <div class="pick-types" id="pick-types-1"></div>
+                <div class="pick-change-hint">Click para cambiar</div>
+            </div>
+        </div>
+
+        <!-- VS divider -->
+        <div class="battle-selector-vs">
+            <span class="vs-text">VS</span>
+        </div>
+
+        <!-- P2 Card -->
+        <div class="battle-pick-card" id="pick-card-2" onclick="openModal(2)">
+            <div class="pick-card-empty" id="pick-empty-2">
+                <div class="pick-ball">◓</div>
+                <div class="pick-label">Elige tu Pokémon</div>
+                <div class="pick-hint">Haz click para seleccionar</div>
+            </div>
+            <div class="pick-card-filled" id="pick-filled-2" style="display:none">
+                <img class="pick-sprite" id="pick-sprite-2" src="" alt="">
+                <div class="pick-name" id="pick-name-2"></div>
+                <div class="pick-types" id="pick-types-2"></div>
+                <div class="pick-change-hint">Click para cambiar</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Battle Button ─────────────────────────────────────── -->
+    <div style="text-align:center; margin: 1.8rem 0 1rem;">
+        <button class="battle-fight-btn ripple-container" id="fight-btn" onclick="startBattle()" disabled>
+            ⚔️ ¡A LUCHAR!
+        </button>
+    </div>
+
+    <!-- ── Arena ─────────────────────────────────────────────── -->
+    <div class="battle-arena" id="battle-arena" style="display:none">
+
+        <!-- Sprites Row -->
+        <div class="battle-stage">
+
+            <!-- P1 card -->
+            <div class="battle-pokemon-card" id="p1-card" style="opacity: 0; pointer-events: none;">
+                <div class="battle-hp-bar-wrap">
+                    <div class="battle-hp-bar" id="p1-hp-bar"></div>
+                </div>
+                <div class="battle-pokemon-name" id="p1-name-display"></div>
+                <div class="battle-types" id="p1-types"></div>
+                <div class="battle-sprite-wrap">
+                    <img class="battle-sprite left" id="p1-sprite" src="" alt="">
+                </div>
+                <div class="battle-bst" id="p1-bst">BST: —</div>
+            </div>
+
+            <!-- VS center -->
+            <div class="battle-center">
+                <div class="battle-lightning" id="battle-lightning" style="opacity: 0;">⚡</div>
+                <div class="battle-winner-badge" id="winner-badge" style="display:none"></div>
+            </div>
+
+            <!-- P2 card -->
+            <div class="battle-pokemon-card" id="p2-card" style="opacity: 0; pointer-events: none;">
+                <div class="battle-hp-bar-wrap">
+                    <div class="battle-hp-bar" id="p2-hp-bar"></div>
+                </div>
+                <div class="battle-pokemon-name" id="p2-name-display"></div>
+                <div class="battle-types" id="p2-types"></div>
+                <div class="battle-sprite-wrap">
+                    <img class="battle-sprite right" id="p2-sprite" src="" alt="">
+                </div>
+                <div class="battle-bst" id="p2-bst">BST: —</div>
+            </div>
+        </div>
+
+        <!-- Stats Comparison -->
+        <div class="battle-stats-section glass-card" id="battle-stats" style="display:none">
+            <div class="glass-card-header">⚡ Comparación de Estadísticas</div>
+            <div class="glass-card-body">
+                <div class="battle-stats-legend">
+                    <span class="legend-dot p1-color"></span><span id="legend-p1-name">P1</span>
+                    <span class="legend-dot p2-color" style="margin-left:1.5rem"></span><span
+                        id="legend-p2-name">P2</span>
+                </div>
+                <div id="stat-rows-container"></div>
+
+                <!-- Type advantage -->
+                <div class="battle-type-advantage" id="type-advantage-section" style="display:none">
+                    <div class="battle-adv-header">🔥 Ventaja de Tipo</div>
+                    <div id="type-advantage-text"></div>
+                </div>
+
+                <!-- Final score -->
+                <div class="battle-final-score" id="final-score-section">
+                    <div class="score-row">
+                        <div class="score-block p1-score-color" id="p1-final-score">—</div>
+                        <div class="score-label">Puntuación total</div>
+                        <div class="score-block p2-score-color" id="p2-final-score">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Status ─────────────────────────────────────────────── -->
+    <div class="battle-status" id="battle-status"></div>
+
+</div>
+
+<!-- ══ MODAL ══════════════════════════════════════════════════ -->
+<div class="picker-overlay" id="picker-overlay" onclick="closeModalOutside(event)">
+    <div class="picker-modal" id="picker-modal">
+
+        <div class="picker-header">
+            <span class="picker-title" id="picker-title">Elegir Pokémon</span>
+            <button class="picker-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <!-- Search -->
+        <div class="picker-search-wrap">
+            <span class="picker-search-icon">🔍</span>
+            <input type="text" class="picker-search-input" id="picker-search" placeholder="Busca por nombre o número…"
+                autocomplete="off">
+        </div>
+
+        <!-- Results grid -->
+        <div class="picker-grid-wrap">
+            <div class="picker-grid" id="picker-grid">
+                <!-- filled by JS -->
+            </div>
+            <div class="picker-loading" id="picker-loading" style="display:none">
+                <div class="picker-spinner"></div>
+                <span>Buscando…</span>
+            </div>
+            <div class="picker-empty" id="picker-empty" style="display:none">
+                No se encontró ningún Pokémon
+            </div>
+
+            <div class="picker-pagination" id="picker-pagination"
+                style="display:none; justify-content:center; gap: 1rem; margin-top: 1rem; align-items: center; padding-bottom: 1rem;">
+                <button class="battle-fight-btn" id="btn-prev-page" onclick="changePage(-1)"
+                    style="font-size: 0.9rem; padding: 0.5rem 1rem;">◀ Anterior</button>
+                <span id="page-indicator" style="font-weight: 500;">Página 1</span>
+                <button class="battle-fight-btn" id="btn-next-page" onclick="changePage(1)"
+                    style="font-size: 0.9rem; padding: 0.5rem 1rem;">Siguiente ▶</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ── State ────────────────────────────────────────────────────
+    const state = { p1: null, p2: null };
+    let activeModalSlot = 1;
+    let searchTimer = null;
+    let currentPage = 0;
+    const PAGE = 24;
+
+    let currentFiltered = [];
+    let currentPageIndex = 0;
+    const ITEMS_PER_PAGE = 36;
+
+    const STAT_LABELS = {
+        'HP': 'HP', 'Attack': 'Ataque', 'Defense': 'Defensa',
+        'Sp. Atk': 'Sp. Atq.', 'Sp. Def': 'Sp. Def.', 'Speed': 'Velocidad',
+    };
+
+    // ── Preload all Pokémon ──────────────────────────────────────
+    let allPokemon = [];
+    async function preloadAllPokemon() {
+        try {
+            const res = await fetch('/api/pokemon/all');
+            const data = await res.json();
+            allPokemon = data.pokemon || [];
+        } catch {
+            console.error("Failed to preload Pokémon list");
+        }
+    }
+
+    // ── On load ──────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        preloadAllPokemon(); // Load in background
+
+        const params = new URLSearchParams(window.location.search);
+        const p1 = params.get('p1');
+        const p2 = params.get('p2');
+        if (p1) loadPokemonByName(1, p1);
+        if (p2) loadPokemonByName(2, p2);
+
+        document.getElementById('picker-search').addEventListener('input', e => {
+            const q = e.target.value.trim().toLowerCase();
+            renderFilteredGrid(q);
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    });
+
+    // ── Modal ─────────────────────────────────────────────────────
+    function openModal(slot) {
+        activeModalSlot = slot;
+        document.getElementById('picker-title').textContent =
+            `Elegir Pokémon ${slot === 1 ? '1' : '2'}`;
+        document.getElementById('picker-search').value = '';
+        document.getElementById('picker-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('picker-search').focus(), 200);
+        renderFilteredGrid('');
+    }
+
+    function closeModal() {
+        document.getElementById('picker-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function closeModalOutside(e) {
+        if (e.target === document.getElementById('picker-overlay')) closeModal();
+    }
+
+    // ── Grid helpers ──────────────────────────────────────────────
+    function renderFilteredGrid(q) {
+        if (!allPokemon.length) {
+            // Fallback if not loaded yet
+            showGridLoading();
+            setTimeout(() => renderFilteredGrid(q), 500);
+            return;
+        }
+
+        if (q) {
+            currentFiltered = allPokemon.filter(p =>
+                p.name.toLowerCase().includes(q) || String(p.id).includes(q)
+            );
+        } else {
+            currentFiltered = allPokemon;
+        }
+
+        currentPageIndex = 0;
+
+        if (currentFiltered.length === 0) {
+            showGridEmpty();
+        } else {
+            renderCurrentPage();
+        }
+    }
+
+    function renderCurrentPage() {
+        const start = currentPageIndex * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        renderGrid(currentFiltered.slice(start, end));
+
+        const totalPages = Math.ceil(currentFiltered.length / ITEMS_PER_PAGE);
+        const paginator = document.getElementById('picker-pagination');
+
+        if (totalPages > 1) {
+            paginator.style.display = 'flex';
+            document.getElementById('page-indicator').textContent = `Página ${currentPageIndex + 1} de ${totalPages}`;
+            document.getElementById('btn-prev-page').disabled = currentPageIndex === 0;
+            document.getElementById('btn-next-page').disabled = currentPageIndex >= totalPages - 1;
+        } else {
+            paginator.style.display = 'none';
+        }
+    }
+
+    function changePage(delta) {
+        currentPageIndex += delta;
+        renderCurrentPage();
+    }
+
+    function renderGrid(pokemon) {
+        const grid = document.getElementById('picker-grid');
+        document.getElementById('picker-loading').style.display = 'none';
+        document.getElementById('picker-empty').style.display = 'none';
+
+        if (!pokemon || pokemon.length === 0) { showGridEmpty(); return; }
+
+        grid.innerHTML = pokemon.map(p => `
+        <div class="picker-card ripple-container" onclick="selectPokemon('${p.name}')">
+            <img class="picker-card-sprite" src="${p.sprite_url}" alt="${p.name}"
+                onerror="this.src='/static/fallback.png'">
+            <div class="picker-card-id">#${String(p.id).padStart(3, '0')}</div>
+            <div class="picker-card-name">${p.name.charAt(0).toUpperCase() + p.name.slice(1)}</div>
+        </div>
+    `).join('');
+        grid.style.display = 'grid';
+    }
+
+    function showGridLoading() {
+        document.getElementById('picker-grid').innerHTML = '';
+        document.getElementById('picker-grid').style.display = 'none';
+        document.getElementById('picker-loading').style.display = 'flex';
+        document.getElementById('picker-empty').style.display = 'none';
+        document.getElementById('picker-pagination').style.display = 'none';
+    }
+
+    function showGridEmpty() {
+        document.getElementById('picker-grid').innerHTML = '';
+        document.getElementById('picker-grid').style.display = 'none';
+        document.getElementById('picker-loading').style.display = 'none';
+        document.getElementById('picker-empty').style.display = 'flex';
+        document.getElementById('picker-pagination').style.display = 'none';
+    }
+
+    // ── Select Pokemon ────────────────────────────────────────────
+    async function selectPokemon(name) {
+        closeModal();
+        await loadPokemonByName(activeModalSlot, name);
+    }
+
+    async function loadPokemonByName(slot, name) {
+        setStatus(`Cargando ${name}…`, 'loading');
+        try {
+            const res = await fetch(`/api/pokemon/${encodeURIComponent(name.toLowerCase())}`);
+            if (!res.ok) throw new Error('No encontrado');
+            const data = await res.json();
+
+            state[`p${slot}`] = data;
+            renderPickCard(slot, data);
+            renderArenaSlot(slot, data);
+            clearStatus();
+
+            const url = new URL(window.location);
+            url.searchParams.set(`p${slot}`, name.toLowerCase());
+            window.history.replaceState({}, '', url);
+
+            if (state.p1 && state.p2) {
+                const btn = document.getElementById('fight-btn');
+                btn.disabled = false;
+                btn.classList.add('ready');
+            }
+        } catch {
+            setStatus(`⚠️ Pokémon no encontrado: "${name}"`, 'error');
+        }
+    }
+
+    // ── Render pick card ─────────────────────────────────────────
+    function renderPickCard(slot, data) {
+        document.getElementById(`pick-empty-${slot}`).style.display = 'none';
+        document.getElementById(`pick-filled-${slot}`).style.display = 'flex';
+
+        document.getElementById(`pick-sprite-${slot}`).src = data.sprite_url;
+        document.getElementById(`pick-name-${slot}`).textContent =
+            data.name.charAt(0).toUpperCase() + data.name.slice(1);
+
+        document.getElementById(`pick-types-${slot}`).innerHTML =
+            (data.types || []).map(t =>
+                `<span class="battle-type-tag" style="background:${t.color}">${t.name}</span>`
+            ).join('');
+
+        // Color the card border by first type
+        const color = (data.types && data.types[0]) ? data.types[0].color : '#e63946';
+        document.getElementById(`pick-card-${slot}`).style.setProperty('--pick-color', color);
+        document.getElementById(`pick-card-${slot}`).classList.add('filled');
+    }
+
+    // ── Render arena slot ─────────────────────────────────────────
+    function renderArenaSlot(slot, data) {
+        document.getElementById(`p${slot}-sprite`).src = data.sprite_url;
+        document.getElementById(`p${slot}-sprite`).alt = data.name;
+        document.getElementById(`p${slot}-name-display`).textContent =
+            data.name.charAt(0).toUpperCase() + data.name.slice(1);
+
+        const bst = data.stats.reduce((s, st) => s + st.value, 0);
+        document.getElementById(`p${slot}-bst`).textContent = `BST: ${bst}`;
+
+        document.getElementById(`p${slot}-types`).innerHTML =
+            (data.types || []).map(t =>
+                `<span class="battle-type-tag" style="background:${t.color}">${t.name}</span>`
+            ).join('');
+
+        document.getElementById('battle-arena').style.display = 'block';
+        document.getElementById('winner-badge').style.display = 'none';
+        document.getElementById('battle-stats').style.display = 'none';
+        document.getElementById(`p${slot}-hp-bar`).style.background = '#4caf50';
+        document.getElementById(`p${slot}-card`).classList.remove('winner-glow', 'loser-dim');
+
+        // Show slot
+        const card = document.getElementById(`p${slot}-card`);
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'all';
+
+        // Show lightning if both ready
+        if (state.p1 && state.p2) {
+            document.getElementById('battle-lightning').style.opacity = '1';
+        }
+    }
+
+    // ── Start Battle ─────────────────────────────────────────────
+    async function startBattle() {
+        if (!state.p1 || !state.p2) return;
+
+        const btn = document.getElementById('fight-btn');
+        btn.disabled = true;
+        btn.textContent = '⚡ Calculando…';
+
+        ['p1-card', 'p2-card'].forEach(id =>
+            document.getElementById(id).classList.remove('winner-glow', 'loser-dim', 'shake-anim'));
+        document.getElementById('winner-badge').style.display = 'none';
+        document.getElementById('battle-stats').style.display = 'none';
+
+        await new Promise(r => setTimeout(r, 200));
+        document.getElementById('p1-card').classList.add('shake-anim');
+        document.getElementById('p2-card').classList.add('shake-anim');
+        await new Promise(r => setTimeout(r, 700));
+
+        const p1 = state.p1, p2 = state.p2;
+        const p1bst = p1.stats.reduce((s, st) => s + st.value, 0);
+        const p2bst = p2.stats.reduce((s, st) => s + st.value, 0);
+
+        const p1AdvNames = (p1.advantages || []).map(a => a.name);
+        const p2AdvNames = (p2.advantages || []).map(a => a.name);
+        const p1TypeNames = (p1.types || []).map(t => t.name);
+        const p2TypeNames = (p2.types || []).map(t => t.name);
+
+        const p1AdvantageOver = p1AdvNames.filter(t => p2TypeNames.includes(t));
+        const p2AdvantageOver = p2AdvNames.filter(t => p1TypeNames.includes(t));
+        const p1TypeBonus = p1AdvantageOver.length > 0 ? 20 : 0;
+        const p2TypeBonus = p2AdvantageOver.length > 0 ? 20 : 0;
+        const p1Total = p1bst + p1TypeBonus;
+        const p2Total = p2bst + p2TypeBonus;
+
+        // Visual Clash Feedback
+        const showClash = (slot, text) => {
+            const card = document.getElementById(`p${slot}-card`);
+            const pop = document.createElement('div');
+            pop.className = 'clash-feedback-pop';
+            pop.textContent = text;
+            card.appendChild(pop);
+            setTimeout(() => pop.remove(), 1200);
+        };
+
+        if (p1TypeBonus > 0) showClash(1, '¡ES SÚPER EFICAZ!');
+        if (p2TypeBonus > 0) showClash(2, '¡Eficacia extra!');
+
+        renderStats(p1, p2, p1bst, p2bst, p1TypeBonus, p2TypeBonus, p1Total, p2Total,
+            p1AdvantageOver, p2AdvantageOver);
+
+        const hpRatio = p1Total > p2Total
+            ? [100, Math.round(((p1Total - p2Total) / p1Total) * 60 + 15)]
+            : p2Total > p1Total
+                ? [Math.round(((p2Total - p1Total) / p2Total) * 60 + 15), 100]
+                : [50, 50];
+        animateHpBars(hpRatio[0], hpRatio[1]);
+
+        await new Promise(r => setTimeout(r, 800));
+
+        const badge = document.getElementById('winner-badge');
+        if (p1Total > p2Total) {
+            document.getElementById('p1-card').classList.add('winner-glow');
+            document.getElementById('p2-card').classList.add('loser-dim');
+            badge.textContent = '🏆 ' + (p1.name.charAt(0).toUpperCase() + p1.name.slice(1)) + ' gana';
+        } else if (p2Total > p1Total) {
+            document.getElementById('p2-card').classList.add('winner-glow');
+            document.getElementById('p1-card').classList.add('loser-dim');
+            badge.textContent = '🏆 ' + (p2.name.charAt(0).toUpperCase() + p2.name.slice(1)) + ' gana';
+        } else {
+            badge.textContent = '🤝 ¡Empate!';
+        }
+        badge.style.display = 'flex';
+        badge.classList.remove('pop-in');
+        void badge.offsetWidth;
+        badge.classList.add('pop-in');
+
+        ['p1-card', 'p2-card'].forEach(id =>
+            document.getElementById(id).classList.remove('shake-anim'));
+
+        btn.disabled = false;
+        btn.textContent = '⚔️ ¡Repetir!';
+        btn.classList.add('ready');
+    }
+
+    function animateHpBars(p1Pct, p2Pct) {
+        const p1Bar = document.getElementById('p1-hp-bar');
+        const p2Bar = document.getElementById('p2-hp-bar');
+        p1Bar.style.width = '100%'; p2Bar.style.width = '100%';
+        const hpColor = pct => pct > 50 ? '#4caf50' : pct > 25 ? '#ffb300' : '#f44336';
+        setTimeout(() => {
+            p1Bar.style.width = p1Pct + '%'; p1Bar.style.background = hpColor(p1Pct);
+            p2Bar.style.width = p2Pct + '%'; p2Bar.style.background = hpColor(p2Pct);
+        }, 100);
+    }
+
+    function renderStats(p1, p2, p1bst, p2bst, p1Bonus, p2Bonus, p1Total, p2Total, p1AdvOver, p2AdvOver) {
+        document.getElementById('legend-p1-name').textContent = p1.name.charAt(0).toUpperCase() + p1.name.slice(1);
+        document.getElementById('legend-p2-name').textContent = p2.name.charAt(0).toUpperCase() + p2.name.slice(1);
+        const container = document.getElementById('stat-rows-container');
+        container.innerHTML = '';
+        p1.stats.forEach((stat, i) => {
+            const s2 = p2.stats[i]; if (!s2) return;
+            const label = STAT_LABELS[stat.name] || stat.name;
+            const p1Pct = Math.round((stat.value / 255) * 100);
+            const p2Pct = Math.round((s2.value / 255) * 100);
+            container.innerHTML += `
+        <div class="battle-stat-row">
+            <span class="bsr-val bsr-left ${stat.value > s2.value ? 'bsr-win' : ''}">${stat.value}</span>
+            <div class="bsr-bars">
+                <div class="bsr-label">${label}</div>
+                <div class="bsr-track-wrap">
+                    <div class="bsr-fill p1-fill ${stat.value > s2.value ? 'bsr-dominant' : ''}" style="width:${p1Pct}%"></div>
+                    <div class="bsr-fill p2-fill ${s2.value > stat.value ? 'bsr-dominant' : ''}" style="width:${p2Pct}%"></div>
+                </div>
+            </div>
+            <span class="bsr-val bsr-right ${s2.value > stat.value ? 'bsr-win' : ''}">${s2.value}</span>
+        </div>`;
+        });
+
+        const p1Name = p1.name.charAt(0).toUpperCase() + p1.name.slice(1);
+        const p2Name = p2.name.charAt(0).toUpperCase() + p2.name.slice(1);
+        let advHTML = '';
+        if (p1AdvOver.length > 0) advHTML += `<div class="adv-line p1-adv"><span class="adv-name">${p1Name}</span> es fuerte frente a los tipos: <strong>${p1AdvOver.join(', ')}</strong> → <span class="adv-bonus">+20 pts</span></div>`;
+        if (p2AdvOver.length > 0) advHTML += `<div class="adv-line p2-adv"><span class="adv-name">${p2Name}</span> es fuerte frente a los tipos: <strong>${p2AdvOver.join(', ')}</strong> → <span class="adv-bonus">+20 pts</span></div>`;
+        if (!advHTML) advHTML = '<div style="color:var(--text-secondary);font-size:0.85rem">Ninguno tiene ventaja de tipo directa.</div>';
+        document.getElementById('type-advantage-text').innerHTML = advHTML;
+        document.getElementById('type-advantage-section').style.display = 'block';
+
+        document.getElementById('p1-final-score').innerHTML = `<span class="score-name">${p1Name}</span><span class="score-num">${p1Total}</span>${p1Bonus ? `<span class="score-bonus">+${p1Bonus}</span>` : ''}`;
+        document.getElementById('p2-final-score').innerHTML = `<span class="score-name">${p2Name}</span><span class="score-num">${p2Total}</span>${p2Bonus ? `<span class="score-bonus">+${p2Bonus}</span>` : ''}`;
+        document.getElementById('battle-stats').style.display = 'block';
+    }
+
+    function setStatus(msg, type) {
+        const el = document.getElementById('battle-status');
+        el.textContent = msg; el.className = 'battle-status ' + type;
+    }
+    function clearStatus() {
+        const el = document.getElementById('battle-status');
+        el.textContent = ''; el.className = 'battle-status';
+    }
+</script>
+{% endblock %}

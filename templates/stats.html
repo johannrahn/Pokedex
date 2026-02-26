@@ -1,0 +1,738 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Estadísticas — Pokédex{% endblock %}
+
+{% block content %}
+<div class="stats-wrapper">
+
+    <!-- Hero -->
+    <div class="st-hero">
+        <div class="st-hero-bg"></div>
+        <div class="st-hero-inner">
+            <div class="st-hero-icon">📊</div>
+            <h1 class="hero-title">Mis <span class="st-highlight">Estadísticas</span></h1>
+            <p class="hero-sub">Análisis completo de tu rendimiento en la Liga Pokémon</p>
+        </div>
+    </div>
+
+    <!-- Top KPI Cards -->
+    <div class="st-kpi-row" id="st-kpi-row"></div>
+
+    <!-- Main grid -->
+    <div class="st-main-grid">
+
+        <!-- LEFT: Charts column -->
+        <div class="st-col-left">
+
+            <!-- Win Rate Chart (donut) -->
+            <div class="st-card">
+                <div class="st-card-header"><span class="st-card-icon">🏆</span>Ratio de Victoria</div>
+                <div class="st-donut-wrap">
+                    <canvas id="donut-canvas" width="200" height="200"></canvas>
+                    <div class="st-donut-center" id="donut-label">—</div>
+                </div>
+                <div class="st-donut-legend" id="donut-legend"></div>
+            </div>
+
+            <!-- Opponents beaten bar chart -->
+            <div class="st-card">
+                <div class="st-card-header"><span class="st-card-icon">⚔️</span>Progreso en la Liga</div>
+                <canvas id="progress-canvas" height="180"></canvas>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Lists column -->
+        <div class="st-col-right">
+
+            <!-- MVP Leaderboard -->
+            <div class="st-card">
+                <div class="st-card-header"><span class="st-card-icon">⭐</span>MVP — Ranking de Pokémon</div>
+                <div id="st-mvp-list" class="st-mvp-list"></div>
+            </div>
+
+            <!-- Type Coverage -->
+            <div class="st-card">
+                <div class="st-card-header"><span class="st-card-icon">🗺️</span>Cobertura de Tipos</div>
+                <div id="st-coverage" class="st-coverage"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Battle History -->
+    <div class="st-card st-card-full" style="margin-top:1.5rem">
+        <div class="st-card-header"><span class="st-card-icon">📜</span>Historial de Batallas (últimas 20)</div>
+        <div id="st-history" class="st-history"></div>
+    </div>
+
+    <!-- Actions -->
+    <div style="text-align:center;margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="{{ url_for('liga') }}" class="st-btn st-btn-primary">⚔️ Ir a la Liga</a>
+        <button class="st-btn st-btn-ghost" onclick="clearAllStats()">🗑️ Borrar todas las estadísticas</button>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .stats-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem 4rem
+    }
+
+    /* Hero */
+    .st-hero {
+        position: relative;
+        text-align: center;
+        padding: 3rem 1rem 2rem;
+        overflow: hidden
+    }
+
+    .st-hero-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, rgba(67, 97, 238, .12) 0%, transparent 65%), radial-gradient(ellipse at 80% 80%, rgba(230, 57, 70, .08) 0%, transparent 50%);
+        pointer-events: none
+    }
+
+    .st-hero-inner {
+        position: relative;
+        z-index: 1
+    }
+
+    .st-hero-icon {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: .6rem;
+        animation: statsBounce 2s ease-in-out infinite
+    }
+
+    @keyframes statsBounce {
+
+        0%,
+        100% {
+            transform: translateY(0)
+        }
+
+        50% {
+            transform: translateY(-8px)
+        }
+    }
+
+    .st-highlight {
+        background: linear-gradient(135deg, #4361ee, #7038f8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text
+    }
+
+    /* KPI Row */
+    .st-kpi-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem
+    }
+
+    .st-kpi {
+        flex: 1;
+        min-width: 130px;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: .9rem 1.2rem;
+        text-align: center;
+        transition: transform .2s, box-shadow .2s
+    }
+
+    .st-kpi:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .4)
+    }
+
+    .st-kpi-val {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        line-height: 1
+    }
+
+    .st-kpi-lbl {
+        font-size: .68rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-top: .35rem
+    }
+
+    .st-kpi-ico {
+        font-size: 1.5rem;
+        margin-bottom: .35rem
+    }
+
+    /* Main grid */
+    .st-main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem
+    }
+
+    @media(max-width:760px) {
+        .st-main-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .st-col-left,
+    .st-col-right {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem
+    }
+
+    /* Cards */
+    .st-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .25)
+    }
+
+    .st-card-full {
+        width: 100%
+    }
+
+    .st-card-header {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .85rem 1.2rem;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: .82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .7px;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, .03)
+    }
+
+    .st-card-icon {
+        font-size: 1rem
+    }
+
+    /* Donut chart */
+    .st-donut-wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem 1rem .5rem
+    }
+
+    .st-donut-center {
+        position: absolute;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        pointer-events: none
+    }
+
+    .st-donut-legend {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        padding: .75rem 1rem 1.2rem;
+        flex-wrap: wrap
+    }
+
+    .st-legend-item {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        font-size: .78rem;
+        color: var(--text-secondary)
+    }
+
+    .st-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0
+    }
+
+    /* Progress bar chart (canvas) */
+    #progress-canvas {
+        padding: 1rem
+    }
+
+    /* MVP list */
+    .st-mvp-list {
+        padding: .65rem;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        max-height: 340px;
+        overflow-y: auto
+    }
+
+    .st-mvp-row {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .6rem .7rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .04);
+        transition: background .2s
+    }
+
+    .st-mvp-row:hover {
+        background: rgba(255, 255, 255, .08)
+    }
+
+    .st-mvp-rank {
+        font-size: 1rem;
+        font-weight: 800;
+        width: 28px;
+        text-align: center;
+        flex-shrink: 0
+    }
+
+    .st-mvp-sprite {
+        width: 46px;
+        height: 46px;
+        object-fit: contain;
+        flex-shrink: 0
+    }
+
+    .st-mvp-info {
+        flex: 1;
+        min-width: 0
+    }
+
+    .st-mvp-name {
+        font-size: .88rem;
+        font-weight: 700;
+        text-transform: capitalize
+    }
+
+    .st-mvp-bar-wrap {
+        height: 5px;
+        background: rgba(255, 255, 255, .07);
+        border-radius: 6px;
+        margin-top: .28rem;
+        overflow: hidden
+    }
+
+    .st-mvp-bar {
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #f4c430, #2dc653)
+    }
+
+    .st-mvp-pct {
+        font-size: .68rem;
+        color: var(--text-muted);
+        margin-top: .15rem
+    }
+
+    .st-mvp-wins {
+        font-size: .82rem;
+        font-weight: 700;
+        color: var(--accent-yellow);
+        flex-shrink: 0
+    }
+
+    /* Coverage */
+    .st-coverage {
+        padding: .9rem
+    }
+
+    .st-cov-section {
+        margin-bottom: .85rem
+    }
+
+    .st-cov-title {
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--text-muted);
+        margin-bottom: .4rem
+    }
+
+    .st-cov-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .3rem
+    }
+
+    .st-type-tag {
+        font-size: .7rem;
+        font-weight: 700;
+        padding: .18rem .6rem;
+        border-radius: 20px;
+        border: 1.5px solid
+    }
+
+    .st-cov-meter {
+        height: 8px;
+        background: rgba(255, 255, 255, .07);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: .5rem
+    }
+
+    .st-cov-meter-fill {
+        height: 100%;
+        border-radius: 8px;
+        transition: width .8s ease
+    }
+
+    /* History */
+    .st-history {
+        padding: .75rem;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        max-height: 340px;
+        overflow-y: auto
+    }
+
+    .st-hist-row {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .5rem .75rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .03);
+        border-left: 3px solid
+    }
+
+    .st-hist-opp {
+        font-size: .85rem;
+        font-weight: 700;
+        flex: 1
+    }
+
+    .st-hist-result {
+        font-size: .75rem;
+        font-weight: 700;
+        padding: .15rem .6rem;
+        border-radius: 20px
+    }
+
+    .st-hist-win {
+        background: rgba(45, 198, 83, .15);
+        color: #2dc653
+    }
+
+    .st-hist-lose {
+        background: rgba(230, 57, 70, .15);
+        color: #e63946
+    }
+
+    .st-hist-rounds {
+        font-size: .75rem;
+        color: var(--text-muted)
+    }
+
+    .st-hist-date {
+        font-size: .68rem;
+        color: var(--text-muted)
+    }
+
+    .st-empty {
+        color: var(--text-muted);
+        text-align: center;
+        padding: 1.5rem;
+        font-size: .88rem
+    }
+
+    /* Buttons */
+    .st-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .65rem 1.6rem;
+        border-radius: 50px;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: .9rem;
+        cursor: pointer;
+        transition: all .18s ease;
+        text-decoration: none;
+        border: 1.5px solid transparent
+    }
+
+    .st-btn-primary {
+        background: linear-gradient(135deg, #4361ee, #7038f8);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(67, 97, 238, .35)
+    }
+
+    .st-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, .5)
+    }
+
+    .st-btn-ghost {
+        background: rgba(255, 255, 255, .05);
+        border-color: var(--glass-border);
+        color: var(--text-secondary)
+    }
+
+    .st-btn-ghost:hover {
+        background: rgba(255, 255, 255, .1);
+        color: var(--text-primary)
+    }
+</style>
+
+<script>
+    // ── Data ────────────────────────────────────────────────────────
+    const ALL_OPPONENTS_STATS = [
+        { id: 1, name: "Brock", emoji: "🪨", badge: "Medalla Roca", color: "#b8a038" },
+        { id: 2, name: "Misty", emoji: "💧", badge: "Medalla Cascada", color: "#6890f0" },
+        { id: 3, name: "Lt. Surge", emoji: "⚡", badge: "Medalla Trueno", color: "#f8d030" },
+        { id: 4, name: "Erika", emoji: "🌿", badge: "Medalla Arcoíris", color: "#78c850" },
+        { id: 5, name: "Koga", emoji: "☠️", badge: "Medalla Alma", color: "#a040a0" },
+        { id: 6, name: "Sabrina", emoji: "🔮", badge: "Medalla Pantano", color: "#f85888" },
+        { id: 7, name: "Blaine", emoji: "🔥", badge: "Medalla Volcán", color: "#f08030" },
+        { id: 8, name: "Giovanni", emoji: "🌍", badge: "Medalla Tierra", color: "#e0c068" },
+        { id: 9, name: "Lorelei", emoji: "🧊", badge: "Alto Mando I", color: "#58d8f0" },
+        { id: 10, name: "Bruno", emoji: "🥊", badge: "Alto Mando II", color: "#c03028" },
+        { id: 11, name: "Agatha", emoji: "👻", badge: "Alto Mando III", color: "#705898" },
+        { id: 12, name: "Lance", emoji: "🐉", badge: "Alto Mando IV", color: "#7038f8" },
+        { id: 13, name: "Gary", emoji: "👑", badge: "Campeón", color: "#f4c430" },
+    ];
+    const TYPE_COLORS_STATS = {
+        normal: '#a8a878', fire: '#f08030', water: '#6890f0', electric: '#f8d030', grass: '#78c850',
+        ice: '#98d8d8', fighting: '#c03028', poison: '#a040a0', ground: '#e0c068', flying: '#a890f0',
+        psychic: '#f85888', bug: '#a8b820', rock: '#b8a038', ghost: '#705898', dragon: '#7038f8',
+        dark: '#705848', steel: '#b8b8d0', fairy: '#ee99ac',
+        fuego: '#f08030', agua: '#6890f0', planta: '#78c850', eléctrico: '#f8d030', hielo: '#98d8d8',
+        lucha: '#c03028', veneno: '#a040a0', tierra: '#e0c068', volador: '#a890f0',
+        psíquico: '#f85888', bicho: '#a8b820', roca: '#b8a038', fantasma: '#705898',
+        dragón: '#7038f8', siniestro: '#705848', acero: '#b8b8d0', hada: '#ee99ac',
+    };
+
+    // ── Load from localStorage ──────────────────────────────────────
+    const stats = JSON.parse(localStorage.getItem('league_stats') || '{"wins":0,"losses":0,"streak":0,"bestStreak":0,"championCount":0}');
+    const badges = JSON.parse(localStorage.getItem('league_badges') || '[]');
+    const mvpData = JSON.parse(localStorage.getItem('league_pokemon_mvp') || '{}');
+    const history = JSON.parse(localStorage.getItem('league_history') || '[]');
+    const pkTeamIds = JSON.parse(localStorage.getItem('pkTeam') || '[]');
+    let myTeamData = [];
+
+    const total = stats.wins + stats.losses;
+    const wr = total > 0 ? Math.round(stats.wins / total * 100) : 0;
+
+    // ── Boot ────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        renderKPI();
+        renderDonut();
+        renderProgressBars();
+        renderMVP();
+        renderHistory();
+        if (pkTeamIds.length > 0) {
+            try {
+                myTeamData = await Promise.all(pkTeamIds.map(id => fetch(`/api/pokemon/${id}`).then(r => r.json())));
+                renderCoverage();
+            } catch (e) { document.getElementById('st-coverage').innerHTML = '<p class="st-empty">Error cargando equipo.</p>'; }
+        } else {
+            document.getElementById('st-coverage').innerHTML = '<p class="st-empty">No tienes equipo. Ve a la página principal.</p>';
+        }
+    });
+
+    // ── KPI ─────────────────────────────────────────────────────────
+    function renderKPI() {
+        const kpis = [
+            { ico: '🏆', val: stats.wins, lbl: 'Victorias' },
+            { ico: '💀', val: stats.losses, lbl: 'Derrotas' },
+            { ico: '📊', val: `${wr}%`, lbl: 'Win Rate' },
+            { ico: '🔥', val: stats.streak, lbl: 'Racha Actual' },
+            { ico: '⭐', val: stats.bestStreak, lbl: 'Mejor Racha' },
+            { ico: '👑', val: stats.championCount, lbl: 'Títulos' },
+            { ico: '🎖️', val: badges.length, lbl: `Medallas (/${ALL_OPPONENTS_STATS.length})` },
+        ];
+        document.getElementById('st-kpi-row').innerHTML = kpis.map(k => `
+        <div class="st-kpi">
+            <div class="st-kpi-ico">${k.ico}</div>
+            <div class="st-kpi-val">${k.val}</div>
+            <div class="st-kpi-lbl">${k.lbl}</div>
+        </div>`).join('');
+    }
+
+    // ── Donut Chart ─────────────────────────────────────────────────
+    function renderDonut() {
+        const canvas = document.getElementById('donut-canvas');
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width / 2, cy = canvas.height / 2, r = 80, lineW = 20;
+
+        const wins = stats.wins;
+        const losses = stats.losses;
+        const total = wins + losses || 1;
+        const wAngle = (wins / total) * Math.PI * 2;
+        const lAngle = Math.PI * 2 - wAngle;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw segments
+        const draw = (start, angle, color) => {
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, start, start + angle);
+            ctx.lineWidth = lineW;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        };
+        if (losses > 0) draw(-Math.PI / 2, lAngle, '#e63946');
+        if (wins > 0) draw(-Math.PI / 2, -wAngle, '#2dc653'); // draw wins backwards so they overlap at top
+
+        // Inner ring faint
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.lineWidth = lineW + 2; ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.stroke();
+
+        // Redraw on top
+        if (wins > 0) {
+            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + wAngle);
+            ctx.lineWidth = lineW; ctx.strokeStyle = '#2dc653'; ctx.lineCap = 'round'; ctx.stroke();
+        }
+        if (losses > 0) {
+            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2 + wAngle, 3 * Math.PI / 2);
+            ctx.lineWidth = lineW; ctx.strokeStyle = '#e63946'; ctx.lineCap = 'round'; ctx.stroke();
+        }
+
+        document.getElementById('donut-label').textContent = `${wr}%`;
+        document.getElementById('donut-legend').innerHTML = `
+        <div class="st-legend-item"><div class="st-legend-dot" style="background:#2dc653"></div>Victorias: ${wins}</div>
+        <div class="st-legend-item"><div class="st-legend-dot" style="background:#e63946"></div>Derrotas: ${losses}</div>`;
+    }
+
+    // ── Progress Bars (opponents beaten) ────────────────────────────
+    function renderProgressBars() {
+        const canvas = document.getElementById('progress-canvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.parentElement.clientWidth - 32;
+        canvas.width = W; canvas.height = 180;
+
+        const barH = 10, gap = 11, startY = 14;
+        const maxW = W - 160;
+
+        ALL_OPPONENTS_STATS.forEach((opp, i) => {
+            const y = startY + i * (barH + gap);
+            const beaten = badges.includes(opp.id);
+
+            // Label
+            ctx.fillStyle = beaten ? '#f0f0f8' : 'rgba(255,255,255,.35)';
+            ctx.font = '500 11px Outfit, system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${opp.emoji} ${opp.name}`, 0, y + barH - 1);
+
+            // Background bar
+            ctx.fillStyle = 'rgba(255,255,255,.06)';
+            ctx.beginPath(); ctx.roundRect(105, y, maxW, barH, 6); ctx.fill();
+
+            // Fill bar
+            if (beaten) {
+                ctx.fillStyle = opp.color;
+                ctx.beginPath(); ctx.roundRect(105, y, maxW, barH, 6); ctx.fill();
+                ctx.fillStyle = opp.color;
+                ctx.font = 'bold 10px Outfit, system-ui';
+                ctx.textAlign = 'left';
+                ctx.fillText('✓ DERROTADO', 105 + maxW + 8, y + barH - 1);
+            } else {
+                ctx.fillStyle = 'rgba(255,255,255,.25)';
+                ctx.font = '10px Outfit, system-ui';
+                ctx.textAlign = 'left';
+                ctx.fillText('pendiente', 105 + maxW + 8, y + barH - 1);
+            }
+        });
+    }
+
+    // ── MVP Leaderboard ─────────────────────────────────────────────
+    function renderMVP() {
+        const el = document.getElementById('st-mvp-list');
+        const entries = Object.entries(mvpData).sort((a, b) => b[1].wins - a[1].wins);
+        if (entries.length === 0) { el.innerHTML = '<p class="st-empty">Lucha batallas para ver tu ranking de Pokémon.</p>'; return; }
+        const maxW = entries[0][1].wins || 1;
+        const medals = ['🥇', '🥈', '🥉'];
+        el.innerHTML = entries.slice(0, 10).map(([name, d], i) => {
+            const tot = d.wins + d.losses;
+            const pct = tot > 0 ? Math.round(d.wins / tot * 100) : 0;
+            const bar = Math.round(d.wins / maxW * 100);
+            return `<div class="st-mvp-row">
+            <div class="st-mvp-rank">${medals[i] || `#${i + 1}`}</div>
+            <img class="st-mvp-sprite" src="${d.sprite}" alt="${cap(name)}">
+            <div class="st-mvp-info">
+                <div class="st-mvp-name">${cap(name)}</div>
+                <div class="st-mvp-bar-wrap"><div class="st-mvp-bar" style="width:${bar}%"></div></div>
+                <div class="st-mvp-pct">${d.wins}W · ${d.losses}L · ${pct}% win rate</div>
+            </div>
+            <div class="st-mvp-wins">${d.wins}★</div>
+        </div>`;
+        }).join('');
+    }
+
+    // ── Type Coverage ────────────────────────────────────────────────
+    function renderCoverage() {
+        const el = document.getElementById('st-coverage');
+        if (!myTeamData.length) { el.innerHTML = '<p class="st-empty">Sin equipo.</p>'; return; }
+
+        const myTypes = [...new Set(myTeamData.flatMap(p => p.types.map(t => t.name)))];
+        const covered = [...new Set(myTeamData.flatMap(p => p.advantages.map(a => a.name)))];
+        const covPct = Math.min(100, Math.round(covered.length / 18 * 100));
+        const covColor = covPct > 60 ? '#2dc653' : covPct > 35 ? '#f4c430' : '#e63946';
+        const tc = t => TYPE_COLORS_STATS[t.toLowerCase()] || '#888';
+
+        el.innerHTML = `
+        <div class="st-cov-section">
+            <div class="st-cov-title">Tipos de tu equipo</div>
+            <div class="st-cov-tags">${myTypes.map(t => `<span class="st-type-tag" style="color:${tc(t)};border-color:${tc(t)}55;background:${tc(t)}18">${cap(t)}</span>`).join('')}</div>
+        </div>
+        <div class="st-cov-section">
+            <div class="st-cov-title">Tipos cubiertos con ventaja (${covered.length}/18)</div>
+            <div class="st-cov-tags">${covered.map(t => `<span class="st-type-tag" style="color:${tc(t)};border-color:${tc(t)}66;background:${tc(t)}22">${cap(t)}</span>`).join('') || '<span style="color:var(--text-muted);font-size:.8rem">Ninguno</span>'}</div>
+        </div>
+        <div class="st-cov-section">
+            <div class="st-cov-title">Cobertura ofensiva: <strong style="color:${covColor}">${covPct}%</strong></div>
+            <div class="st-cov-meter"><div class="st-cov-meter-fill" style="width:${covPct}%;background:${covColor}"></div></div>
+        </div>
+        <div style="margin-top:.5rem;font-size:.78rem;color:var(--text-muted)">
+            ${myTeamData.length} Pokémon · ${myTypes.length} tipo${myTypes.length !== 1 ? 's' : ''} distintos
+        </div>`;
+    }
+
+    // ── Battle History ────────────────────────────────────────────────
+    function renderHistory() {
+        const el = document.getElementById('st-history');
+        if (history.length === 0) { el.innerHTML = '<p class="st-empty">No hay batallas registradas aún. ¡Ve a la Liga a pelear!</p>'; return; }
+        el.innerHTML = [...history].reverse().slice(0, 20).map(h => {
+            const opp = ALL_OPPONENTS_STATS.find(o => o.id === h.oppId);
+            const color = opp ? opp.color : '#888';
+            const date = new Date(h.ts).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            return `<div class="st-hist-row" style="border-color:${color}55">
+            <span style="font-size:1.1rem">${opp?.emoji || '⚔️'}</span>
+            <div class="st-hist-opp">${opp?.name || 'Desconocido'}</div>
+            <div class="st-hist-rounds">${h.myRounds}–${h.theirRounds}</div>
+            <div class="st-hist-result ${h.won ? 'st-hist-win' : 'st-hist-lose'}">${h.won ? 'Victoria' : 'Derrota'}</div>
+            <div class="st-hist-date">${date}</div>
+        </div>`;
+        }).join('');
+    }
+
+    // ── Clear ─────────────────────────────────────────────────────────
+    function clearAllStats() {
+        if (!confirm('¿Borrar TODAS las estadísticas de la Liga? Esto no se puede deshacer.')) return;
+        ['league_stats', 'league_pokemon_mvp', 'league_history', 'league_badges',
+            'league_progress', 'elite_progress', 'league_phase', 'league_hp'].forEach(k => localStorage.removeItem(k));
+        location.reload();
+    }
+
+    // ── Helper ─────────────────────────────────────────────────────────
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+</script>
+{% endblock %}

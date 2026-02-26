@@ -1,0 +1,2727 @@
+{% extends "base.html" %}
+{% block title %}Liga Pokémon — Pokédex{% endblock %}
+{% block content %}
+<div class="league-wrapper">
+    <div class="lx-hero">
+        <div class="lx-hero-bg"></div>
+        <div class="lx-hero-content">
+            <div class="lx-trophy-anim">🏆</div>
+            <h1 class="hero-title">Liga Pokémon <span class="lx-highlight">Automática</span></h1>
+            <p class="hero-sub">Supera a los 8 Líderes, el Alto Mando y al Campeón Gary</p>
+            <a href="{{ url_for('stats') }}" class="lx-btn lx-btn-ghost lx-btn-sm"
+                style="margin-top:.8rem;display:inline-flex">📊 Ver mis estadísticas</a>
+        </div>
+    </div>
+
+
+    <!-- Medal Gallery -->
+    <div id="medal-gallery" class="lx-medal-gallery" style="display:none"></div>
+
+    <!-- Empty State -->
+    <div id="league-empty-state" class="lx-empty-state" style="display:none">
+        <div class="lx-empty-icon">🛡️</div>
+        <h3>¡Sin Pokémon en tu equipo!</h3>
+        <p>Vuelve a la página principal y usa el <strong>Team Builder</strong>.</p>
+        <a href="{{ url_for('index') }}" class="lx-btn lx-btn-primary" style="margin-top:1.5rem">← Crear mi equipo</a>
+    </div>
+
+    <!-- Active State -->
+    <div id="league-active-state" style="display:none">
+
+        <!-- Stats Bar -->
+        <div class="lx-stats-bar" id="lx-stats-bar"></div>
+
+        <!-- Dashboard -->
+        <div class="league-dashboard" id="league-dashboard">
+
+            <!-- Team Panel -->
+            <div class="lx-panel lx-panel-team">
+                <div class="lx-panel-header"><span class="lx-panel-icon">👥</span><span>Tu Equipo</span></div>
+                <div class="lx-hp-section">
+                    <div class="lx-hp-labels"><span>❤️ Vida del Equipo</span><span id="hp-text">600 / 600</span></div>
+                    <div class="lx-hp-bar-wrap">
+                        <div class="lx-hp-bar-fill" id="hp-bar-fill"></div>
+                    </div>
+                </div>
+                <div class="league-team-grid" id="my-league-team"></div>
+                <div class="lx-team-footer">
+                    <div class="lx-bst-badge">
+                        <span class="lx-bst-label">BST Total</span>
+                        <span class="lx-bst-val" id="bst-val">⋯</span>
+                    </div>
+                    <button class="lx-btn lx-btn-ghost lx-btn-sm" onclick="resetLeague()">🚩 Abandonar</button>
+                </div>
+            </div>
+
+            <!-- Leaders Panel -->
+            <div class="lx-panel lx-panel-leaders">
+                <div class="lx-panel-header">
+                    <span class="lx-panel-icon">🎖️</span>
+                    <span id="panel-phase-label">Desafío de Líderes</span>
+                    <span class="lx-progress-pill" id="progress-pill">0/8</span>
+                </div>
+                <div class="gym-leaders-list" id="gym-leaders-list"></div>
+            </div>
+        </div>
+
+        <!-- Battle Arena (GBA Style) -->
+        <div id="league-battle-arena" class="gba-arena" style="display:none">
+            <!-- Arena Header -->
+            <div class="gba-arena-header">
+                <button class="lx-btn lx-btn-ghost lx-btn-sm" onclick="showDashboard()">← Volver</button>
+                <h2 id="battle-headline" class="lx-arena-title">¡Desafío!</h2>
+                <div class="gba-arena-badges">
+                    <span class="gba-badge-pill" id="gba-team-count">6/6</span>
+                </div>
+            </div>
+
+            <!-- Battlefield -->
+            <div class="gba-battlefield">
+                <!-- Enemy Side (top-right) -->
+                <div class="gba-enemy-info" id="gba-enemy-info">
+                    <div class="gba-poke-name" id="gba-enemy-name">???</div>
+                    <div class="gba-poke-lv" id="gba-enemy-lv">Nv50</div>
+                    <div class="gba-hp-bar-outer">
+                        <div class="gba-hp-label">HP</div>
+                        <div class="gba-hp-bar-bg">
+                            <div class="gba-hp-bar-fill" id="gba-enemy-hp-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gba-enemy-sprite-area">
+                    <div class="gba-platform gba-platform-enemy"></div>
+                    <img id="gba-enemy-sprite" class="gba-sprite gba-sprite-enemy" src="" alt="Enemy">
+                </div>
+
+                <!-- Player Side (bottom-left) -->
+                <div class="gba-player-sprite-area">
+                    <div class="gba-platform gba-platform-player"></div>
+                    <img id="gba-player-sprite" class="gba-sprite gba-sprite-player" src="" alt="Player">
+                </div>
+                <div class="gba-player-info" id="gba-player-info">
+                    <div class="gba-poke-name" id="gba-player-name">???</div>
+                    <div class="gba-poke-lv" id="gba-player-lv">Nv50</div>
+                    <div class="gba-hp-bar-outer">
+                        <div class="gba-hp-label">HP</div>
+                        <div class="gba-hp-bar-bg">
+                            <div class="gba-hp-bar-fill gba-hp-fill-player" id="gba-player-hp-fill"></div>
+                        </div>
+                    </div>
+                    <div class="gba-hp-numbers" id="gba-player-hp-text">235/235</div>
+                </div>
+
+                <!-- Enemy mini team -->
+                <div class="gba-enemy-pokeballs" id="gba-enemy-pokeballs"></div>
+                <!-- Player mini team -->
+                <div class="gba-player-pokeballs" id="gba-player-pokeballs"></div>
+            </div>
+
+            <!-- Text Box + Action Menu -->
+            <div class="gba-bottom-panel">
+                <!-- Narration text box -->
+                <div class="gba-textbox" id="gba-textbox">
+                    <p id="gba-narration">¿Qué debería hacer <span id="gba-action-name">POKÉMON</span>?</p>
+                </div>
+
+                <!-- Action menu (4 buttons) -->
+                <div class="gba-action-menu" id="gba-action-menu">
+                    <button class="gba-action-btn gba-btn-fight" onclick="showMovesMenu()">▶LUCHA</button>
+                    <button class="gba-action-btn gba-btn-bag" disabled>MOCHILA</button>
+                    <button class="gba-action-btn gba-btn-pokemon" onclick="showSwitchMenu()">POKÉMON</button>
+                    <button class="gba-action-btn gba-btn-run" onclick="attemptRun()">HUIDA</button>
+                </div>
+
+                <!-- Moves sub-panel (hidden by default) -->
+                <div class="gba-moves-panel" id="gba-moves-panel" style="display:none">
+                    <div class="gba-moves-grid" id="gba-moves-grid"></div>
+                    <div class="gba-move-info" id="gba-move-info">
+                        <span id="gba-move-pp">PP --/--</span>
+                        <span id="gba-move-type">TIPO/---</span>
+                    </div>
+                    <button class="gba-back-btn" onclick="hideMovesMenu()">← Atrás</button>
+                </div>
+            </div>
+
+            <!-- Pokémon switch modal -->
+            <div class="gba-switch-overlay" id="gba-switch-overlay" style="display:none">
+                <div class="gba-switch-panel">
+                    <h3>Elige un Pokémon</h3>
+                    <div class="gba-switch-grid" id="gba-switch-grid"></div>
+                    <button class="gba-back-btn" onclick="hideSwitchMenu()">← Atrás</button>
+                </div>
+            </div>
+
+            <!-- Battle result overlay -->
+            <div class="gba-result-overlay" id="gba-result-overlay" style="display:none">
+                <div class="gba-result-panel" id="gba-result-panel"></div>
+            </div>
+        </div>
+
+        <!-- Analysis Section (below dashboard) -->
+        <div class="lx-analysis-row" id="lx-analysis-row">
+            <!-- MVP All-Time -->
+            <div class="lx-panel lx-panel-mvp">
+                <div class="lx-panel-header"><span class="lx-panel-icon">⭐</span><span>MVP de tu Equipo</span></div>
+                <div class="lx-mvp-list" id="lx-mvp-list">
+                    <p class="lx-hint-txt">Lucha batallas para ver estadísticas</p>
+                </div>
+            </div>
+            <!-- Type Coverage -->
+            <div class="lx-panel lx-panel-cov">
+                <div class="lx-panel-header"><span class="lx-panel-icon">🗺️</span><span>Cobertura de Tipos</span></div>
+                <div class="lx-cov-body" id="lx-cov-body">
+                    <p class="lx-hint-txt">Cargando equipo…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hall of Fame Overlay -->
+    <div id="hof-overlay" class="lx-hof-overlay" style="display:none">
+        <canvas id="confetti-canvas" class="lx-confetti-canvas"></canvas>
+        <div class="lx-hof-content">
+            <div class="lx-hof-trophy">👑</div>
+            <h2 class="lx-hof-title">¡HALL OF FAME!</h2>
+            <p class="lx-hof-sub">Has derrotado a los 8 Líderes, el Alto Mando y al Campeón Gary</p>
+            <div class="lx-hof-team" id="hof-team"></div>
+            <div class="lx-hof-badges" id="hof-badges"></div>
+            <button class="lx-btn-fight" onclick="closeHoF()" style="margin-top:2rem">🔄 Nueva Aventura</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .league-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem 4rem
+    }
+
+    .lx-hero {
+        position: relative;
+        text-align: center;
+        padding: 3rem 1rem 2rem;
+        overflow: hidden
+    }
+
+    .lx-hero-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, rgba(244, 196, 48, .12) 0%, transparent 65%), radial-gradient(ellipse at 20% 80%, rgba(67, 97, 238, .1) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(230, 57, 70, .08) 0%, transparent 50%);
+        pointer-events: none
+    }
+
+    .lx-hero-content {
+        position: relative;
+        z-index: 1
+    }
+
+    .lx-trophy-anim {
+        font-size: 3rem;
+        display: block;
+        animation: trophyFloat 3s ease-in-out infinite;
+        margin-bottom: .6rem
+    }
+
+    @keyframes trophyFloat {
+
+        0%,
+        100% {
+            transform: translateY(0) rotate(-3deg)
+        }
+
+        50% {
+            transform: translateY(-10px) rotate(3deg)
+        }
+    }
+
+    .lx-highlight {
+        background: linear-gradient(135deg, #f4c430 0%, #e63946 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text
+    }
+
+    /* Medal Gallery */
+    .lx-medal-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        padding: .9rem 1rem;
+        background: rgba(255, 255, 255, .03);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        margin: 0 0 1rem
+    }
+
+    .lx-medal {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .28rem .75rem;
+        border-radius: 50px;
+        font-size: .75rem;
+        font-weight: 700;
+        border: 1.5px solid;
+        transition: all .2s ease
+    }
+
+    .lx-medal.earned {
+        opacity: 1;
+        transform: none
+    }
+
+    .lx-medal.locked {
+        opacity: .25;
+        filter: grayscale(1)
+    }
+
+    /* Stats Bar */
+    .lx-stats-bar {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem
+    }
+
+    .lx-stat-chip {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255, 255, 255, .04);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: .5rem .9rem;
+        flex: 1;
+        min-width: 80px
+    }
+
+    .lx-stat-chip-val {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text-primary)
+    }
+
+    .lx-stat-chip-lbl {
+        font-size: .65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-top: .1rem
+    }
+
+    /* Empty */
+    .lx-empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        margin-top: 1rem
+    }
+
+    .lx-empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block
+    }
+
+    /* Dashboard */
+    .league-dashboard {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+        margin-top: .5rem;
+        align-items: start
+    }
+
+    @media(max-width:840px) {
+        .league-dashboard {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .lx-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, .3)
+    }
+
+    .lx-panel-header {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .9rem 1.2rem;
+        border-bottom: 1px solid var(--glass-border);
+        font-weight: 700;
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, .03)
+    }
+
+    .lx-panel-icon {
+        font-size: 1.1rem
+    }
+
+    .lx-progress-pill {
+        margin-left: auto;
+        background: linear-gradient(135deg, #f4c430, #e63946);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 800;
+        padding: .18rem .65rem;
+        border-radius: 50px
+    }
+
+    /* HP Bar */
+    .lx-hp-section {
+        padding: .75rem 1rem .5rem
+    }
+
+    .lx-hp-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: .75rem;
+        color: var(--text-secondary);
+        margin-bottom: .35rem;
+        font-weight: 600
+    }
+
+    .lx-hp-bar-wrap {
+        height: 10px;
+        background: rgba(255, 255, 255, .06);
+        border-radius: 20px;
+        overflow: hidden
+    }
+
+    .lx-hp-bar-fill {
+        height: 100%;
+        border-radius: 20px;
+        transition: width .5s ease, background .5s ease;
+        background: #2dc653
+    }
+
+    /* Team Grid */
+    .league-team-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: .5rem;
+        padding: .75rem
+    }
+
+    .league-team-member {
+        background: rgba(255, 255, 255, .04);
+        border: 1.5px solid var(--glass-border);
+        border-radius: 12px;
+        padding: .6rem .4rem .4rem;
+        text-align: center;
+        transition: all .2s ease
+    }
+
+    .league-team-member:hover {
+        background: rgba(255, 255, 255, .09);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .4)
+    }
+
+    .league-team-member img {
+        width: 58px;
+        height: 58px;
+        object-fit: contain;
+        filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .5))
+    }
+
+    .mt-name {
+        font-size: .68rem;
+        font-weight: 600;
+        text-transform: capitalize;
+        color: var(--text-secondary);
+        margin-top: .2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+    }
+
+    .lx-team-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .7rem 1rem;
+        border-top: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, .02)
+    }
+
+    .lx-bst-badge {
+        display: flex;
+        flex-direction: column;
+        gap: .05rem
+    }
+
+    .lx-bst-label {
+        font-size: .65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: .5px
+    }
+
+    .lx-bst-val {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--accent-yellow)
+    }
+
+    /* Gym Leader Cards */
+    .gym-leaders-list {
+        padding: .65rem;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        max-height: 520px;
+        overflow-y: auto
+    }
+
+    .gym-leader-card {
+        display: flex;
+        align-items: flex-start;
+        gap: .85rem;
+        padding: .85rem .9rem;
+        border-radius: 12px;
+        border: 1.5px solid var(--glass-border);
+        background: rgba(255, 255, 255, .03);
+        transition: all .22s ease;
+        position: relative
+    }
+
+    .gym-leader-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--leader-color, #888);
+        border-radius: 4px 0 0 4px
+    }
+
+    .leader-beaten {
+        opacity: .65;
+        background: rgba(45, 198, 83, .06);
+        border-color: rgba(45, 198, 83, .25)
+    }
+
+    .leader-current {
+        background: rgba(244, 196, 48, .07);
+        border-color: rgba(244, 196, 48, .35);
+        box-shadow: 0 0 20px rgba(244, 196, 48, .1)
+    }
+
+    .leader-locked {
+        opacity: .35
+    }
+
+    .leader-elite {
+        border-color: rgba(147, 51, 234, .35) !important;
+        background: rgba(147, 51, 234, .05) !important
+    }
+
+    .leader-elite.leader-current {
+        box-shadow: 0 0 20px rgba(147, 51, 234, .15) !important
+    }
+
+    .gym-leader-card:not(.leader-locked):hover {
+        background: rgba(255, 255, 255, .065);
+        transform: translateX(4px)
+    }
+
+    .gl-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        background: rgba(255, 255, 255, .06);
+        border: 2px solid var(--leader-color, #888);
+        flex-shrink: 0;
+        margin-top: 2px
+    }
+
+    .gl-info {
+        flex: 1;
+        min-width: 0
+    }
+
+    .gl-name {
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--text-primary)
+    }
+
+    .gl-type {
+        font-size: .75rem;
+        margin-top: .1rem
+    }
+
+    .gl-badge {
+        font-size: .65rem;
+        font-weight: 700;
+        padding: .15rem .5rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        display: inline-block;
+        margin-top: .25rem
+    }
+
+    .badge-beaten {
+        background: rgba(45, 198, 83, .2);
+        color: #2dc653
+    }
+
+    .badge-next {
+        background: rgba(244, 196, 48, .2);
+        color: #f4c430;
+        animation: pulseBadge 1.5s ease-in-out infinite
+    }
+
+    .badge-locked {
+        background: rgba(255, 255, 255, .06);
+        color: var(--text-muted)
+    }
+
+    .badge-elite-next {
+        background: rgba(147, 51, 234, .25);
+        color: #c084fc;
+        animation: pulseBadge 1.5s ease-in-out infinite
+    }
+
+    @keyframes pulseBadge {
+
+        0%,
+        100% {
+            opacity: 1
+        }
+
+        50% {
+            opacity: .6
+        }
+    }
+
+    .btn-challenge {
+        padding: .35rem .9rem;
+        border-radius: 50px;
+        border: 1.5px solid var(--leader-color, #f4c430);
+        background: rgba(255, 255, 255, .05);
+        color: var(--leader-color, #f4c430);
+        font-size: .75rem;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .18s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 2px
+    }
+
+    .btn-challenge:hover {
+        background: var(--leader-color, #f4c430);
+        color: #0a0a10;
+        transform: scale(1.05)
+    }
+
+    /* Champion State */
+    .lx-champion-state {
+        text-align: center;
+        padding: 2.5rem 1rem
+    }
+
+    .lx-champion-trophy {
+        font-size: 4.5rem;
+        animation: trophyFloat 3s ease-in-out infinite;
+        display: block;
+        margin-bottom: .8rem
+    }
+
+    .lx-champion-state h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--accent-yellow)
+    }
+
+    /* ═══ GBA BATTLE ARENA ═══ */
+    .gba-arena {
+        position: relative;
+        margin-top: 1.5rem;
+        background: var(--bg-card);
+        border: 2px solid var(--glass-border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, .5)
+    }
+
+    .gba-arena-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .8rem 1.2rem;
+        border-bottom: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, .03)
+    }
+
+    .gba-badge-pill {
+        font-size: .75rem;
+        font-weight: 800;
+        background: rgba(67, 97, 238, .15);
+        color: #6890f0;
+        padding: .2rem .7rem;
+        border-radius: 50px;
+        border: 1px solid rgba(67, 97, 238, .3)
+    }
+
+    /* Battlefield */
+    .gba-battlefield {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/10;
+        background: linear-gradient(180deg, #1a2744 0%, #1e3a5f 25%, #2d5a3d 50%, #3a7a4a 70%, #2d5a3d 100%);
+        overflow: hidden;
+        min-height: 280px;
+        transition: background 0.8s ease;
+    }
+
+    /* Dynamic Battlefronts */
+    .bg-brock {
+        background: radial-gradient(ellipse at 50% 120%, #4a3e2a 0%, #2b241b 40%, #171410 100%);
+    }
+
+    .bg-misty {
+        background: radial-gradient(ellipse at 50% -20%, #4fc3f7 0%, #0288d1 40%, #01579b 100%);
+    }
+
+    .bg-ltsurge {
+        background: radial-gradient(circle at 80% 20%, #fbc02d 0%, #f57f17 40%, #bf360c 100%);
+    }
+
+    .bg-erika {
+        background: radial-gradient(ellipse at 50% 50%, #81c784 0%, #388e3c 40%, #1b5e20 100%);
+    }
+
+    .bg-koga {
+        background: radial-gradient(ellipse at 10% 90%, #ba68c8 0%, #6a1b9a 50%, #4a148c 100%);
+    }
+
+    .bg-sabrina {
+        background: radial-gradient(circle at 50% 50%, #f48fb1 0%, #ad1457 40%, #880e4f 100%);
+    }
+
+    .bg-blaine {
+        background: radial-gradient(ellipse at 50% 100%, #ef5350 0%, #c62828 40%, #b71c1c 100%);
+    }
+
+    .bg-giovanni {
+        background: radial-gradient(ellipse at 20% 80%, #d4e157 0%, #9e9d24 50%, #827717 100%);
+    }
+
+    .bg-lorelei {
+        background: radial-gradient(ellipse at 50% 0%, #81d4fa 0%, #0277bd 40%, #01579b 100%);
+    }
+
+    .bg-bruno {
+        background: radial-gradient(ellipse at 50% 50%, #e57373 0%, #b71c1c 50%, #212121 100%);
+    }
+
+    .bg-agatha {
+        background: radial-gradient(ellipse at 80% 20%, #9575cd 0%, #4527a0 50%, #311b92 100%);
+    }
+
+    .bg-lance {
+        background: radial-gradient(ellipse at 50% 100%, #ffb74d 0%, #e65100 50%, #3e2723 100%);
+    }
+
+    .bg-gary {
+        background: radial-gradient(circle at 50% 50%, #fcec8e 0%, #f4c430 40%, #1a150c 100%);
+    }
+
+
+    /* Info panels */
+    .gba-enemy-info {
+        position: absolute;
+        top: 8%;
+        left: 5%;
+        background: linear-gradient(135deg, rgba(20, 20, 35, .92), rgba(30, 30, 50, .88));
+        border: 2px solid rgba(255, 255, 255, .15);
+        border-radius: 12px;
+        padding: .6rem 1rem .5rem;
+        min-width: 180px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .5);
+        z-index: 5
+    }
+
+    .gba-player-info {
+        position: absolute;
+        bottom: 18%;
+        right: 5%;
+        background: linear-gradient(135deg, rgba(20, 20, 35, .92), rgba(30, 30, 50, .88));
+        border: 2px solid rgba(255, 255, 255, .15);
+        border-radius: 12px;
+        padding: .6rem 1rem .5rem;
+        min-width: 200px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .5);
+        z-index: 5
+    }
+
+    .gba-poke-name {
+        font-size: .95rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #fff;
+        letter-spacing: .5px
+    }
+
+    .gba-poke-lv {
+        font-size: .72rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, .6);
+        position: absolute;
+        top: .65rem;
+        right: 1rem
+    }
+
+    .gba-hp-bar-outer {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        margin-top: .3rem
+    }
+
+    .gba-hp-label {
+        font-size: .6rem;
+        font-weight: 900;
+        color: #f8d030;
+        letter-spacing: 1px
+    }
+
+    .gba-hp-bar-bg {
+        flex: 1;
+        height: 8px;
+        background: #333;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .1)
+    }
+
+    .gba-hp-bar-fill {
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, #2dc653, #5eff82);
+        border-radius: 6px;
+        transition: width .6s ease, background .4s ease
+    }
+
+    .gba-hp-numbers {
+        font-size: .78rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, .8);
+        text-align: right;
+        margin-top: .2rem;
+        font-variant-numeric: tabular-nums
+    }
+
+    /* Sprites */
+    .gba-enemy-sprite-area {
+        position: absolute;
+        top: 5%;
+        right: 8%;
+        width: 140px;
+        height: 140px;
+        z-index: 3
+    }
+
+    .gba-player-sprite-area {
+        position: absolute;
+        bottom: 15%;
+        left: 8%;
+        width: 160px;
+        height: 160px;
+        z-index: 3
+    }
+
+    .gba-sprite {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 6px 15px rgba(0, 0, 0, .7));
+        transition: transform .3s ease;
+        image-rendering: auto;
+    }
+
+    .gba-sprite-enemy {
+        transform-origin: center bottom
+    }
+
+    .gba-sprite-player {
+        transform-origin: center bottom
+    }
+
+    .gba-platform {
+        position: absolute;
+        bottom: -8px;
+        width: 130%;
+        left: -15%;
+        height: 22px;
+        background: radial-gradient(ellipse, rgba(0, 0, 0, .35) 0%, transparent 70%);
+        border-radius: 50%
+    }
+
+    .gba-platform-enemy {
+        bottom: 0
+    }
+
+    .gba-platform-player {
+        bottom: -5px
+    }
+
+    /* Pokeball team indicators */
+    .gba-enemy-pokeballs,
+    .gba-player-pokeballs {
+        position: absolute;
+        display: flex;
+        gap: 4px;
+        z-index: 6
+    }
+
+    .gba-enemy-pokeballs {
+        top: 6%;
+        right: 5%
+    }
+
+    .gba-player-pokeballs {
+        bottom: 16%;
+        left: 5%
+    }
+
+    .gba-pball {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%
+    }
+
+    .gba-pball-alive {
+        background: radial-gradient(circle at 40% 35%, #ff5555, #cc2222);
+        border: 1.5px solid #fff
+    }
+
+    .gba-pball-fainted {
+        background: #444;
+        border: 1.5px solid #666
+    }
+
+    /* Sprite animations */
+    @keyframes gbaAttack {
+        0% {
+            transform: translateX(0)
+        }
+
+        25% {
+            transform: translateX(30px)
+        }
+
+        50% {
+            transform: translateX(-10px)
+        }
+
+        100% {
+            transform: translateX(0)
+        }
+    }
+
+    @keyframes gbaAttackLeft {
+        0% {
+            transform: translateX(0)
+        }
+
+        25% {
+            transform: translateX(-30px)
+        }
+
+        50% {
+            transform: translateX(10px)
+        }
+
+        100% {
+            transform: translateX(0)
+        }
+    }
+
+    @keyframes gbaHit {
+        0% {
+            opacity: 1
+        }
+
+        20% {
+            opacity: .2
+        }
+
+        40% {
+            opacity: 1
+        }
+
+        60% {
+            opacity: .2
+        }
+
+        80% {
+            opacity: 1
+        }
+
+        100% {
+            opacity: 1
+        }
+    }
+
+    @keyframes gbaFaint {
+        0% {
+            transform: translateY(0);
+            opacity: 1
+        }
+
+        100% {
+            transform: translateY(60px);
+            opacity: 0
+        }
+    }
+
+    @keyframes gbaEnter {
+        0% {
+            transform: scale(0) rotate(-180deg);
+            opacity: 0
+        }
+
+        100% {
+            transform: scale(1) rotate(0);
+            opacity: 1
+        }
+    }
+
+    .gba-anim-attack {
+        animation: gbaAttack .4s ease
+    }
+
+    .gba-anim-attack-left {
+        animation: gbaAttackLeft .4s ease
+    }
+
+    .gba-anim-hit {
+        animation: gbaHit .5s ease
+    }
+
+    .gba-anim-faint {
+        animation: gbaFaint .6s ease forwards
+    }
+
+    .gba-anim-enter {
+        animation: gbaEnter .5s ease
+    }
+
+    /* ═══ BOTTOM PANEL ═══ */
+    .gba-bottom-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 3px solid rgba(255, 255, 255, .12);
+        background: linear-gradient(180deg, rgba(15, 15, 25, .95), rgba(10, 10, 18, .98));
+        min-height: 120px
+    }
+
+    .gba-textbox {
+        padding: 1rem 1.2rem;
+        display: flex;
+        align-items: center;
+        border-right: 2px solid rgba(255, 255, 255, .08);
+        font-size: .92rem;
+        color: #ddd;
+        line-height: 1.5
+    }
+
+    .gba-textbox p {
+        margin: 0
+    }
+
+    #gba-action-name {
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #fff
+    }
+
+    /* Action menu */
+    .gba-action-menu {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: .7rem
+    }
+
+    .gba-action-btn {
+        padding: .6rem .5rem;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, .12);
+        font-family: inherit;
+        font-size: .82rem;
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        transition: all .15s ease;
+        background: rgba(255, 255, 255, .05);
+        color: #ddd
+    }
+
+    .gba-action-btn:hover:not(:disabled) {
+        transform: scale(1.03);
+        border-color: rgba(255, 255, 255, .3)
+    }
+
+    .gba-action-btn:disabled {
+        opacity: .35;
+        cursor: not-allowed
+    }
+
+    .gba-btn-fight {
+        background: rgba(230, 57, 70, .15);
+        color: #ff6b7a;
+        border-color: rgba(230, 57, 70, .35)
+    }
+
+    .gba-btn-fight:hover {
+        background: rgba(230, 57, 70, .3)
+    }
+
+    .gba-btn-bag {
+        background: rgba(248, 208, 48, .08);
+        color: rgba(248, 208, 48, .5);
+        border-color: rgba(248, 208, 48, .15)
+    }
+
+    .gba-btn-pokemon {
+        background: rgba(67, 97, 238, .12);
+        color: #7da5ff;
+        border-color: rgba(67, 97, 238, .3)
+    }
+
+    .gba-btn-pokemon:hover {
+        background: rgba(67, 97, 238, .25)
+    }
+
+    .gba-btn-run {
+        background: rgba(120, 200, 80, .1);
+        color: #8cd660;
+        border-color: rgba(120, 200, 80, .25)
+    }
+
+    .gba-btn-run:hover {
+        background: rgba(120, 200, 80, .2)
+    }
+
+    /* Moves panel */
+    .gba-moves-panel {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: .5rem;
+        padding: .7rem;
+        align-items: start
+    }
+
+    .gba-moves-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px
+    }
+
+    .gba-move-btn {
+        padding: .55rem .6rem;
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, .1);
+        background: rgba(255, 255, 255, .04);
+        color: #ddd;
+        font-family: inherit;
+        font-size: .8rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: left;
+        transition: all .15s ease;
+        text-transform: capitalize
+    }
+
+    .gba-move-btn:hover {
+        background: rgba(255, 255, 255, .1);
+        transform: scale(1.02)
+    }
+
+    .gba-move-btn:disabled {
+        opacity: .3;
+        cursor: not-allowed
+    }
+
+    .gba-move-info {
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+        align-items: flex-end;
+        font-size: .72rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding-top: .3rem
+    }
+
+    .gba-back-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-family: inherit;
+        font-size: .78rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: .3rem .5rem;
+        transition: color .15s
+    }
+
+    .gba-back-btn:hover {
+        color: #fff
+    }
+
+    /* Switch overlay */
+    .gba-switch-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, .85);
+        backdrop-filter: blur(6px);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .gba-switch-panel {
+        background: rgba(20, 20, 35, .95);
+        border: 2px solid rgba(255, 255, 255, .15);
+        border-radius: 16px;
+        padding: 1.5rem;
+        max-width: 500px;
+        width: 90%
+    }
+
+    .gba-switch-panel h3 {
+        text-align: center;
+        font-size: 1rem;
+        margin: 0 0 1rem;
+        color: #fff
+    }
+
+    .gba-switch-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px
+    }
+
+    .gba-switch-card {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .6rem .8rem;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, .1);
+        background: rgba(255, 255, 255, .04);
+        cursor: pointer;
+        transition: all .15s
+    }
+
+    .gba-switch-card:hover {
+        background: rgba(255, 255, 255, .1);
+        border-color: rgba(255, 255, 255, .25)
+    }
+
+    .gba-switch-card.fainted {
+        opacity: .35;
+        cursor: not-allowed
+    }
+
+    .gba-switch-card.active {
+        border-color: #f8d030;
+        background: rgba(248, 208, 48, .1)
+    }
+
+    .gba-switch-card img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain
+    }
+
+    .gba-switch-info {
+        flex: 1
+    }
+
+    .gba-switch-name {
+        font-size: .8rem;
+        font-weight: 700;
+        text-transform: capitalize;
+        color: #fff
+    }
+
+    .gba-switch-hp {
+        font-size: .68rem;
+        color: var(--text-muted);
+        margin-top: .1rem
+    }
+
+    .gba-switch-hp-bar {
+        height: 4px;
+        background: #333;
+        border-radius: 4px;
+        margin-top: .2rem;
+        overflow: hidden
+    }
+
+    .gba-switch-hp-fill {
+        height: 100%;
+        background: #2dc653;
+        border-radius: 4px
+    }
+
+    /* Result overlay */
+    .gba-result-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, .88);
+        backdrop-filter: blur(8px);
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .gba-result-panel {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(20, 20, 35, .95);
+        border: 2px solid rgba(255, 255, 255, .15);
+        border-radius: 20px;
+        max-width: 420px;
+        width: 90%;
+        animation: fadeInUp .5s ease
+    }
+
+    .gba-result-emoji {
+        font-size: 4rem;
+        display: block;
+        margin-bottom: .8rem
+    }
+
+    .gba-result-title {
+        font-size: 1.8rem;
+        font-weight: 900
+    }
+
+    .gba-result-sub {
+        color: var(--text-secondary);
+        font-size: .9rem;
+        margin-top: .5rem
+    }
+
+    .gba-result-btn {
+        margin-top: 1.5rem;
+        padding: .7rem 2rem;
+        border-radius: 50px;
+        border: none;
+        font-family: inherit;
+        font-size: .9rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all .15s
+    }
+
+    .gba-result-btn-win {
+        background: linear-gradient(135deg, #f4c430, #e63946);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(244, 196, 48, .35)
+    }
+
+    .gba-result-btn-lose {
+        background: linear-gradient(135deg, #555, #333);
+        color: #ddd
+    }
+
+    .gba-result-btn:hover {
+        transform: translateY(-2px)
+    }
+
+    @media(max-width:600px) {
+        .gba-battlefield {
+            aspect-ratio: 4/3;
+            min-height: 240px
+        }
+
+        .gba-enemy-sprite-area {
+            width: 100px;
+            height: 100px;
+            top: 8%;
+            right: 5%
+        }
+
+        .gba-player-sprite-area {
+            width: 120px;
+            height: 120px;
+            bottom: 18%;
+            left: 5%
+        }
+
+        .gba-enemy-info {
+            min-width: 140px;
+            padding: .4rem .7rem
+        }
+
+        .gba-player-info {
+            min-width: 155px;
+            padding: .4rem .7rem
+        }
+
+        .gba-poke-name {
+            font-size: .8rem
+        }
+
+        .gba-bottom-panel {
+            grid-template-columns: 1fr;
+            min-height: auto
+        }
+
+        .gba-textbox {
+            border-right: none;
+            border-bottom: 2px solid rgba(255, 255, 255, .08);
+            padding: .7rem .9rem
+        }
+    }
+
+    /* Buttons */
+    .lx-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        border-radius: 50px;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .18s ease;
+        border: 1.5px solid transparent;
+        text-decoration: none;
+        font-size: .88rem;
+        padding: .55rem 1.4rem
+    }
+
+    .lx-btn-primary {
+        background: linear-gradient(135deg, var(--accent-red) 0%, #d90429 100%);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(230, 57, 70, .35)
+    }
+
+    .lx-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 57, 70, .5)
+    }
+
+    .lx-btn-ghost {
+        background: rgba(255, 255, 255, .05);
+        border-color: var(--glass-border);
+        color: var(--text-secondary)
+    }
+
+    .lx-btn-ghost:hover {
+        background: rgba(255, 255, 255, .1);
+        color: var(--text-primary)
+    }
+
+    .lx-btn-sm {
+        font-size: .78rem;
+        padding: .38rem .9rem
+    }
+
+    .lx-btn-fight {
+        background: linear-gradient(135deg, #f4c430 0%, #e63946 100%);
+        color: #fff;
+        font-size: .95rem;
+        padding: .8rem 2.2rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 800;
+        font-family: inherit;
+        cursor: pointer;
+        box-shadow: 0 6px 24px rgba(230, 57, 70, .4);
+        transition: all .18s ease
+    }
+
+    .lx-btn-fight:hover:not(:disabled) {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 32px rgba(230, 57, 70, .55)
+    }
+
+    .lx-btn-fight:disabled {
+        opacity: .5;
+        cursor: not-allowed
+    }
+
+    /* Hall of Fame */
+    .lx-hof-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, .9);
+        backdrop-filter: blur(10px)
+    }
+
+    .lx-confetti-canvas {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        width: 100%;
+        height: 100%
+    }
+
+    .lx-hof-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        max-width: 600px;
+        padding: 2rem 1.5rem;
+        background: rgba(255, 255, 255, .04);
+        border: 1px solid rgba(244, 196, 48, .25);
+        border-radius: 28px;
+        box-shadow: 0 0 80px rgba(244, 196, 48, .15);
+        max-height: 90vh;
+        overflow-y: auto
+    }
+
+    .lx-hof-trophy {
+        font-size: 5rem;
+        display: block;
+        animation: trophyFloat 3s ease-in-out infinite;
+        margin-bottom: .8rem
+    }
+
+    .lx-hof-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #f4c430, #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text
+    }
+
+    .lx-hof-sub {
+        color: var(--text-secondary);
+        font-size: .9rem;
+        margin-top: .5rem
+    }
+
+    .lx-hof-team {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        justify-content: center;
+        margin-top: 1.5rem
+    }
+
+    .lx-hof-poke {
+        background: rgba(255, 255, 255, .06);
+        border: 1px solid rgba(244, 196, 48, .2);
+        border-radius: 12px;
+        padding: .5rem .7rem;
+        text-align: center
+    }
+
+    .lx-hof-poke img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain
+    }
+
+    .lx-hof-poke div {
+        font-size: .68rem;
+        text-transform: capitalize;
+        color: var(--text-secondary);
+        margin-top: .2rem
+    }
+
+    .lx-hof-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+        justify-content: center;
+        margin-top: 1.2rem
+    }
+
+    /* ── MVP Result Panel ── */
+    .lx-mvp-result {
+        margin: .75rem 1.5rem 1rem;
+        background: rgba(244, 196, 48, .07);
+        border: 1.5px solid rgba(244, 196, 48, .3);
+        border-radius: 14px;
+        padding: .9rem 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: .88rem;
+        animation: fadeInUp .4s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px)
+        }
+
+        to {
+            opacity: 1;
+            transform: none
+        }
+    }
+
+    .lx-mvp-sprite {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 12px rgba(244, 196, 48, .5))
+    }
+
+    .lx-mvp-info {
+        flex: 1
+    }
+
+    .lx-mvp-info strong {
+        color: var(--accent-yellow);
+        text-transform: capitalize;
+        font-size: 1rem
+    }
+
+    .lx-mvp-info div {
+        color: var(--text-secondary);
+        font-size: .8rem;
+        margin-top: .2rem
+    }
+
+    /* ── Analysis Row ── */
+    .lx-analysis-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 1.5rem
+    }
+
+    @media(max-width:700px) {
+        .lx-analysis-row {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .lx-hint-txt {
+        color: var(--text-muted);
+        font-size: .82rem;
+        padding: .5rem;
+        text-align: center
+    }
+
+    /* MVP list */
+    .lx-mvp-list {
+        padding: .65rem;
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+        max-height: 300px;
+        overflow-y: auto
+    }
+
+    .lx-mvp-row {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        padding: .5rem .6rem;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .04);
+        transition: background .2s
+    }
+
+    .lx-mvp-row:hover {
+        background: rgba(255, 255, 255, .08)
+    }
+
+    .lx-mvp-row img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        flex-shrink: 0
+    }
+
+    .lx-mvp-row-info {
+        flex: 1;
+        min-width: 0
+    }
+
+    .lx-mvp-name {
+        font-size: .84rem;
+        font-weight: 700;
+        text-transform: capitalize;
+        color: var(--text-primary)
+    }
+
+    .lx-mvp-bar-wrap {
+        height: 5px;
+        background: rgba(255, 255, 255, .07);
+        border-radius: 6px;
+        margin-top: .25rem;
+        overflow: hidden
+    }
+
+    .lx-mvp-bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #f4c430, #2dc653);
+        transition: width .5s ease
+    }
+
+    .lx-mvp-pct {
+        font-size: .68rem;
+        color: var(--text-muted);
+        margin-top: .15rem
+    }
+
+    .lx-mvp-badge {
+        font-size: .75rem;
+        font-weight: 800;
+        flex-shrink: 0
+    }
+
+    /* Type Coverage */
+    .lx-cov-body {
+        padding: .75rem
+    }
+
+    .lx-cov-section {
+        margin-bottom: .9rem
+    }
+
+    .lx-cov-section-title {
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--text-muted);
+        margin-bottom: .4rem
+    }
+
+    .lx-cov-types {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem
+    }
+
+    .lx-type-tag {
+        font-size: .72rem;
+        font-weight: 700;
+        padding: .2rem .65rem;
+        border-radius: 20px;
+        border: 1.5px solid;
+        cursor: default
+    }
+
+    .lx-cov-summary {
+        font-size: .8rem;
+        color: var(--text-secondary);
+        padding: .2rem .1rem;
+        line-height: 1.6
+    }
+</style>
+
+
+<script>
+    // ── Opponent Data ──────────────────────────────────────────────
+    const GYM_LEADERS = [
+        { id: 1, name: "Brock", emoji: "🪨", type: "Roca", badge: "Medalla Roca", pokes: ["geodude", "onix", "golem"], color: "#b8a038" },
+        { id: 2, name: "Misty", emoji: "💧", type: "Agua", badge: "Medalla Cascada", pokes: ["staryu", "starmie", "psyduck", "golduck"], color: "#6890f0" },
+        { id: 3, name: "Lt. Surge", emoji: "⚡", type: "Eléctrico", badge: "Medalla Trueno", pokes: ["voltorb", "pikachu", "raichu"], color: "#f8d030" },
+        { id: 4, name: "Erika", emoji: "🌿", type: "Planta", badge: "Medalla Arcoíris", pokes: ["victreebel", "tangela", "vileplume"], color: "#78c850" },
+        { id: 5, name: "Koga", emoji: "☠️", type: "Veneno", badge: "Medalla Alma", pokes: ["koffing", "muk", "weezing", "venomoth"], color: "#a040a0" },
+        { id: 6, name: "Sabrina", emoji: "🔮", type: "Psíquico", badge: "Medalla Pantano", pokes: ["kadabra", "mr-mime", "venomoth", "alakazam"], color: "#f85888" },
+        { id: 7, name: "Blaine", emoji: "🔥", type: "Fuego", badge: "Medalla Volcán", pokes: ["growlithe", "ponyta", "rapidash", "arcanine"], color: "#f08030" },
+        { id: 8, name: "Giovanni", emoji: "🌍", type: "Tierra", badge: "Medalla Tierra", pokes: ["rhyhorn", "dugtrio", "nidoqueen", "nidoking", "rhydon"], color: "#e0c068" },
+    ];
+    const ELITE_ARRAY = [
+        { id: 9, name: "Lorelei", emoji: "🧊", type: "Hielo/Agua", badge: "Alto Mando I", pokes: ["dewgong", "cloyster", "slowbro", "jynx", "lapras"], color: "#58d8f0", isElite: true },
+        { id: 10, name: "Bruno", emoji: "🥊", type: "Lucha/Roca", badge: "Alto Mando II", pokes: ["onix", "hitmonchan", "hitmonlee", "onix", "machamp"], color: "#c03028", isElite: true },
+        { id: 11, name: "Agatha", emoji: "👻", type: "Fantasma", badge: "Alto Mando III", pokes: ["gengar", "haunter", "arbok", "gengar", "weezing"], color: "#705898", isElite: true },
+        { id: 12, name: "Lance", emoji: "🐉", type: "Dragón", badge: "Alto Mando IV", pokes: ["gyarados", "dragonair", "dragonair", "aerodactyl", "dragonite"], color: "#7038f8", isElite: true },
+        { id: 13, name: "Gary", emoji: "👑", type: "Mixto", badge: "Campeón", pokes: ["pidgeot", "alakazam", "rhydon", "gyarados", "arcanine", "exeggutor"], color: "#f4c430", isElite: true, isChampion: true },
+    ];
+    const ALL_OPPONENTS = [...GYM_LEADERS, ...ELITE_ARRAY];
+    const HP_MAX = 600;
+
+    // ── State ──────────────────────────────────────────────────────
+    pkTeam = JSON.parse(localStorage.getItem('pkTeam') || '[]');
+    window.myTeamData = [];
+    window.currentEnemyData = [];
+
+    let gymProgress = Math.min(parseInt(localStorage.getItem('league_progress') || '0', 10), 8);
+    let eliteProgress = Math.min(parseInt(localStorage.getItem('elite_progress') || '0', 10), 5);
+    let phase = localStorage.getItem('league_phase') || 'gym';
+    let teamHP = Math.max(0, Math.min(HP_MAX, parseInt(localStorage.getItem('league_hp') || HP_MAX, 10)));
+    let badges = JSON.parse(localStorage.getItem('league_badges') || '[]');
+    let stats = JSON.parse(localStorage.getItem('league_stats') || '{"wins":0,"losses":0,"streak":0,"bestStreak":0,"championCount":0}');
+    let battlePending = null; // {won, opponentId}
+    let currentOpponentIdx = 0;
+
+    // ── Boot ───────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (pkTeam.length === 0) { document.getElementById('league-empty-state').style.display = 'block'; return; }
+        document.getElementById('league-active-state').style.display = 'block';
+        await loadMyTeam();
+        renderMedalGallery();
+        renderStats();
+        renderDashboard();
+        renderCoverage();
+        renderMVPList();
+    });
+
+    // ── Load Team ──────────────────────────────────────────────────
+    async function loadMyTeam() {
+        try {
+            window.myTeamData = await Promise.all(pkTeam.map(async pokeObj => {
+                const id = pokeObj.id || pokeObj; // Compatibilidad por si acaso
+                const res = await fetch(`/api/pokemon/${id}`);
+                const data = await res.json();
+                data.savedMoves = pokeObj.moves || [];
+                return data;
+            }));
+            renderMyTeam();
+        } catch (e) { console.error('Error loading team', e); }
+    }
+
+    function renderMyTeam() {
+        const grid = document.getElementById('my-league-team');
+        let html = '';
+        for (let i = 0; i < 6; i++) {
+            const p = window.myTeamData[i];
+            if (p) {
+                const bc = (p.types[0] && p.types[0].color) ? p.types[0].color + '40' : 'rgba(255,255,255,.15)';
+                html += `<div class="league-team-member" style="border-color:${bc}">
+        <img src="${p.sprite_url}" alt="${p.name}">
+        <div class="mt-name">${cap(p.name)}</div></div>`;
+            } else {
+                html += `<div class="league-team-member" style="opacity:.2;border-style:dashed">
+        <img src="" style="width:58px;height:58px"><div class="mt-name">—</div></div>`;
+            }
+        }
+        grid.innerHTML = html;
+        document.getElementById('bst-val').textContent = teamBST(window.myTeamData).toLocaleString();
+        updateHPDisplay();
+    }
+
+    function updateHPDisplay() {
+        const pct = teamHP / HP_MAX;
+        const fill = document.getElementById('hp-bar-fill');
+        const txt = document.getElementById('hp-text');
+        const arenaVal = document.getElementById('arena-hp-val');
+        if (fill) { fill.style.width = (pct * 100) + '%'; fill.style.background = pct > .6 ? '#2dc653' : pct > .3 ? '#f4c430' : '#e63946'; }
+        if (txt) txt.textContent = teamHP + ' / ' + HP_MAX;
+        if (arenaVal) { arenaVal.textContent = teamHP; arenaVal.parentElement.style.color = pct > .6 ? '#2dc653' : pct > .3 ? '#f4c430' : '#e63946'; }
+    }
+
+    // ── Medal Gallery ──────────────────────────────────────────────
+    function renderMedalGallery() {
+        const el = document.getElementById('medal-gallery');
+        el.innerHTML = ALL_OPPONENTS.map(o => {
+            const earned = badges.includes(o.id);
+            return `<div class="lx-medal ${earned ? 'earned' : 'locked'}" style="color:${o.color};border-color:${o.color}${earned ? '' : '33'};background:${o.color}${earned ? '18' : '08'}">
+      ${o.emoji} ${o.badge}</div>`;
+        }).join('');
+        el.style.display = 'flex';
+    }
+
+    // ── Stats ──────────────────────────────────────────────────────
+    function renderStats() {
+        const bar = document.getElementById('lx-stats-bar');
+        bar.innerHTML = [
+            ['🏆', stats.wins, 'Victorias'],
+            ['💀', stats.losses, 'Derrotas'],
+            ['🔥', stats.streak, 'Racha'],
+            ['⭐', stats.bestStreak, 'Mejor Racha'],
+            ['👑', stats.championCount, 'Campeón'],
+        ].map(([ico, val, lbl]) => `<div class="lx-stat-chip"><span class="lx-stat-chip-val">${ico} ${val}</span><span class="lx-stat-chip-lbl">${lbl}</span></div>`).join('');
+    }
+
+    // ── Dashboard ──────────────────────────────────────────────────
+    function renderDashboard() {
+        const isElitePhase = phase === 'elite';
+        const progress = isElitePhase ? eliteProgress : gymProgress;
+        const opponents = isElitePhase ? ELITE_ARRAY : GYM_LEADERS;
+        const total = opponents.length;
+
+        document.getElementById('panel-phase-label').textContent = isElitePhase ? 'Alto el Alto Mando' : 'Desafío de Líderes';
+        document.getElementById('progress-pill').textContent = `${Math.min(progress, total)}/${total}`;
+
+        const list = document.getElementById('gym-leaders-list');
+
+        if (!isElitePhase && gymProgress >= 8) {
+            // Transition to Elite
+            list.innerHTML = `<div class="lx-champion-state">
+      <span class="lx-champion-trophy">⚡</span>
+      <h3>¡Líderes Derrotados!</h3>
+      <p style="color:var(--text-muted);margin-top:.8rem">Ahora debes enfrentar al Alto el Alto Mando.</p>
+      <button class="lx-btn lx-btn-primary" onclick="startElitePhase()" style="margin-top:1.5rem">Ir al Alto Mando →</button>
+    </div>`;
+            return;
+        }
+
+        if (isElitePhase && eliteProgress >= 5) {
+            // Finished everything
+            list.innerHTML = `<div class="lx-champion-state">
+      <span class="lx-champion-trophy">👑</span>
+      <h3>¡CAMPEÓN POKÉMON!</h3>
+      <p style="color:var(--text-muted);margin-top:.8rem">Has derrotado a todos. Eres una leyenda.</p>
+      <button class="lx-btn lx-btn-primary" onclick="showHallOfFame()" style="margin-top:1rem">🏆 Hall of Fame</button>
+      <button class="lx-btn lx-btn-ghost" onclick="fullReset()" style="margin-top:.5rem">🔄 Reiniciar Liga</button>
+    </div>`;
+            return;
+        }
+
+        list.innerHTML = opponents.map((o, idx) => {
+            const beaten = idx < progress;
+            const current = idx === progress;
+            const locked = idx > progress;
+            let sc = beaten ? 'leader-beaten' : current ? 'leader-current' : 'leader-locked';
+            if (isElitePhase) sc += ' leader-elite';
+            let badgeCls = beaten ? 'badge-beaten' : current ? (isElitePhase ? 'badge-elite-next' : 'badge-next') : 'badge-locked';
+            let badgeTxt = beaten ? `✅ ${o.badge}` : current ? (isElitePhase ? `⚡ Siguiente` : `⚡ Siguiente desafío`) : `🔒 Bloqueado`;
+            let btn = current ? `<button class="btn-challenge" style="--leader-color:${o.color}" onclick="prepareBattle(${idx})">Desafiar ⚔️</button>` : '';
+            return `<div class="gym-leader-card ${sc}" style="--leader-color:${o.color}">
+      <div class="gl-avatar">${o.emoji}</div>
+      <div class="gl-info">
+        <div class="gl-name">${o.name}</div>
+        <div class="gl-type" style="color:${o.color}">${o.type}</div>
+        <div class="gl-badge ${badgeCls}">${badgeTxt}</div>
+      </div>${btn}</div>`;
+        }).join('');
+    }
+
+    function startElitePhase() {
+        phase = 'elite'; eliteProgress = 0;
+        localStorage.setItem('league_phase', 'elite');
+        localStorage.setItem('elite_progress', '0');
+        renderDashboard();
+    }
+
+    // ── TYPE EFFECTIVENESS TABLE ────────────────────────────────────
+    const TYPE_EFF = {
+        normal: { rock: .5, ghost: 0, steel: .5 }, fire: { fire: .5, water: .5, grass: 2, ice: 2, bug: 2, rock: .5, dragon: .5, steel: 2 },
+        water: { fire: 2, water: .5, grass: .5, ground: 2, rock: 2, dragon: .5 }, electric: { water: 2, electric: .5, grass: .5, ground: 0, flying: 2, dragon: .5 },
+        grass: { fire: .5, water: 2, grass: .5, poison: .5, ground: 2, flying: .5, bug: .5, rock: 2, dragon: .5, steel: .5 },
+        ice: { fire: .5, water: .5, grass: 2, ice: .5, ground: 2, flying: 2, dragon: 2, steel: .5 },
+        fighting: { normal: 2, ice: 2, poison: .5, flying: .5, psychic: .5, bug: .5, rock: 2, ghost: 0, dark: 2, steel: 2, fairy: .5 },
+        poison: { grass: 2, poison: .5, ground: .5, rock: .5, ghost: .5, steel: 0, fairy: 2 },
+        ground: { fire: 2, electric: 2, grass: .5, poison: 2, flying: 0, bug: .5, rock: 2, steel: 2 },
+        flying: { electric: .5, grass: 2, fighting: 2, bug: 2, rock: .5, steel: .5 },
+        psychic: { fighting: 2, poison: 2, psychic: .5, dark: 0, steel: .5 },
+        bug: { fire: .5, grass: 2, fighting: .5, poison: .5, flying: .5, psychic: 2, ghost: .5, dark: 2, steel: .5, fairy: .5 },
+        rock: { fire: 2, ice: 2, fighting: .5, ground: .5, flying: 2, bug: 2, steel: .5 },
+        ghost: { normal: 0, psychic: 2, ghost: 2, dark: .5 }, dragon: { dragon: 2, steel: .5, fairy: 0 },
+        dark: { fighting: .5, psychic: 2, ghost: 2, dark: .5, fairy: .5 }, steel: { fire: .5, water: .5, electric: .5, ice: 2, rock: 2, steel: .5, fairy: 2 },
+        fairy: { fire: .5, fighting: 2, poison: .5, dragon: 2, dark: 2, steel: .5 }
+    };
+    function getTypeEff(atkType, defTypes) {
+        let mult = 1;
+        for (const dt of defTypes) {
+            const chart = TYPE_EFF[atkType];
+            if (chart && chart[dt] !== undefined) mult *= chart[dt];
+        }
+        return mult;
+    }
+
+    // ── BATTLE STATE ──────────────────────────────────────────────────
+    let battle = null; // { playerTeam, enemyTeam, playerActive, enemyActive, phase, won }
+
+    function calcMaxHP(pokemon) {
+        const hpStat = pokemon.stats.find(s => s.name === 'HP');
+        const base = hpStat ? hpStat.value : 50;
+        const level = 50;
+        return Math.floor(((2 * base + 15) * level) / 100) + level + 10;
+    }
+
+    function getStat(pokemon, statName) {
+        const s = pokemon.stats.find(st => st.name === statName);
+        const base = s ? s.value : 50;
+        const level = 50;
+        return Math.floor(((2 * base + 15) * level) / 100) + 5;
+    }
+
+    function calcDamage(attacker, defender, move) {
+        const level = 50;
+        const power = move.power || 40;
+        const isPhysical = move.damage_class === 'physical';
+        const atk = getStat(attacker, isPhysical ? 'Attack' : 'Sp. Atk');
+        const def = getStat(defender, isPhysical ? 'Defense' : 'Sp. Def');
+        const atkTypes = attacker.types.map(t => t.name);
+        const defTypes = defender.types.map(t => t.name);
+
+        // STAB
+        const stab = atkTypes.includes(move.type) ? 1.5 : 1;
+        // Type effectiveness
+        const eff = getTypeEff(move.type, defTypes);
+        // Random 85-100%
+        const rand = (Math.random() * 0.15 + 0.85);
+
+        const baseDmg = ((2 * level / 5 + 2) * power * (atk / def)) / 50 + 2;
+        return { damage: Math.max(1, Math.floor(baseDmg * stab * eff * rand)), effectiveness: eff };
+    }
+
+    function hpBarColor(pct) {
+        if (pct > 0.5) return 'linear-gradient(90deg, #2dc653, #5eff82)';
+        if (pct > 0.25) return 'linear-gradient(90deg, #f8d030, #ffeb3b)';
+        return 'linear-gradient(90deg, #e63946, #ff6b7a)';
+    }
+
+    // ── PREPARE BATTLE (new) ──────────────────────────────────────────
+    async function prepareBattle(idx) {
+        currentOpponentIdx = idx;
+        const opponents = phase === 'elite' ? ELITE_ARRAY : GYM_LEADERS;
+        const opp = opponents[idx];
+
+        document.getElementById('league-dashboard').style.display = 'none';
+        document.getElementById('league-battle-arena').style.display = 'block';
+        document.getElementById('battle-headline').textContent = `vs. ${opp.name}`;
+
+        // Dynamic background
+        const arena = document.querySelector('.gba-battlefield');
+        arena.className = 'gba-battlefield'; // Reset classes
+        const cleanName = opp.name.toLowerCase().replace(/[^a-z]/g, '');
+        arena.classList.add('bg-' + cleanName);
+
+        // Temporary loading state, hide menus and clear previous animations
+        document.getElementById('gba-action-menu').style.display = 'none';
+        document.getElementById('gba-moves-panel').style.display = 'none';
+        document.getElementById('gba-player-sprite').className = 'gba-sprite gba-sprite-player';
+        document.getElementById('gba-enemy-sprite').className = 'gba-sprite gba-sprite-enemy';
+        narrate(`Cargando aponente ${opp.name}...`);
+
+        // Load enemy data
+        try {
+            window.currentEnemyData = await Promise.all(
+                opp.pokes.map(n => fetch(`/api/pokemon/${n}`).then(r => r.json()))
+            );
+        } catch (e) {
+            narrate('Error cargando rival...');
+            return;
+        }
+
+        // Load moves for all Pokémon
+        const loadMoves = async (pokemon) => {
+            if (pokemon.battleMoves && pokemon.battleMoves.length > 0) {
+                // Just reset PP if they already exist
+                pokemon.battleMoves.forEach(m => m.currentPP = m.pp);
+                return;
+            }
+            try {
+                let data = null;
+                // Si el Pokémon tiene ataques guardados (equipo del jugador), cargarlos primero
+                if (pokemon.savedMoves && pokemon.savedMoves.length > 0) {
+                    const movesStr = pokemon.savedMoves.join(',');
+                    const res = await fetch(`/api/custom-moves?moves=${movesStr}`);
+                    data = await res.json();
+                } else {
+                    // Si no tiene guardados (o es enemigo), usar aleatorios/por defecto
+                    const res = await fetch(`/api/pokemon/${pokemon.name}/moves`);
+                    data = await res.json();
+                }
+
+                // Asignar currentPP
+                let finalMoves = data.moves || [];
+
+                // Fallback por si `/api/custom-moves` devuelve vacío o algo falla
+                if (finalMoves.length === 0) {
+                    const fallbackRes = await fetch(`/api/pokemon/${pokemon.name}/moves`);
+                    const fallbackData = await fallbackRes.json();
+                    finalMoves = fallbackData.moves || [];
+                }
+
+                pokemon.battleMoves = finalMoves.map(m => ({ ...m, currentPP: m.pp }));
+
+            } catch (e) {
+                console.error("Error cargando ataques", e);
+                pokemon.battleMoves = [{ name: 'Placaje', power: 40, accuracy: 100, pp: 35, currentPP: 35, type: 'normal', type_color: '#A8A77A', damage_class: 'physical' }];
+            }
+        };
+        await Promise.all([
+            ...window.myTeamData.map(loadMoves),
+            ...window.currentEnemyData.map(loadMoves)
+        ]);
+
+        // Init battle state
+        const initTeam = (team) => team.map(p => ({
+            ...p,
+            maxHP: calcMaxHP(p),
+            currentHP: calcMaxHP(p),
+            fainted: false
+        }));
+
+        battle = {
+            playerTeam: initTeam(window.myTeamData),
+            enemyTeam: initTeam(window.currentEnemyData),
+            playerActive: 0,
+            enemyActive: 0,
+            phase: 'action', // action | animating | result
+            won: null
+        };
+
+        // Render initial state
+        renderBattleScene();
+        showActionMenu();
+        narrate(`¡${opp.name} quiere luchar!`);
+        await sleep(800);
+        narrate(`¿Qué debería hacer ${cap(battle.playerTeam[0].name)}?`);
+    }
+
+    // ── RENDER BATTLE SCENE ───────────────────────────────────────────
+    function renderBattleScene() {
+        const p = battle.playerTeam[battle.playerActive];
+        const e = battle.enemyTeam[battle.enemyActive];
+
+        // Sprites
+        document.getElementById('gba-player-sprite').src = p.sprite_url;
+        document.getElementById('gba-enemy-sprite').src = e.sprite_url;
+
+        // Names & levels
+        document.getElementById('gba-player-name').textContent = cap(p.name);
+        document.getElementById('gba-enemy-name').textContent = cap(e.name);
+        document.getElementById('gba-player-lv').textContent = 'Nv50';
+        document.getElementById('gba-enemy-lv').textContent = 'Nv50';
+
+        // HP bars
+        updateBattleHP();
+
+
+
+        // Pokeball indicators
+        renderPokeballs();
+
+        // Team count
+        const alive = battle.playerTeam.filter(t => !t.fainted).length;
+        document.getElementById('gba-team-count').textContent = `${alive}/${battle.playerTeam.length}`;
+    }
+
+    function updateBattleHP() {
+        const p = battle.playerTeam[battle.playerActive];
+        const e = battle.enemyTeam[battle.enemyActive];
+
+        const pPct = Math.max(0, p.currentHP / p.maxHP);
+        const ePct = Math.max(0, e.currentHP / e.maxHP);
+
+        const pFill = document.getElementById('gba-player-hp-fill');
+        const eFill = document.getElementById('gba-enemy-hp-fill');
+
+        pFill.style.width = (pPct * 100) + '%';
+        pFill.style.background = hpBarColor(pPct);
+        eFill.style.width = (ePct * 100) + '%';
+        eFill.style.background = hpBarColor(ePct);
+
+        document.getElementById('gba-player-hp-text').textContent = `${Math.max(0, p.currentHP)}/${p.maxHP}`;
+    }
+
+    function renderPokeballs() {
+        document.getElementById('gba-player-pokeballs').innerHTML = battle.playerTeam.map(p =>
+            `<span class="gba-pball ${p.fainted ? 'gba-pball-fainted' : 'gba-pball-alive'}"></span>`
+        ).join('');
+        document.getElementById('gba-enemy-pokeballs').innerHTML = battle.enemyTeam.map(p =>
+            `<span class="gba-pball ${p.fainted ? 'gba-pball-fainted' : 'gba-pball-alive'}"></span>`
+        ).join('');
+    }
+
+    // ── NARRATION ─────────────────────────────────────────────────────
+    function narrate(text) {
+        document.getElementById('gba-narration').innerHTML = text;
+    }
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // ── MENU FUNCTIONS ────────────────────────────────────────────────
+    function showActionMenu() {
+        document.getElementById('gba-action-menu').style.display = 'grid';
+        document.getElementById('gba-moves-panel').style.display = 'none';
+        document.getElementById('gba-textbox').style.display = 'flex';
+        battle.phase = 'action';
+    }
+
+    function showMovesMenu() {
+        const p = battle.playerTeam[battle.playerActive];
+        const moves = p.battleMoves || [];
+        const grid = document.getElementById('gba-moves-grid');
+
+        grid.innerHTML = moves.map((m, i) => {
+            const disabled = m.currentPP <= 0 || m.power === 0;
+            return `<button class="gba-move-btn"
+                style="border-color:${m.type_color}44; color:${m.type_color}"
+                ${disabled ? 'disabled' : ''}
+                onmouseover="showMoveInfo(${i})"
+                onclick="selectMove(${i})">${m.name}</button>`;
+        }).join('');
+
+        // Fill empty slots
+        for (let i = moves.length; i < 4; i++) {
+            grid.innerHTML += `<button class="gba-move-btn" disabled>---</button>`;
+        }
+
+        if (moves.length > 0) showMoveInfo(0);
+
+        document.getElementById('gba-action-menu').style.display = 'none';
+        document.getElementById('gba-textbox').style.display = 'none';
+        document.getElementById('gba-moves-panel').style.display = 'grid';
+    }
+
+    function hideMovesMenu() { showActionMenu(); }
+
+    function showMoveInfo(idx) {
+        const p = battle.playerTeam[battle.playerActive];
+        const m = p.battleMoves[idx];
+        if (!m) return;
+
+        let powerDisp = m.power > 0 ? m.power : '--';
+
+        document.getElementById('gba-move-pp').textContent = `PP ${m.currentPP}/${m.pp}`;
+        document.getElementById('gba-move-type').innerHTML = `
+            <div>${m.type.toUpperCase()}</div>
+            <div style="font-size:0.65rem; color:var(--text-muted); font-weight:normal; margin-top:2px;">
+                Pod: ${powerDisp}
+            </div>
+        `;
+        document.getElementById('gba-move-type').style.color = m.type_color;
+    }
+
+    function showSwitchMenu() {
+        const grid = document.getElementById('gba-switch-grid');
+        grid.innerHTML = battle.playerTeam.map((p, i) => {
+            const isCurrent = i === battle.playerActive;
+            const pct = p.maxHP > 0 ? p.currentHP / p.maxHP : 0;
+            const hpColor = hpBarColor(pct);
+            const cls = p.fainted ? 'fainted' : (isCurrent ? 'active' : '');
+            return `<div class="gba-switch-card ${cls}" onclick="${!p.fainted && !isCurrent ? `switchPokemon(${i})` : ''}">
+                <img src="${p.sprite_url || p.sprite_small}" alt="${p.name}">
+                <div class="gba-switch-info">
+                    <div class="gba-switch-name">${cap(p.name)}</div>
+                    <div class="gba-switch-hp">${Math.max(0, p.currentHP)}/${p.maxHP} HP</div>
+                    <div class="gba-switch-hp-bar"><div class="gba-switch-hp-fill" style="width:${pct * 100}%;background:${hpColor}"></div></div>
+                </div>
+            </div>`;
+        }).join('');
+        document.getElementById('gba-switch-overlay').style.display = 'flex';
+    }
+
+    function hideSwitchMenu() {
+        document.getElementById('gba-switch-overlay').style.display = 'none';
+    }
+
+    // ── PLAYER ACTIONS ────────────────────────────────────────────────
+    async function selectMove(idx) {
+        if (battle.phase !== 'action') return;
+        battle.phase = 'animating';
+
+        // Hide menus immediately so user can't click during animation
+        document.getElementById('gba-moves-panel').style.display = 'none';
+        document.getElementById('gba-action-menu').style.display = 'none';
+        document.getElementById('gba-textbox').style.display = 'flex';
+
+        try {
+            const playerMove = battle.playerTeam[battle.playerActive].battleMoves[idx];
+            playerMove.currentPP = Math.max(0, playerMove.currentPP - 1);
+
+            // Enemy picks a move (AI: pick random usable move)
+            const enemy = battle.enemyTeam[battle.enemyActive];
+            const usable = (enemy.battleMoves || []).filter(m => m.currentPP > 0 && m.power > 0);
+            const enemyMove = usable.length > 0
+                ? usable[Math.floor(Math.random() * usable.length)]
+                : { name: 'Forcejeo', power: 50, accuracy: 100, pp: 99, currentPP: 99, type: 'normal', type_color: '#A8A77A', damage_class: 'physical' };
+            if (enemyMove.currentPP > 0) enemyMove.currentPP--;
+
+            // Determine turn order by Speed
+            const pSpeed = getStat(battle.playerTeam[battle.playerActive], 'Speed');
+            const eSpeed = getStat(enemy, 'Speed');
+            const playerFirst = pSpeed >= eSpeed;
+
+            if (playerFirst) {
+                await executeTurn(battle.playerActive, battle.enemyActive, playerMove, 'player');
+                if (!battle.enemyTeam[battle.enemyActive].fainted) {
+                    await executeTurn(battle.enemyActive, battle.playerActive, enemyMove, 'enemy');
+                }
+            } else {
+                await executeTurn(battle.enemyActive, battle.playerActive, enemyMove, 'enemy');
+                if (!battle.playerTeam[battle.playerActive].fainted) {
+                    await executeTurn(battle.playerActive, battle.enemyActive, playerMove, 'player');
+                }
+            }
+
+            // Check faints
+            await checkFaints();
+        } catch (err) {
+            console.error('Battle error:', err);
+            // Always recover the action menu on error
+            battle.phase = 'action';
+            showActionMenu();
+            narrate(`¿Qué debería hacer ${cap(battle.playerTeam[battle.playerActive].name)}?`);
+        }
+    }
+
+    async function switchPokemon(idx) {
+        hideSwitchMenu();
+        if (battle.phase === 'result') return;
+        const old = battle.playerTeam[battle.playerActive];
+        battle.playerActive = idx;
+        const p = battle.playerTeam[idx];
+
+        narrate(`¡${cap(old.name)}, vuelve!`);
+        document.getElementById('gba-player-sprite').classList.add('gba-anim-faint');
+        await sleep(500);
+        document.getElementById('gba-player-sprite').classList.remove('gba-anim-faint');
+
+        renderBattleScene();
+        document.getElementById('gba-player-sprite').classList.add('gba-anim-enter');
+        narrate(`¡Adelante, ${cap(p.name)}!`);
+        await sleep(600);
+        document.getElementById('gba-player-sprite').classList.remove('gba-anim-enter');
+
+        // Enemy gets a free turn
+        if (battle.phase !== 'result') {
+            const enemy = battle.enemyTeam[battle.enemyActive];
+            const usable = (enemy.battleMoves || []).filter(m => m.currentPP > 0 && m.power > 0);
+            const enemyMove = usable.length > 0
+                ? usable[Math.floor(Math.random() * usable.length)]
+                : { name: 'Forcejeo', power: 50, accuracy: 100, pp: 99, currentPP: 99, type: 'normal', type_color: '#A8A77A', damage_class: 'physical' };
+            if (enemyMove.currentPP > 0) enemyMove.currentPP--;
+            await executeTurn(battle.enemyActive, battle.playerActive, enemyMove, 'enemy');
+            await checkFaints();
+        }
+    }
+
+    function attemptRun() {
+        if (battle.phase !== 'action') return;
+        narrate('¡No puedes huir de un combate de Liga!');
+        setTimeout(() => {
+            narrate(`¿Qué debería hacer ${cap(battle.playerTeam[battle.playerActive].name)}?`);
+        }, 1500);
+    }
+
+    // ── EXECUTE TURN ──────────────────────────────────────────────────
+    async function executeTurn(attackerIdx, defenderIdx, move, side) {
+        const isPlayer = side === 'player';
+        const attacker = isPlayer ? battle.playerTeam[attackerIdx] : battle.enemyTeam[attackerIdx];
+        const defender = isPlayer ? battle.enemyTeam[defenderIdx] : battle.playerTeam[defenderIdx];
+
+        narrate(`¡${cap(attacker.name)} usó ${move.name}!`);
+
+        // Attack animation
+        const spriteEl = isPlayer ? document.getElementById('gba-player-sprite') : document.getElementById('gba-enemy-sprite');
+        const targetEl = isPlayer ? document.getElementById('gba-enemy-sprite') : document.getElementById('gba-player-sprite');
+        spriteEl.classList.add(isPlayer ? 'gba-anim-attack' : 'gba-anim-attack-left');
+        await sleep(400);
+        spriteEl.classList.remove('gba-anim-attack', 'gba-anim-attack-left');
+
+        // Accuracy check
+        const accRoll = Math.random() * 100;
+        if (accRoll > (move.accuracy || 100)) {
+            narrate(`¡${cap(attacker.name)} falló el ataque!`);
+            await sleep(800);
+            return;
+        }
+
+        // Damage calc
+        const { damage, effectiveness } = move.power > 0
+            ? calcDamage(attacker, defender, move)
+            : { damage: 0, effectiveness: 1 };
+
+        if (damage > 0) {
+            defender.currentHP = Math.max(0, defender.currentHP - damage);
+
+            // Hit animation
+            targetEl.classList.add('gba-anim-hit');
+            await sleep(300);
+            updateBattleHP();
+            await sleep(300);
+            targetEl.classList.remove('gba-anim-hit');
+
+            // Effectiveness message
+            if (effectiveness > 1) {
+                narrate('¡Es súper efectivo!');
+                await sleep(700);
+            } else if (effectiveness < 1 && effectiveness > 0) {
+                narrate('No es muy efectivo...');
+                await sleep(700);
+            } else if (effectiveness === 0) {
+                narrate('No afecta al Pokémon rival...');
+                await sleep(700);
+            }
+        } else {
+            narrate(`${move.name} no causa daño.`);
+            await sleep(600);
+        }
+
+        // Track MVP
+        if (isPlayer && damage > 0) {
+            if (!mvpData[attacker.name]) mvpData[attacker.name] = { wins: 0, losses: 0, sprite: attacker.sprite_url };
+        }
+
+        // Check KO
+        if (defender.currentHP <= 0) {
+            defender.fainted = true;
+            const faintSprite = isPlayer ? document.getElementById('gba-enemy-sprite') : document.getElementById('gba-player-sprite');
+            faintSprite.classList.add('gba-anim-faint');
+            narrate(`¡${cap(defender.name)} se debilitó!`);
+
+            // Track wins/losses
+            if (isPlayer) {
+                if (!mvpData[attacker.name]) mvpData[attacker.name] = { wins: 0, losses: 0, sprite: attacker.sprite_url };
+                mvpData[attacker.name].wins++;
+            } else {
+                if (!mvpData[defender.name]) mvpData[defender.name] = { wins: 0, losses: 0, sprite: defender.sprite_url };
+                mvpData[defender.name].losses++;
+            }
+
+            await sleep(800);
+            faintSprite.classList.remove('gba-anim-faint');
+            renderPokeballs();
+        }
+    }
+
+    // ── CHECK FAINTS ──────────────────────────────────────────────────
+    async function checkFaints() {
+        try {
+            const enemyAlive = battle.enemyTeam.filter(p => !p.fainted);
+            const playerAlive = battle.playerTeam.filter(p => !p.fainted);
+
+            // Enemy fainted — send next or win
+            if (battle.enemyTeam[battle.enemyActive].fainted) {
+                if (enemyAlive.length === 0) {
+                    await endBattle(true);
+                    return;
+                }
+                // Send next enemy
+                const nextIdx = battle.enemyTeam.findIndex(p => !p.fainted);
+                battle.enemyActive = nextIdx;
+                const next = battle.enemyTeam[nextIdx];
+                narrate(`¡El rival envía a ${cap(next.name)}!`);
+                renderBattleScene();
+                document.getElementById('gba-enemy-sprite').classList.add('gba-anim-enter');
+                await sleep(600);
+                document.getElementById('gba-enemy-sprite').classList.remove('gba-anim-enter');
+            }
+
+            // Player fainted — send next or lose
+            if (battle.playerTeam[battle.playerActive].fainted) {
+                if (playerAlive.length === 0) {
+                    await endBattle(false);
+                    return;
+                }
+                // Force switch
+                narrate('¡Elige tu siguiente Pokémon!');
+                await sleep(500);
+                showSwitchMenu();
+                return;
+            }
+        } catch (err) {
+            console.error('checkFaints error:', err);
+        }
+
+        // ALWAYS show the action menu (even after catch)
+        narrate(`¿Qué debería hacer ${cap(battle.playerTeam[battle.playerActive].name)}?`);
+        showActionMenu();
+    }
+
+    // ── END BATTLE ────────────────────────────────────────────────────
+    async function endBattle(won) {
+        battle.phase = 'result';
+        battle.won = won;
+        battlePending = { won, oppIdx: currentOpponentIdx };
+
+        // Save battle to history
+        const opponents = phase === 'elite' ? ELITE_ARRAY : GYM_LEADERS;
+        const histEntry = { oppId: opponents[currentOpponentIdx].id, won, ts: Date.now() };
+        const hist = JSON.parse(localStorage.getItem('league_history') || '[]');
+        hist.push(histEntry);
+        if (hist.length > 100) hist.splice(0, hist.length - 100);
+        localStorage.setItem('league_history', JSON.stringify(hist));
+
+        // Update stats
+        if (won) {
+            stats.wins++; stats.streak++;
+            stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+        } else {
+            stats.losses++; stats.streak = 0;
+        }
+        saveStats();
+        saveMVP();
+
+        // Update global HP
+        const totalHPLost = battle.playerTeam.reduce((sum, p) => sum + (p.maxHP - Math.max(0, p.currentHP)), 0);
+        const hpDrain = Math.min(Math.floor(totalHPLost / 3), 200);
+        if (won) {
+            teamHP = Math.min(HP_MAX, teamHP + 50);
+        } else {
+            teamHP = HP_MAX; // reset on loss
+        }
+        localStorage.setItem('league_hp', teamHP);
+
+        await sleep(1000);
+
+        // Show result overlay
+        const panel = document.getElementById('gba-result-panel');
+        panel.innerHTML = `
+            <span class="gba-result-emoji">${won ? '🏆' : '💀'}</span>
+            <div class="gba-result-title" style="color:${won ? '#f4c430' : '#e63946'}">
+                ${won ? '¡VICTORIA!' : 'DERROTA'}
+            </div>
+            <div class="gba-result-sub">
+                ${won ? `¡Has derrotado a ${opponents[currentOpponentIdx].name}!` : 'Tu equipo ha sido derrotado. La Liga se reinicia.'}
+            </div>
+            <button class="gba-result-btn ${won ? 'gba-result-btn-win' : 'gba-result-btn-lose'}" onclick="advanceAfterBattle()">
+                Continuar →
+            </button>
+        `;
+        document.getElementById('gba-result-overlay').style.display = 'flex';
+    }
+
+    // ── Advance After Battle ───────────────────────────────────────
+    function advanceAfterBattle() {
+        document.getElementById('gba-result-overlay').style.display = 'none';
+
+        if (!battlePending) { showDashboard(); return; }
+        const { won, oppIdx } = battlePending;
+        battlePending = null;
+
+        if (won) {
+            const opponents = phase === 'elite' ? ELITE_ARRAY : GYM_LEADERS;
+            const opp = opponents[oppIdx];
+            if (!badges.includes(opp.id)) { badges.push(opp.id); localStorage.setItem('league_badges', JSON.stringify(badges)); }
+
+            if (phase === 'gym') {
+                gymProgress = Math.min(gymProgress + 1, 8);
+                localStorage.setItem('league_progress', gymProgress);
+            } else {
+                eliteProgress = Math.min(eliteProgress + 1, 5);
+                localStorage.setItem('elite_progress', eliteProgress);
+                if (eliteProgress >= 5) { stats.championCount++; saveStats(); }
+            }
+        } else {
+            // Full reset on loss
+            gymProgress = 0; eliteProgress = 0; phase = 'gym';
+            localStorage.setItem('league_progress', '0');
+            localStorage.setItem('elite_progress', '0');
+            localStorage.setItem('league_phase', 'gym');
+            localStorage.setItem('league_hp', HP_MAX);
+            teamHP = HP_MAX;
+        }
+        localStorage.setItem('league_hp', teamHP);
+        renderMedalGallery(); renderStats(); renderMVPList();
+        showDashboard();
+    }
+
+    function showDashboard() {
+        document.getElementById('league-battle-arena').style.display = 'none';
+        document.getElementById('league-dashboard').style.display = 'grid';
+        renderDashboard();
+    }
+
+    // ── Reset ──────────────────────────────────────────────────────
+    function resetLeague() {
+        if (!confirm('¿Abandonar la Liga? Se perderá todo el progreso.')) return;
+        fullReset();
+    }
+    function fullReset() {
+        gymProgress = 0; eliteProgress = 0; phase = 'gym'; teamHP = HP_MAX; badges = [];
+        ['league_progress', 'elite_progress', 'league_phase', 'league_badges'].forEach(k => localStorage.setItem(k, k === 'league_badges' ? '[]' : k === 'league_phase' ? 'gym' : '0'));
+        localStorage.setItem('league_hp', HP_MAX);
+        document.getElementById('hof-overlay').style.display = 'none';
+        document.getElementById('league-battle-arena').style.display = 'none';
+        document.getElementById('league-dashboard').style.display = 'grid';
+        stopConfetti();
+        renderMedalGallery(); renderStats(); renderDashboard(); renderMyTeam();
+    }
+
+    // ── Hall of Fame ───────────────────────────────────────────────
+    function showHallOfFame() {
+        const overlay = document.getElementById('hof-overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('hof-team').innerHTML = window.myTeamData.map(p =>
+            `<div class="lx-hof-poke"><img src="${p.sprite_url}"><div>${cap(p.name)}</div></div>`).join('');
+        document.getElementById('hof-badges').innerHTML = ALL_OPPONENTS.filter(o => badges.includes(o.id)).map(o =>
+            `<div class="lx-medal earned" style="color:${o.color};border-color:${o.color};background:${o.color}18">${o.emoji} ${o.badge}</div>`).join('');
+        startConfetti();
+    }
+    function closeHoF() {
+        document.getElementById('hof-overlay').style.display = 'none';
+        stopConfetti();
+        fullReset();
+    }
+
+    // ── Confetti ───────────────────────────────────────────────────
+    let confettiAnim = null;
+    const confettiColors = ['#f4c430', '#e63946', '#4361ee', '#2dc653', '#f85888', '#7038f8', '#6890f0', '#fff'];
+
+    function startConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const particles = Array.from({ length: 160 }, () => mkParticle(canvas));
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.y += p.vy; p.x += p.vx; p.rot += p.rotV;
+                if (p.y > canvas.height + 20) { particles[i] = mkParticle(canvas, true); return; }
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                if (p.shape === 'rect') ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+                else { ctx.beginPath(); ctx.arc(0, 0, p.s / 2, 0, Math.PI * 2); ctx.fill(); }
+                ctx.restore();
+            });
+            confettiAnim = requestAnimationFrame(draw);
+        }
+        draw();
+    }
+    function mkParticle(canvas, fromTop = false) {
+        return {
+            x: Math.random() * canvas.width, y: fromTop ? -10 : Math.random() * canvas.height,
+            vy: Math.random() * 2 + 1.5, vx: (Math.random() - .5) * 2, rot: Math.random() * Math.PI * 2,
+            rotV: (Math.random() - .5) * .12, s: Math.random() * 9 + 4,
+            color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+            shape: Math.random() < .5 ? 'rect' : 'circle'
+        };
+    }
+    function stopConfetti() {
+        if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
+        const c = document.getElementById('confetti-canvas');
+        if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+    function pokeBST(p) { return p.stats.reduce((a, s) => a + s.value, 0); }
+    function teamBST(team) { return team.reduce((a, p) => a + pokeBST(p), 0); }
+    function saveStats() { localStorage.setItem('league_stats', JSON.stringify(stats)); }
+
+    // ── MVP Data ───────────────────────────────────────────────────
+    // Structure: { [pokemonName]: { wins: N, losses: N, sprite: url } }
+    let mvpData = JSON.parse(localStorage.getItem('league_pokemon_mvp') || '{}');
+
+    function saveMVP() { localStorage.setItem('league_pokemon_mvp', JSON.stringify(mvpData)); }
+
+    function trackRound(winnerPoke, loserPoke) {
+        if (!mvpData[winnerPoke.name]) mvpData[winnerPoke.name] = { wins: 0, losses: 0, sprite: winnerPoke.sprite_url };
+        if (!mvpData[loserPoke.name]) mvpData[loserPoke.name] = { wins: 0, losses: 0, sprite: loserPoke.sprite_url };
+        mvpData[winnerPoke.name].wins++;
+        mvpData[loserPoke.name].losses++;
+        mvpData[winnerPoke.name].sprite = winnerPoke.sprite_url;
+        mvpData[loserPoke.name].sprite = loserPoke.sprite_url;
+    }
+
+    // Post-battle MVP panel (best Pokémon this battle)
+    function renderMVPResult(battleRoundWins) {
+        const panel = document.getElementById('mvp-result-panel');
+        if (!battleRoundWins || Object.keys(battleRoundWins).length === 0) { panel.style.display = 'none'; return; }
+        const mvpName = Object.entries(battleRoundWins).sort((a, b) => b[1] - a[1])[0][0];
+        const mvpWins = battleRoundWins[mvpName];
+        const poke = window.myTeamData.find(p => p.name === mvpName);
+        if (!poke || mvpWins === 0) { panel.style.display = 'none'; return; }
+        panel.style.display = 'flex';
+        panel.innerHTML = `
+            <img class="lx-mvp-sprite" src="${poke.sprite_url}" alt="${cap(poke.name)}">
+            <div class="lx-mvp-info">
+                <strong>⭐ MVP: ${cap(poke.name)}</strong>
+                <div>Ganó ${mvpWins} ronda${mvpWins > 1 ? 's' : ''} en este combate · BST ${pokeBST(poke).toLocaleString()}</div>
+            </div>`;
+    }
+
+    // All-time MVP leaderboard
+    function renderMVPList() {
+        const list = document.getElementById('lx-mvp-list');
+        const entries = Object.entries(mvpData).sort((a, b) => b[1].wins - a[1].wins);
+        if (entries.length === 0) { list.innerHTML = '<p class="lx-hint-txt">Lucha batallas para ver estadísticas</p>'; return; }
+        const maxWins = entries[0][1].wins || 1;
+        list.innerHTML = entries.slice(0, 8).map(([name, data], i) => {
+            const total = data.wins + data.losses;
+            const pct = total > 0 ? Math.round(data.wins / total * 100) : 0;
+            const barPct = Math.round(data.wins / maxWins * 100);
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+            return `<div class="lx-mvp-row">
+                <img src="${data.sprite}" alt="${cap(name)}">
+                <div class="lx-mvp-row-info">
+                    <div class="lx-mvp-name">${cap(name)}</div>
+                    <div class="lx-mvp-bar-wrap"><div class="lx-mvp-bar-fill" style="width:${barPct}%"></div></div>
+                    <div class="lx-mvp-pct">${data.wins}W · ${data.losses}L · ${pct}% win rate</div>
+                </div>
+                ${medal ? `<span class="lx-mvp-badge">${medal}</span>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // Type Coverage Analysis
+    const TYPE_COLORS = {
+        normal: '#a8a878', fire: '#f08030', water: '#6890f0', electric: '#f8d030', grass: '#78c850',
+        ice: '#98d8d8', fighting: '#c03028', poison: '#a040a0', ground: '#e0c068', flying: '#a890f0',
+        psychic: '#f85888', bug: '#a8b820', rock: '#b8a038', ghost: '#705898', dragon: '#7038f8',
+        dark: '#705848', steel: '#b8b8d0', fairy: '#ee99ac',
+        // Spanish aliases from the API
+        fuego: '#f08030', agua: '#6890f0', planta: '#78c850', eléctrico: '#f8d030', hielo: '#98d8d8',
+        lucha: '#c03028', veneno: '#a040a0', tierra: '#e0c068', volador: '#a890f0',
+        psíquico: '#f85888', bicho: '#a8b820', roca: '#b8a038', fantasma: '#705898',
+        dragón: '#7038f8', siniestro: '#705848', acero: '#b8b8d0', hada: '#ee99ac',
+    };
+    function typeColor(t) { return TYPE_COLORS[t.toLowerCase()] || '#888'; }
+
+    function renderCoverage() {
+        const body = document.getElementById('lx-cov-body');
+        if (!window.myTeamData || window.myTeamData.length === 0) {
+            body.innerHTML = '<p class="lx-hint-txt">Cargando equipo…</p>'; return;
+        }
+        // My types
+        const myTypeSet = [...new Set(window.myTeamData.flatMap(p => p.types.map(t => t.name)))];
+        // Types I have advantages against
+        const covTypeSet = [...new Set(window.myTeamData.flatMap(p => p.advantages.map(a => a.name)))];
+        // Types weak against me (from enemy advantages over my types)
+        const myAdvNames = new Set(covTypeSet);
+        const weakToMe = covTypeSet; // types I can hit super effectively
+
+        // Coverage score
+        const covPct = Math.min(100, Math.round(covTypeSet.length / 18 * 100));
+
+        body.innerHTML = `
+            <div class="lx-cov-section">
+                <div class="lx-cov-section-title">Tipos de mi equipo</div>
+                <div class="lx-cov-types">${myTypeSet.map(t => {
+            const c = typeColor(t);
+            return `<span class="lx-type-tag" style="color:${c};border-color:${c}44;background:${c}18">${cap(t)}</span>`;
+        }).join('')}</div>
+            </div>
+            <div class="lx-cov-section">
+                <div class="lx-cov-section-title">Tipos que cubro con ventaja (${covTypeSet.length}/18)</div>
+                <div class="lx-cov-types">${covTypeSet.map(t => {
+            const c = typeColor(t);
+            return `<span class="lx-type-tag" style="color:${c};border-color:${c}66;background:${c}22">${cap(t)}</span>`;
+        }).join('') || '<span class="lx-hint-txt">Ninguno aún</span>'}</div>
+            </div>
+            <div class="lx-cov-summary">
+                📊 Cobertura ofensiva: <strong style="color:${covPct > 60 ? '#2dc653' : covPct > 35 ? '#f4c430' : '#e63946'}">${covPct}%</strong>
+                · ${myTypeSet.length} tipo${myTypeSet.length !== 1 ? 's' : ''} en el equipo
+                · ${window.myTeamData.length} Pokémon
+            </div>`;
+    }
+
+</script>
+{% endblock %}

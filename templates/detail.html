@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pokemon.name | capitalize }} — Pokédex{% endblock %}
+
+{% block content %}
+
+<!-- ── Back & Controls ────────────────────────────────────────────────── -->
+<div style="padding:1.2rem 0 0; display:flex; justify-content:space-between; align-items:center;">
+    <a href="{{ url_for('index') }}" class="btn-back">← Volver</a>
+    <button id="btn-retro-toggle" class="btn-back ripple-container"
+        style="background:var(--bg-card); cursor:pointer; font-size: 0.8rem; border: 1px solid var(--glass-border);">
+        📺 Modo Retro
+    </button>
+</div>
+
+<!-- ── Layout ──────────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem;align-items:start;padding:1.5rem 0 3rem">
+
+    <!-- ── Left: Hero Card ───────────────────────────────────── -->
+    <div>
+        <!-- Hero gradient based on first type color -->
+        <div class="detail-hero" id="detail-hero" data-bg-type="{{ pokemon.types[0].name }}"
+            data-type-color="{{ pokemon.types[0].color }}" style="background: linear-gradient(145deg,
+           {{ pokemon.types[0].color }}22 0%,
+           {{ pokemon.types[-1].color }}11 60%,
+           rgba(255,255,255,0.02) 100%);
+           border: 1px solid {{ pokemon.types[0].color }}44;">
+
+            <div class="particles-container" id="particles-container"></div>
+
+            <div class="detail-hero-id">#{{ '%04d' | format(pokemon.id) }}</div>
+
+            <div class="sprite-wrapper" id="sprite-wrapper">
+                <img class="detail-sprite" src="{{ pokemon.sprite_url }}" alt="{{ pokemon.name }}"
+                    onerror="this.src='{{ pokemon.sprite_small }}'" data-cry-url="{{ pokemon.cry_url }}">
+            </div>
+
+            <h1 class="detail-hero-name" style="display:flex;align-items:center;justify-content:center;gap:0.8rem">
+                {{ pokemon.name | capitalize }}
+                {% if pokemon.cry_url %}
+                <button class="btn-audio ripple-container" onclick="playCry('{{ pokemon.cry_url }}')"
+                    title="Escuchar grito">🔊</button>
+                {% endif %}
+            </h1>
+
+            <div class="type-tags">
+                {% for t in pokemon.types %}
+                <a href="{{ url_for('index', type=t.name) }}" class="type-tag"
+                    style="background-color:{{ t.color }};box-shadow:0 2px 12px {{ t.color }}55">
+                    {{ t.name | capitalize }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:0.7rem;margin-top:1.2rem;justify-content:center;flex-wrap:wrap">
+                <button class="btn-fav ripple-container" id="btn-fav-detail" data-fav-id="{{ pokemon.id }}"
+                    data-fav-label="1">
+                    ★ <span class="fav-label">Favorito</span>
+                </button>
+                <a class="btn-battle-shortcut ripple-container" href="{{ url_for('batalla', p1=pokemon.name) }}">⚔️
+                    Batalla</a>
+            </div>
+
+        </div>
+
+        <!-- ── Lore & Narrative ──────────────────────────────---- -->
+        <div class="glass-card" style="margin-top: -0.5rem; margin-bottom: 1.2rem; background: rgba(0,0,0,0.15);">
+            <div class="glass-card-body"
+                style="font-style: italic; color: var(--text-secondary); display: flex; align-items: center; gap: 1.2rem; line-height: 1.6;">
+                <img src="{{ pokemon.footprint_url }}" alt="Huella de {{ pokemon.name }}"
+                    style="width: 48px; height: 48px; filter: invert(1); opacity: 0.4; flex-shrink: 0;"
+                    onerror="this.style.display='none'">
+                <p style="margin: 0;">"{{ pokemon.flavor_text }}"</p>
+            </div>
+        </div>
+
+        <!-- ── Evolution Chain ───────────────────────────────---- -->
+        {% if pokemon.evo_url %}
+        <div class="glass-card" id="evolution-card" data-evo-url="{{ pokemon.evo_url }}" style="display: none;">
+            <div class="glass-card-header">Cadena Evolutiva</div>
+            <div class="glass-card-body" id="evolution-container" style="padding: 1rem;">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ── Physical Info ─────────────────────────────────---- -->
+        <div class="glass-card">
+            <div class="glass-card-header">Información básica</div>
+            <div class="glass-card-body">
+                <div class="info-grid">
+                    <div>
+                        <div class="info-item-label">Altura</div>
+                        <div class="info-item-value">{{ pokemon.height }} m</div>
+                    </div>
+                    <div>
+                        <div class="info-item-label">Peso</div>
+                        <div class="info-item-value">{{ pokemon.weight }} kg</div>
+                    </div>
+                    <div>
+                        <div class="info-item-label">EXP Base</div>
+                        <div class="info-item-value">{{ pokemon.base_experience }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Right: Details ────────────────────────────────────── -->
+    <div>
+
+        <!-- Abilities -->
+        <div class="glass-card">
+            <div class="glass-card-header">Habilidades</div>
+            <div class="glass-card-body">
+                <div class="ability-badges">
+                    {% for ability in pokemon.abilities %}
+                    <button class="ability-badge {% if ability.is_hidden %}is-hidden{% endif %}"
+                        data-ability="{{ ability.name | lower | replace(' ', '-') }}"
+                        title="Ver Pokémon con {{ ability.name }}">
+                        {{ ability.name }}
+                        {% if ability.is_hidden %}
+                        <span class="hidden-label">OCULTA</span>
+                        {% endif %}
+                    </button>
+                    {% endfor %}
+                </div>
+
+                <!-- Ability panel renders here dynamically -->
+                <div id="ability-panel-container"></div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="glass-card">
+            <div class="glass-card-header">Estadísticas base</div>
+            <div class="glass-card-body">
+                {% for stat in pokemon.stats %}
+                {% set pct = stat.percentage %}
+                {% if pct <= 33 %} {% set tier="tier-low" %} {% elif pct <=55 %} {% set tier="tier-mid" %} {% elif pct
+                    <=78 %} {% set tier="tier-high" %} {% else %} {% set tier="tier-max" %} {% endif %} <div
+                    class="stat-row">
+                    <div class="stat-header">
+                        <span class="stat-label">{{ stat.name }}</span>
+                        <span class="stat-value">{{ stat.value }}</span>
+                    </div>
+                    <div class="stat-track">
+                        <div class="stat-fill {{ tier }}" data-value="{{ stat.percentage }}"
+                            title="{{ stat.value }} / 255">
+                        </div>
+                    </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Type Relations -->
+    <div class="glass-card">
+        <div class="glass-card-header">Relaciones de Tipo</div>
+        <div class="glass-card-body">
+
+            <h4 style="margin-top:0; margin-bottom: 0.8rem; font-size: 0.95rem; color: var(--text-secondary);">
+                Fuerte contra</h4>
+            {% if pokemon.advantages %}
+            <div class="type-tags" style="margin-bottom: 1.5rem; justify-content: flex-start;">
+                {% for adv in pokemon.advantages %}
+                <span class="type-tag"
+                    style="background-color:{{ adv.color }}; font-size: 0.8rem; padding: 0.25rem 0.6rem;">
+                    {{ adv.name | capitalize }}
+                </span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Ninguna ventaja
+                destacada</p>
+            {% endif %}
+
+            <h4 style="margin-top:0; margin-bottom: 0.8rem; font-size: 0.95rem; color: var(--text-secondary);">Débil
+                al recibir daño de</h4>
+            {% if pokemon.weaknesses %}
+            <div class="type-tags" style="margin-bottom: 1.5rem; justify-content: flex-start;">
+                {% for weak in pokemon.weaknesses %}
+                <span class="type-tag"
+                    style="background-color:{{ weak.color }}; font-size: 0.8rem; padding: 0.25rem 0.6rem; display: flex; align-items: center; gap: 0.3rem;">
+                    {{ weak.name | capitalize }}
+                    <span
+                        style="background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0.1rem 0.3rem; font-size: 0.7rem; font-weight: bold;">{{
+                        weak.multiplier }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Ninguna debilidad
+                destacada</p>
+            {% endif %}
+
+            <h4 style="margin-top:0; margin-bottom: 0.8rem; font-size: 0.95rem; color: var(--text-secondary);">
+                Resistente contra</h4>
+            {% if pokemon.resistances %}
+            <div class="type-tags" style="justify-content: flex-start;">
+                {% for res in pokemon.resistances %}
+                <span class="type-tag"
+                    style="background-color:{{ res.color }}; font-size: 0.8rem; padding: 0.25rem 0.6rem; display: flex; align-items: center; gap: 0.3rem; opacity: 0.9;">
+                    {{ res.name | capitalize }}
+                    <span
+                        style="background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0.1rem 0.3rem; font-size: 0.7rem; font-weight: bold;">{{
+                        res.multiplier }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0;">Ninguna resistencia
+                destacada</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* Responsive override for detail page */
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns:1fr 1.5fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
