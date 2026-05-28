@@ -14,7 +14,7 @@ from flask import (
     url_for,
 )
 
-from config import PAGE_SIZE, TYPE_COLORS
+from config import PAGE_SIZE, TYPE_COLORS, MAX_POKEMON, GENERATION_RANGES, CRY_URL
 from services.pokeapi import (
     PokeAPIError,
     get_pokemon_by_type,
@@ -46,6 +46,9 @@ def inject_globals() -> dict:
     return {
         "available_types": types,
         "type_colors": TYPE_COLORS,
+        "generation_ranges": GENERATION_RANGES,
+        "max_pokemon": MAX_POKEMON,
+        "cry_url_template": CRY_URL,
     }
 
 
@@ -74,6 +77,7 @@ def index():
             }
         else:
             result = get_pokemon_list(limit=PAGE_SIZE, offset=offset)
+            result["total"] = MAX_POKEMON  # cap at Gen 1-3 scope
 
         return render_template(
             "index.html",
@@ -156,7 +160,7 @@ def api_pokemon_list():
 
     try:
         if type_filter:
-            all_pokemon = get_pokemon_by_type(type_filter)
+            all_pokemon = [p for p in get_pokemon_by_type(type_filter) if p["id"] <= MAX_POKEMON]
             total = len(all_pokemon)
             pokemon_slice = all_pokemon[offset : offset + limit]
             result = {
@@ -166,6 +170,9 @@ def api_pokemon_list():
             }
         else:
             result = get_pokemon_list(limit=limit, offset=offset)
+            result["pokemon"] = [p for p in result["pokemon"] if p.get("id", 0) <= MAX_POKEMON]
+            result["total"] = MAX_POKEMON
+            result["has_next"] = (offset + limit) < MAX_POKEMON
 
         return jsonify({
             "pokemon": result["pokemon"],
@@ -189,11 +196,10 @@ def api_pokemon_all():
             all_pokemon = get_pokemon_by_type(type_filter)
             return jsonify({"pokemon": all_pokemon, "total": len(all_pokemon)})
         else:
-            # Maximum valid ID up to Paldea is 1025
-            result = get_pokemon_list(limit=1025, offset=0)
+            result = get_pokemon_list(limit=MAX_POKEMON, offset=0)
             return jsonify({
                 "pokemon": result["pokemon"],
-                "total": result["total"]
+                "total": len(result["pokemon"]),
             })
     except PokeAPIError as exc:
         return jsonify({"error": exc.message}), exc.status_code or 500
@@ -263,7 +269,7 @@ def api_ability_pokemon(ability_name: str):
         for entry in pokemon_entries:
             poke_data = entry.get("pokemon", {})
             poke_id = _extract_id_from_url(poke_data.get("url", ""))
-            if poke_id and poke_id <= 1025:
+            if poke_id and poke_id <= MAX_POKEMON:
                 pokemon_list.append({
                     "name": poke_data["name"],
                     "id": poke_id,

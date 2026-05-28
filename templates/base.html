@@ -4,19 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pokédex — Explora información detallada de todos los Pokémon.">
-    <title>{% block title %}Pokédex{% endblock %}</title>
+    <meta name="description" content="Pokédex — Explora y batalla con los Pokémon de las Generaciones I, II y III.">
+    <title>{% block title %}Pokédex Gen I-III{% endblock %}</title>
 
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Favicon: Charizard official artwork from PokeAPI -->
-    <link rel="icon" type="image/png" sizes="96x96" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png">
+    <!-- Favicon: Charizard -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -27,7 +24,7 @@
 <body>
     <div id="global-weather-bg" class="global-weather-bg"></div>
 
-    <!-- ── Who's That Pokemon? Widget ────────────────────────── -->
+    <!-- ── Who's That Pokemon? Widget ─────────────────────── -->
     <div id="wtp-widget" class="wtp-widget">
         <div class="wtp-header">
             <span class="wtp-qmark">?</span>
@@ -46,7 +43,7 @@
         <button id="wtp-toggle" class="wtp-toggle">?</button>
     </div>
 
-    <!-- ── Navbar ─────────────────────────────────────────────── -->
+    <!-- ── Navbar ────────────────────────────────────────────── -->
     <nav class="navbar">
         <div class="navbar-container">
 
@@ -54,16 +51,16 @@
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <span class="pokeball-icon">◓</span>
                 Pokédex
+                <span class="navbar-gen-badge">Gen I-III</span>
             </a>
 
             <!-- Nav links -->
             <ul class="navbar-nav">
-                <li><a class="nav-link" href="{{ url_for('index') }}">Explorar</a></li>
+                <li><a class="nav-link {% block nav_explore %}{% endblock %}" href="{{ url_for('index') }}">Explorar</a></li>
                 <li><a class="nav-link nav-link-battle" href="{{ url_for('batalla') }}">⚔️ Batalla</a></li>
-                <li><a class="nav-link nav-link-league" href="{{ url_for('liga') }}">🏆 La Liga</a></li>
+                <li><a class="nav-link nav-link-league" href="{{ url_for('liga') }}">🏆 Liga</a></li>
             </ul>
 
-            <!-- Spacer -->
             <div class="navbar-spacer"></div>
 
             <!-- Search -->
@@ -76,10 +73,10 @@
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </span>
-                    <input class="search-input" type="search" name="q" placeholder="Buscar Pokémon…" aria-label="Buscar"
-                        id="search-input" autocomplete="off">
+                    <input class="search-input" type="search" name="q" placeholder="Buscar Pokémon…"
+                        aria-label="Buscar" id="search-input" autocomplete="off">
                 </div>
-                <button class="btn-search ripple-container" type="submit" id="search-btn">Buscar</button>
+                <button class="btn-search ripple-container" type="submit">Buscar</button>
             </form>
 
         </div>
@@ -90,12 +87,12 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ── Footer ────────────────────────────────────────────── -->
+    <!-- ── Footer ─────────────────────────────────────────────── -->
     <footer>
         <div>
-            Pokédex &mdash; Datos por
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener">PokeAPI</a>
-            &nbsp;·&nbsp; Diseño moderno ✦
+            Pokédex Generaciones I · II · III &mdash;
+            Datos por <a href="https://pokeapi.co/" target="_blank" rel="noopener">PokeAPI</a>
+            &nbsp;·&nbsp; 386 Pokémon ✦
         </div>
     </footer>
 
@@ -105,5 +102,4 @@
     {% block scripts %}{% endblock %}
 
 </body>
-
 </html>

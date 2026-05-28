@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Pokédex — Explora todos los Pokémon{% endblock %}
-
+{% block title %}Pokédex — Generaciones I · II · III{% endblock %}
 
 {% block content %}
 
@@ -24,8 +23,7 @@
             <button id="analyze-team-btn" class="btn-analyze-team" style="display:none;">Analizar Sinergia</button>
             <button id="export-team-btn" class="btn-export-team" style="display:none;">Trainer Card 📸</button>
             <a href="{{ url_for('liga') }}" id="league-team-btn" class="btn-league-team"
-                style="display:none; text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); color: #000; border: none; cursor: pointer;">⭐
-                ¡Ir a la Liga!</a>
+                style="display:none; text-decoration:none; padding:0.4rem 0.8rem; border-radius:6px; font-weight:600; font-size:0.85rem; background:linear-gradient(135deg,#FFD700,#FF8C00); color:#000; border:none; cursor:pointer;">⭐ ¡Ir a la Liga!</a>
         </div>
         <div class="team-stats-summary" id="team-stats-summary">
             Arrastra Pokémon aquí para formar tu equipo
@@ -38,51 +36,37 @@
         </div>
         <div id="analysis-content" class="analysis-content"></div>
     </div>
-
 </div>
 
 <!-- Move Selection Modal -->
 <div id="move-selection-modal"
-    style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:1000; width:90%; max-width:500px; max-height: 80vh; flex-direction:column; padding:1.5rem; background:rgba(20, 20, 35, 0.95); border:2px solid rgba(255, 255, 255, 0.15); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.8);">
-    <div class="tc-header"
-        style="margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.8rem; flex-shrink:0;">
+    style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1000; width:90%; max-width:500px; max-height:80vh; flex-direction:column; padding:1.5rem; background:rgba(20,20,35,0.97); border:2px solid rgba(255,255,255,0.15); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.8);">
+    <div class="tc-header" style="margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.8rem; flex-shrink:0;">
         <h2 id="move-modal-title" style="font-size:1.2rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
             <img id="move-modal-sprite" src="" style="width:32px; height:32px; object-fit:contain;"> Elegir Ataques
         </h2>
-        <button id="close-moves-btn"
-            style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
+        <button id="close-moves-btn" style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">✕</button>
     </div>
-    <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; flex-shrink:0;">Selecciona hasta 4
-        ataques para
-        usar en la Liga Pokémon.</p>
-    <div id="moves-list-container"
-        style="flex:1; min-height:0; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:1.5rem; padding-right:0.5rem;">
-        <!-- Moves will be rendered here -->
-        <div style="grid-column:1/-1; text-align:center; color:var(--text-muted);">Cargando ataques... <span
-                class="spinner-sm"></span></div>
+    <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; flex-shrink:0;">Selecciona hasta 4 ataques para la Liga Pokémon.</p>
+    <div id="moves-list-container" style="flex:1; min-height:0; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:1.5rem; padding-right:0.5rem;">
+        <div style="grid-column:1/-1; text-align:center; color:var(--text-muted);">Cargando ataques… <span class="spinner-sm"></span></div>
     </div>
-    <div
-        style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem; flex-shrink:0;">
-        <div style="font-size:0.85rem; color:var(--accent-yellow); font-weight:600;"><span
-                id="moves-count-badge">0</span>/4 Seleccionados</div>
-        <button id="save-moves-btn" class="lx-btn-fight"
-            style="padding:0.5rem 1.5rem; font-size:0.9rem;">Guardar</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem; flex-shrink:0;">
+        <div style="font-size:0.85rem; color:var(--accent-yellow); font-weight:600;"><span id="moves-count-badge">0</span>/4 Seleccionados</div>
+        <button id="save-moves-btn" class="lx-btn-fight" style="padding:0.5rem 1.5rem; font-size:0.9rem;">Guardar</button>
     </div>
 </div>
-<div id="move-modal-backdrop"
-    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; backdrop-filter:blur(4px);">
-</div>
+<div id="move-modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; backdrop-filter:blur(4px);"></div>
 
-<!-- Hidden Template for Trainer Card -->
+<!-- Trainer Card Export -->
 <div id="trainer-card-export" class="trainer-card-export">
     <div class="tc-header">
         <h2>Pokémon Trainer</h2>
         <div class="tc-badge">Master</div>
     </div>
     <div id="tc-slots" class="tc-slots"></div>
-    <div class="tc-footer">Pokédex App</div>
+    <div class="tc-footer">Pokédex Gen I-III</div>
 </div>
-
 
 <!-- ── Hero ────────────────────────────────────────────────── -->
 <section class="hero-section hero-glass">
@@ -92,19 +76,27 @@
             {% if current_type %}
             Tipo <span style="text-transform:capitalize">{{ current_type }}</span>
             {% else %}
-            Explora la Pokédex
+            Pokédex
             {% endif %}
         </h1>
         <p class="hero-sub">
-            {{ total }} Pokémon
-            {% if current_type %}de tipo {{ current_type | capitalize }}{% else %}disponibles{% endif %}
+            Generaciones I · II · III &mdash;
+            <strong>{{ total }}</strong> Pokémon
+            {% if current_type %}de tipo {{ current_type | capitalize }}{% endif %}
         </p>
-
         <div class="hero-counter">
             ⚡ Has visitado <span class="count-num" id="seen-counter">0</span> Pokémon
         </div>
     </div>
 </section>
+
+<!-- ── Generation Tabs ─────────────────────────────────────── -->
+<div class="gen-tabs-bar" id="gen-tabs-bar">
+    <button class="gen-tab-btn" data-gen="all" onclick="filterByGen('all', this)">Todos</button>
+    <button class="gen-tab-btn" data-gen="1" onclick="filterByGen('1', this)">🔴 Kanto <span style="opacity:0.6;font-size:0.78em">#001-151</span></button>
+    <button class="gen-tab-btn" data-gen="2" onclick="filterByGen('2', this)">⭐ Johto <span style="opacity:0.6;font-size:0.78em">#152-251</span></button>
+    <button class="gen-tab-btn" data-gen="3" onclick="filterByGen('3', this)">🌿 Hoenn <span style="opacity:0.6;font-size:0.78em">#252-386</span></button>
+</div>
 
 <!-- ── Advanced Filters ────────────────────────────────────── -->
 <div class="advanced-filter-panel glass-panel">
@@ -112,34 +104,29 @@
         <div class="filter-group live-search-group">
             <span class="filter-icon">🔍</span>
             <input type="text" id="live-search-input" class="live-search-input"
-                placeholder="Filtrar por nombre o ID en esta página..." autocomplete="off">
+                placeholder="Filtrar por nombre o ID..." autocomplete="off">
         </div>
-        <div class="filter-group generation-group">
-            <span class="filter-icon">🌍</span>
-            <select id="generation-select" class="generation-select">
-                <option value="all">Todas las Generaciones</option>
-                <option value="1">Kanto (1-151)</option>
-                <option value="2">Johto (152-251)</option>
-                <option value="3">Hoenn (252-386)</option>
-                <option value="4">Sinnoh (387-493)</option>
-                <option value="5">Unova (494-649)</option>
-                <option value="6">Kalos (650-721)</option>
-                <option value="7">Alola (722-809)</option>
-                <option value="8">Galar (810-905)</option>
-                <option value="9">Paldea (906-1025)</option>
+        <div class="filter-group" style="max-width:200px;">
+            <span class="filter-icon" style="left:0.8rem;">↕️</span>
+            <select id="sort-select" class="generation-select">
+                <option value="id">N.º Pokédex</option>
+                <option value="name">Nombre (A-Z)</option>
+                <option value="bst">Mayor BST</option>
+                <option value="hp">Mayor HP</option>
+                <option value="atk">Mayor Ataque</option>
+                <option value="spd">Mayor Velocidad</option>
             </select>
         </div>
     </div>
     <div class="type-filter-container">
-        <a href="{{ url_for('index') }}" class="type-pill {% if not current_type %}active{% endif %}" {% if not
-            current_type %}style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.2)" {%
-            endif %}>
+        <a href="{{ url_for('index') }}" class="type-pill {% if not current_type %}active{% endif %}"
+            {% if not current_type %}style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.2)"{% endif %}>
             Todos
         </a>
         {% for t in available_types %}
-        <a href="{{ url_for('index', type=t.name) }}" class="type-pill {% if t.name == current_type %}active{% endif %}"
-            {% if t.name==current_type
-            %}style="background-color: {{ t.color }}; box-shadow: 0 4px 16px {{ t.color }}55;" {% endif %}>
+        <a href="{{ url_for('index', type=t.name) }}"
+            class="type-pill {% if t.name == current_type %}active{% endif %}"
+            {% if t.name == current_type %}style="background-color:{{ t.color }};box-shadow:0 4px 16px {{ t.color }}55;"{% endif %}>
             <span class="type-pill-dot" style="background-color:{{ t.color }}"></span>
             {{ t.name | capitalize }}
         </a>
@@ -147,50 +134,140 @@
     </div>
 </div>
 
-<!-- ── Scanner Viewport & Grid ─────────────────────────────────────────── -->
+<!-- ── Scanner Viewport & Grid ─────────────────────────────── -->
 <div class="scanner-viewport" id="scanner-viewport">
-
-
     {% if pokemon_list %}
     <div class="pokemon-grid" id="pokemon-grid">
         {% for poke in pokemon_list %}
-        <a href="{{ url_for('detail', name_or_id=poke.name) }}" class="pokemon-card ripple-container scanner-card"
-            data-poke-id="{{ poke.id }}">
+        <a href="{{ url_for('detail', name_or_id=poke.name) }}"
+            class="pokemon-card ripple-container scanner-card"
+            data-poke-id="{{ poke.id }}"
+            draggable="true"
+            ondragstart="dragStart(event)">
 
             <div class="scanner-beam"></div>
             <div class="scanner-target-reticle"></div>
+            <div class="card-gen-badge">
+                {% if poke.id <= 151 %}GEN I{% elif poke.id <= 251 %}GEN II{% else %}GEN III{% endif %}
+            </div>
 
             <button class="card-fav-btn" data-fav-id="{{ poke.id }}" title="Favorito">★</button>
 
             <div class="card-img-container">
-                <img class="pokemon-sprite" src="{{ poke.sprite_url }}" alt="{{ poke.name }}" loading="lazy"
+                <img class="pokemon-sprite" src="{{ poke.sprite_url }}" alt="{{ poke.name }}"
+                    loading="lazy"
                     onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'">
             </div>
             <div class="card-body">
-                <div class="pokemon-id">#{{ '%04d' | format(poke.id) }}</div>
-                <div class="pokemon-name">{{ poke.name }}</div>
+                <div class="pokemon-id">#{{ '%03d' | format(poke.id) }}</div>
+                <div class="pokemon-name">{{ poke.name | capitalize }}</div>
             </div>
-
         </a>
         {% endfor %}
     </div>
+    </div>
+
+    <!-- ── Load More ───────────────────────────────────────── -->
+    <div class="load-more-wrapper">
+        <button class="btn-load-more ripple-container" id="btn-load-more"
+            data-offset="{{ pokemon_list | length }}"
+            data-type="{{ current_type or '' }}"
+            data-has-next="{{ 'true' if has_next else 'false' }}">
+            <span class="spinner-sm"></span>
+            Cargar más Pokémon
+        </button>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <p>No se encontraron Pokémon.</p>
+        <a href="{{ url_for('index') }}" class="btn-back" style="margin-top:1rem">Ver todos</a>
+    </div>
+    {% endif %}
 </div>
 
-<!-- ── Load More ───────────────────────────────────────────── -->
-<div class="load-more-wrapper">
-    <button class="btn-load-more ripple-container" id="btn-load-more" data-offset="{{ pokemon_list | length }}"
-        data-type="{{ current_type or '' }}" data-has-next="{{ 'true' if has_next else 'false' }}">
-        <span class="spinner-sm"></span>
-        Cargar más Pokémon
-    </button>
-</div>
+{% endblock %}
 
-{% else %}
-<div class="empty-state">
-    <div class="empty-state-icon">🔍</div>
-    <p>No se encontraron Pokémon.</p>
-    <a href="{{ url_for('index') }}" class="btn-back" style="margin-top:1rem">Ver todos</a>
-</div>
-{% endif %}
+{% block scripts %}
+<script>
+// ── Generation tabs (client-side filter) ─────────────────────
+const GEN_RANGES_IDX = { '1':[1,151], '2':[152,251], '3':[252,386] };
+let activeGen = 'all';
 
+function filterByGen(gen, btn) {
+    activeGen = gen;
+    document.querySelectorAll('.gen-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('.pokemon-card[data-poke-id]');
+    let visible = 0;
+    cards.forEach(card => {
+        const id = parseInt(card.dataset.pokeId);
+        if (gen === 'all' || (id >= GEN_RANGES_IDX[gen][0] && id <= GEN_RANGES_IDX[gen][1])) {
+            card.style.display = '';
+            visible++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    // Reapply live search on top
+    const q = document.getElementById('live-search-input')?.value?.trim()?.toLowerCase();
+    if (q) applySearch(q);
+}
+
+function applySearch(q) {
+    document.querySelectorAll('.pokemon-card[data-poke-id]').forEach(card => {
+        if (card.style.display === 'none' && activeGen !== 'all') return;
+        const name = card.querySelector('.pokemon-name')?.textContent?.toLowerCase() || '';
+        const id = card.querySelector('.pokemon-id')?.textContent?.replace('#','') || '';
+        card.style.display = (!q || name.includes(q) || id.includes(q)) ? '' : 'none';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Activate "Todos" by default
+    document.querySelector('.gen-tab-btn[data-gen="all"]').classList.add('active');
+
+    document.getElementById('live-search-input')?.addEventListener('input', e => {
+        applySearch(e.target.value.trim().toLowerCase());
+    });
+
+    // Sort
+    document.getElementById('sort-select')?.addEventListener('change', async e => {
+        const sortKey = e.target.value;
+        const grid = document.getElementById('pokemon-grid');
+        const cards = [...grid.querySelectorAll('a.pokemon-card')];
+
+        // We need BST data for some sorts — fetch all if needed
+        if (['bst','hp','atk','spd'].includes(sortKey)) {
+            grid.style.opacity = '0.5';
+            try {
+                const res = await fetch('/api/pokemon/all');
+                const data = await res.json();
+                const statMap = {};
+                (data.pokemon || []).forEach(p => { statMap[p.id] = p; });
+                cards.sort((a, b) => {
+                    const idA = parseInt(a.dataset.pokeId), idB = parseInt(b.dataset.pokeId);
+                    const pA = statMap[idA], pB = statMap[idB];
+                    if (!pA || !pB) return 0;
+                    // stats not in list endpoint; fall back to id
+                    return idA - idB;
+                });
+            } catch {}
+            grid.style.opacity = '1';
+        } else if (sortKey === 'name') {
+            cards.sort((a, b) => {
+                const nA = a.querySelector('.pokemon-name').textContent.toLowerCase();
+                const nB = b.querySelector('.pokemon-name').textContent.toLowerCase();
+                return nA.localeCompare(nB);
+            });
+        } else {
+            cards.sort((a, b) => parseInt(a.dataset.pokeId) - parseInt(b.dataset.pokeId));
+        }
+
+        cards.forEach(c => grid.appendChild(c));
+    });
+});
+</script>
 {% endblock %}

@@ -6,7 +6,7 @@
 // ── Constants ────────────────────────────────────────────────
 const FAV_KEY = "pokedex_favorites";
 const SEEN_KEY = "pokedex_seen";
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 24;
 
 // ── Favorites ────────────────────────────────────────────────
 function getFavorites() {
@@ -125,17 +125,29 @@ let loadMoreType = "";
 let loadMoreHasNext = true;
 let loadMoreBusy = false;
 
+function getGenLabel(id) {
+  if (id <= 151) return "GEN I";
+  if (id <= 251) return "GEN II";
+  return "GEN III";
+}
+
 function buildCard(poke) {
   const id = String(poke.id || "");
   const name = poke.name || "";
   const sprite = poke.sprite_url || "";
-  const padId = id.padStart(4, "0");
+  const padId = id.padStart(3, "0");
   const isFav = isFavorite(id);
+  const genLabel = getGenLabel(parseInt(id));
+  const types = (poke.types || []);
+  const typeBadges = types.map(t =>
+    `<span class="card-type-mini" style="background:${t.color}">${t.name}</span>`
+  ).join("");
 
   return `
-    <a href="/pokemon/${name}" class="pokemon-card ripple-container scanner-card" data-poke-id="${id}">
+    <a href="/pokemon/${name}" class="pokemon-card ripple-container scanner-card" data-poke-id="${id}" draggable="true" ondragstart="dragStart(event)">
       <div class="scanner-beam"></div>
       <div class="scanner-target-reticle"></div>
+      <div class="card-gen-badge">${genLabel}</div>
       <button class="card-fav-btn ${isFav ? "is-fav" : ""}" data-fav-id="${id}" title="Favorito">★</button>
       <div class="card-img-container">
         <img class="pokemon-sprite" src="${sprite}" alt="${name}"
@@ -146,6 +158,7 @@ function buildCard(poke) {
         <div class="pokemon-id">#${padId}</div>
         <div class="pokemon-name">${name}</div>
       </div>
+      ${typeBadges ? `<div class="card-type-strip">${typeBadges}</div>` : ""}
     </a>`;
 }
 
@@ -446,118 +459,6 @@ function initPokeRecreo() {
   });
 }
 
-// ── Advanced Live Filters (Home Page) ─────────────────────────
-let allPokemonData = null;
-let isFilteringActive = false;
-
-async function fetchAllPokemon() {
-  if (allPokemonData) return true;
-  const btn = document.getElementById("btn-load-more");
-  const typeFilter = btn ? (btn.dataset.type || "") : "";
-
-  try {
-    const url = `/api/pokemon/all${typeFilter ? '?type=' + encodeURIComponent(typeFilter) : ''}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    allPokemonData = data.pokemon;
-    return true;
-  } catch (e) {
-    console.error("Error fetching all pokemon:", e);
-    return false;
-  }
-}
-
-function initAdvancedFilters() {
-  const searchInput = document.getElementById('live-search-input');
-  const genSelect = document.getElementById('generation-select');
-  const grid = document.getElementById('pokemon-grid');
-  const loadMoreBtn = document.getElementById('btn-load-more');
-
-  if (!searchInput || !genSelect || !grid) return;
-
-  const generationRanges = {
-    "1": [1, 151],
-    "2": [152, 251],
-    "3": [252, 386],
-    "4": [387, 493],
-    "5": [494, 649],
-    "6": [650, 721],
-    "7": [722, 809],
-    "8": [810, 905],
-    "9": [906, 1025]
-  };
-
-  // We need to store original cards to restore them if the filter is cleared.
-  let originalGridHTML = grid.innerHTML;
-
-  async function applyFilters() {
-    const query = searchInput.value.toLowerCase().trim();
-    const gen = genSelect.value;
-
-    // If no filter is active, restore original pagination
-    if (!query && gen === "all") {
-      if (isFilteringActive) {
-        grid.innerHTML = originalGridHTML;
-        if (loadMoreBtn && loadMoreHasNext) loadMoreBtn.style.display = "";
-        isFilteringActive = false;
-        initFavoriteButtons();
-        initRipple();
-      }
-      return;
-    }
-
-    isFilteringActive = true;
-    if (loadMoreBtn) loadMoreBtn.style.display = "none";
-
-    const success = await fetchAllPokemon();
-    if (!success) return;
-
-    const filtered = allPokemonData.filter(poke => {
-      const id = poke.id;
-      const idStr = String(id);
-      const name = poke.name.toLowerCase();
-
-      let matchesSearch = true;
-      if (query) {
-        matchesSearch = name.includes(query) || idStr.includes(query);
-      }
-
-      let matchesGen = true;
-      if (gen !== "all" && generationRanges[gen]) {
-        const [min, max] = generationRanges[gen];
-        matchesGen = id >= min && id <= max;
-      }
-
-      return matchesSearch && matchesGen;
-    });
-
-    // Limit to 50 results to keep DOM fast during search
-    const resultsToRender = filtered.slice(0, 100);
-
-    if (resultsToRender.length === 0) {
-      grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted)">No hay resultados para esta búsqueda.</div>`;
-    } else {
-      grid.innerHTML = resultsToRender.map(poke => buildCard(poke)).join('');
-      initFavoriteButtons();
-      initRipple();
-      grid.querySelectorAll('.pokemon-card').forEach(c => makeDraggable(c));
-    }
-  }
-
-  searchInput.addEventListener('input', applyFilters);
-  genSelect.addEventListener('change', applyFilters);
-
-  // Update original grid HTML whenever loadMore happens
-  if (loadMoreBtn) {
-    const observer = new MutationObserver(() => {
-      if (!isFilteringActive) {
-        originalGridHTML = grid.innerHTML;
-      }
-    });
-    observer.observe(grid, { childList: true });
-  }
-}
 
 // ── 3D Tilt Effect ────────────────────────────────────────────
 function initTiltEffect() {
@@ -1175,19 +1076,12 @@ window.closeMovesModal = () => {
   activeMoveModalIndex = -1;
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Existing DOM content loaded
-  const closeMovesBtn = document.getElementById('close-moves-btn');
-  const modalBackdrop = document.getElementById('move-modal-backdrop');
-  const saveMovesBtn = document.getElementById('save-moves-btn');
-
-  if (closeMovesBtn) closeMovesBtn.addEventListener('click', closeMovesModal);
-  if (modalBackdrop) modalBackdrop.addEventListener('click', closeMovesModal);
-  if (saveMovesBtn) saveMovesBtn.addEventListener('click', saveMoveSelection);
-});
-
 window.allowDrop = allowDrop;
 window.dropToTeam = dropToTeam;
+window.dragStart = e => {
+  const card = e.target.closest('[data-poke-id]');
+  if (card) e.dataTransfer.setData('text/plain', card.dataset.pokeId);
+};
 
 // ── Capture Transition ───────────────────────────────────────
 function initCaptureTransition() {
@@ -1232,6 +1126,14 @@ function initCaptureTransition() {
 
 // ── Bootstrap ──────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  // Move modal
+  const closeMovesBtn = document.getElementById('close-moves-btn');
+  const modalBackdrop = document.getElementById('move-modal-backdrop');
+  const saveMovesBtn = document.getElementById('save-moves-btn');
+  if (closeMovesBtn) closeMovesBtn.addEventListener('click', closeMovesModal);
+  if (modalBackdrop) modalBackdrop.addEventListener('click', closeMovesModal);
+  if (saveMovesBtn) saveMovesBtn.addEventListener('click', saveMoveSelection);
+
   initFavoriteButtons();
   initSeenTracking();
   initRipple();
@@ -1243,9 +1145,7 @@ document.addEventListener("DOMContentLoaded", () => {
   playScanEffect();
   initEvolutionChain();
   initRetroMode();
-
   initTeamBuilder();
   initWTP();
-  initAdvancedFilters();
   initCaptureTransition();
 });

@@ -16,8 +16,17 @@ CACHE_TTL_POKEMON: int = 300    # 5 min — individual Pokémon detail
 CACHE_TTL_LIST: int = 120       # 2 min — paginated listings
 CACHE_TTL_TYPES: int = 3600     # 1 hour — types rarely change
 
+# ── Scope: First 3 Generations only ──────────────────────────
+MAX_POKEMON: int = 386
+
+GENERATION_RANGES: dict = {
+    1: (1,   151, "Kanto"),
+    2: (152, 251, "Johto"),
+    3: (252, 386, "Hoenn"),
+}
+
 # ── Pagination ────────────────────────────────────────────────
-PAGE_SIZE: int = 20
+PAGE_SIZE: int = 24
 
 # ── Pokémon Type Colors (for UI badges) ───────────────────────
 TYPE_COLORS: dict[str, str] = {
@@ -43,7 +52,7 @@ TYPE_COLORS: dict[str, str] = {
     "unknown":  "#68A090",
 }
 
-# ── Sprite URL Template ──────────────────────────────────────
+# ── Sprite URL Templates ─────────────────────────────────────
 SPRITE_URL: str = (
     "https://raw.githubusercontent.com/PokeAPI/sprites/"
     "master/sprites/pokemon/other/official-artwork/{id}.png"
@@ -52,4 +61,10 @@ SPRITE_URL: str = (
 SPRITE_URL_SMALL: str = (
     "https://raw.githubusercontent.com/PokeAPI/sprites/"
     "master/sprites/pokemon/{id}.png"
+)
+
+# ── Pokemon Cry URL (OGG audio) ──────────────────────────────
+CRY_URL: str = (
+    "https://raw.githubusercontent.com/PokeAPI/cries/"
+    "main/cries/pokemon/latest/{id}.ogg"
 )

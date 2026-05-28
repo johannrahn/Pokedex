@@ -1,560 +1,870 @@
 {% extends "base.html" %}
 
-{% block title %}Batalla Pokémon — Pokédex{% endblock %}
+{% block title %}Arena de Batalla — Pokédex Generaciones I-III{% endblock %}
 
 {% block content %}
+<div class="battle-page-v2">
 
-<div class="battle-page">
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="battle-header-v2">
+    <div class="battle-header-left">
+      <h1 class="battle-title-v2">Arena de Batalla</h1>
+      <p class="battle-subtitle-v2">Generaciones I · II · III &mdash; 386 Pokémon</p>
+    </div>
+    <button id="sound-toggle" class="btn-sound-toggle" title="Alternar sonido" onclick="toggleSound()">
+      <span id="sound-icon">🔊</span>
+    </button>
+  </div>
 
-    <!-- ── Header ────────────────────────────────────────────── -->
-    <div class="battle-header">
-        <h1 class="battle-title">⚔️ Arena de Batalla</h1>
-        <p class="battle-subtitle">Elige dos Pokémon y descubre quién ganaría</p>
+  <!-- ── Pick Row ──────────────────────────────────────────── -->
+  <div class="pick-row-v2">
+
+    <!-- Slot 1 -->
+    <div class="pick-slot-v2" id="pick-slot-1" onclick="openPicker(1)">
+      <div class="pick-empty-v2" id="pick-empty-1">
+        <div class="pick-pokeball-icon">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"/>
+            <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+            <circle cx="50" cy="50" r="12" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none"/>
+          </svg>
+        </div>
+        <p>Elige tu Pokémon</p>
+        <span>Haz clic para elegir</span>
+      </div>
+      <div class="pick-filled-v2" id="pick-filled-1" style="display:none">
+        <div class="pick-gen-badge" id="pick-gen-1"></div>
+        <img class="pick-artwork" id="pick-artwork-1" src="" alt="">
+        <div class="pick-info-v2">
+          <div class="pick-number" id="pick-number-1"></div>
+          <div class="pick-name-v2" id="pick-name-v2-1"></div>
+          <div class="pick-types-v2" id="pick-types-v2-1"></div>
+          <div class="pick-bst-chip" id="pick-bst-1"></div>
+        </div>
+        <div class="pick-change-hint">Clic para cambiar</div>
+      </div>
     </div>
 
-    <!-- ── Selector Cards ────────────────────────────────────── -->
-    <div class="battle-selector-row">
-
-        <!-- P1 Card -->
-        <div class="battle-pick-card" id="pick-card-1" onclick="openModal(1)">
-            <div class="pick-card-empty" id="pick-empty-1">
-                <div class="pick-ball">◓</div>
-                <div class="pick-label">Elige tu Pokémon</div>
-                <div class="pick-hint">Haz click para seleccionar</div>
-            </div>
-            <div class="pick-card-filled" id="pick-filled-1" style="display:none">
-                <img class="pick-sprite" id="pick-sprite-1" src="" alt="">
-                <div class="pick-name" id="pick-name-1"></div>
-                <div class="pick-types" id="pick-types-1"></div>
-                <div class="pick-change-hint">Click para cambiar</div>
-            </div>
-        </div>
-
-        <!-- VS divider -->
-        <div class="battle-selector-vs">
-            <span class="vs-text">VS</span>
-        </div>
-
-        <!-- P2 Card -->
-        <div class="battle-pick-card" id="pick-card-2" onclick="openModal(2)">
-            <div class="pick-card-empty" id="pick-empty-2">
-                <div class="pick-ball">◓</div>
-                <div class="pick-label">Elige tu Pokémon</div>
-                <div class="pick-hint">Haz click para seleccionar</div>
-            </div>
-            <div class="pick-card-filled" id="pick-filled-2" style="display:none">
-                <img class="pick-sprite" id="pick-sprite-2" src="" alt="">
-                <div class="pick-name" id="pick-name-2"></div>
-                <div class="pick-types" id="pick-types-2"></div>
-                <div class="pick-change-hint">Click para cambiar</div>
-            </div>
-        </div>
-
+    <!-- VS -->
+    <div class="vs-divider-v2">
+      <div class="vs-circle">
+        <span>VS</span>
+      </div>
+      <div class="vs-bolt" id="vs-bolt" style="opacity:0">⚡</div>
     </div>
 
-    <!-- ── Battle Button ─────────────────────────────────────── -->
-    <div style="text-align:center; margin: 1.8rem 0 1rem;">
-        <button class="battle-fight-btn ripple-container" id="fight-btn" onclick="startBattle()" disabled>
-            ⚔️ ¡A LUCHAR!
-        </button>
+    <!-- Slot 2 -->
+    <div class="pick-slot-v2 pick-slot-right" id="pick-slot-2" onclick="openPicker(2)">
+      <div class="pick-empty-v2" id="pick-empty-2">
+        <div class="pick-pokeball-icon">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"/>
+            <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+            <circle cx="50" cy="50" r="12" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none"/>
+          </svg>
+        </div>
+        <p>Elige tu Pokémon</p>
+        <span>Haz clic para elegir</span>
+      </div>
+      <div class="pick-filled-v2" id="pick-filled-2" style="display:none">
+        <div class="pick-gen-badge" id="pick-gen-2"></div>
+        <img class="pick-artwork" id="pick-artwork-2" src="" alt="">
+        <div class="pick-info-v2">
+          <div class="pick-number" id="pick-number-2"></div>
+          <div class="pick-name-v2" id="pick-name-v2-2"></div>
+          <div class="pick-types-v2" id="pick-types-v2-2"></div>
+          <div class="pick-bst-chip" id="pick-bst-2"></div>
+        </div>
+        <div class="pick-change-hint">Clic para cambiar</div>
+      </div>
     </div>
 
-    <!-- ── Arena ─────────────────────────────────────────────── -->
-    <div class="battle-arena" id="battle-arena" style="display:none">
+  </div>
 
-        <!-- Sprites Row -->
-        <div class="battle-stage">
+  <!-- ── Fight Button ──────────────────────────────────────── -->
+  <div class="fight-btn-wrap">
+    <button id="fight-btn" class="btn-fight-v2 ripple-container" onclick="startBattle()" disabled>
+      <span class="fight-btn-icon">⚔️</span>
+      <span>¡BATALLA!</span>
+    </button>
+    <button id="reset-btn" class="btn-reset-v2 ripple-container" onclick="resetBattle()" style="display:none">
+      🔄 Nueva Batalla
+    </button>
+  </div>
 
-            <!-- P1 card -->
-            <div class="battle-pokemon-card" id="p1-card" style="opacity: 0; pointer-events: none;">
-                <div class="battle-hp-bar-wrap">
-                    <div class="battle-hp-bar" id="p1-hp-bar"></div>
-                </div>
-                <div class="battle-pokemon-name" id="p1-name-display"></div>
-                <div class="battle-types" id="p1-types"></div>
-                <div class="battle-sprite-wrap">
-                    <img class="battle-sprite left" id="p1-sprite" src="" alt="">
-                </div>
-                <div class="battle-bst" id="p1-bst">BST: —</div>
-            </div>
+  <!-- ── Battle Arena ──────────────────────────────────────── -->
+  <div class="battle-arena-v2" id="battle-arena" style="display:none">
+    <div class="arena-bg" id="arena-bg"></div>
 
-            <!-- VS center -->
-            <div class="battle-center">
-                <div class="battle-lightning" id="battle-lightning" style="opacity: 0;">⚡</div>
-                <div class="battle-winner-badge" id="winner-badge" style="display:none"></div>
-            </div>
+    <div class="arena-stage">
 
-            <!-- P2 card -->
-            <div class="battle-pokemon-card" id="p2-card" style="opacity: 0; pointer-events: none;">
-                <div class="battle-hp-bar-wrap">
-                    <div class="battle-hp-bar" id="p2-hp-bar"></div>
-                </div>
-                <div class="battle-pokemon-name" id="p2-name-display"></div>
-                <div class="battle-types" id="p2-types"></div>
-                <div class="battle-sprite-wrap">
-                    <img class="battle-sprite right" id="p2-sprite" src="" alt="">
-                </div>
-                <div class="battle-bst" id="p2-bst">BST: —</div>
-            </div>
+      <!-- Fighter 1 -->
+      <div class="arena-fighter" id="arena-p1">
+        <div class="fighter-header">
+          <div class="fighter-name-tag">
+            <span class="fighter-name" id="a-p1-name">---</span>
+            <span class="fighter-level">Lv. 50</span>
+          </div>
+          <div class="fighter-types-row" id="a-p1-types"></div>
         </div>
-
-        <!-- Stats Comparison -->
-        <div class="battle-stats-section glass-card" id="battle-stats" style="display:none">
-            <div class="glass-card-header">⚡ Comparación de Estadísticas</div>
-            <div class="glass-card-body">
-                <div class="battle-stats-legend">
-                    <span class="legend-dot p1-color"></span><span id="legend-p1-name">P1</span>
-                    <span class="legend-dot p2-color" style="margin-left:1.5rem"></span><span
-                        id="legend-p2-name">P2</span>
-                </div>
-                <div id="stat-rows-container"></div>
-
-                <!-- Type advantage -->
-                <div class="battle-type-advantage" id="type-advantage-section" style="display:none">
-                    <div class="battle-adv-header">🔥 Ventaja de Tipo</div>
-                    <div id="type-advantage-text"></div>
-                </div>
-
-                <!-- Final score -->
-                <div class="battle-final-score" id="final-score-section">
-                    <div class="score-row">
-                        <div class="score-block p1-score-color" id="p1-final-score">—</div>
-                        <div class="score-label">Puntuación total</div>
-                        <div class="score-block p2-score-color" id="p2-final-score">—</div>
-                    </div>
-                </div>
-            </div>
+        <div class="fighter-hp-row">
+          <span class="hp-label">HP</span>
+          <div class="fighter-hp-track">
+            <div class="fighter-hp-fill" id="p1-hp-fill"></div>
+          </div>
+          <span class="fighter-hp-text" id="p1-hp-text">---</span>
         </div>
+        <div class="fighter-sprite-wrap">
+          <img class="fighter-sprite back-sprite" id="a-p1-sprite" src="" alt="">
+          <div class="damage-pop" id="p1-dmg-pop"></div>
+          <div class="type-flash" id="p1-type-flash"></div>
+        </div>
+        <div class="fighter-bst-row" id="a-p1-bst"></div>
+      </div>
 
+      <!-- Center -->
+      <div class="arena-center-v2">
+        <div class="round-badge" id="round-badge">Ronda 1</div>
+        <div class="speed-indicator" id="speed-ind"></div>
+      </div>
+
+      <!-- Fighter 2 -->
+      <div class="arena-fighter arena-fighter-2" id="arena-p2">
+        <div class="fighter-header">
+          <div class="fighter-name-tag">
+            <span class="fighter-name" id="a-p2-name">---</span>
+            <span class="fighter-level">Lv. 50</span>
+          </div>
+          <div class="fighter-types-row" id="a-p2-types"></div>
+        </div>
+        <div class="fighter-hp-row">
+          <span class="hp-label">HP</span>
+          <div class="fighter-hp-track">
+            <div class="fighter-hp-fill" id="p2-hp-fill"></div>
+          </div>
+          <span class="fighter-hp-text" id="p2-hp-text">---</span>
+        </div>
+        <div class="fighter-sprite-wrap">
+          <img class="fighter-sprite front-sprite" id="a-p2-sprite" src="" alt="">
+          <div class="damage-pop" id="p2-dmg-pop"></div>
+          <div class="type-flash" id="p2-type-flash"></div>
+        </div>
+        <div class="fighter-bst-row" id="a-p2-bst"></div>
+      </div>
     </div>
 
-    <!-- ── Status ─────────────────────────────────────────────── -->
-    <div class="battle-status" id="battle-status"></div>
+    <!-- Battle log -->
+    <div class="battle-log-v2" id="battle-log">
+      <div class="battle-log-scroll" id="battle-log-scroll"></div>
+    </div>
+
+    <!-- Stats comparison (post-battle) -->
+    <div class="post-battle-stats" id="post-battle-stats" style="display:none">
+      <div class="pbs-header">Comparación de Estadísticas</div>
+      <div class="pbs-legend">
+        <span class="pbs-dot pbs-p1-dot"></span><span id="pbs-p1-name"></span>
+        <span class="pbs-dot pbs-p2-dot" style="margin-left:1.5rem"></span><span id="pbs-p2-name"></span>
+      </div>
+      <div id="pbs-rows"></div>
+    </div>
+  </div>
+
+  <!-- ── Status ─────────────────────────────────────────────── -->
+  <div id="battle-status" class="battle-status-v2"></div>
 
 </div>
 
-<!-- ══ MODAL ══════════════════════════════════════════════════ -->
-<div class="picker-overlay" id="picker-overlay" onclick="closeModalOutside(event)">
-    <div class="picker-modal" id="picker-modal">
+<!-- ══ POKEMON PICKER MODAL ══════════════════════════════════ -->
+<div class="picker-overlay-v2" id="picker-overlay" onclick="closePickerOutside(event)">
+  <div class="picker-modal-v2" id="picker-modal">
 
-        <div class="picker-header">
-            <span class="picker-title" id="picker-title">Elegir Pokémon</span>
-            <button class="picker-close" onclick="closeModal()">✕</button>
-        </div>
-
-        <!-- Search -->
-        <div class="picker-search-wrap">
-            <span class="picker-search-icon">🔍</span>
-            <input type="text" class="picker-search-input" id="picker-search" placeholder="Busca por nombre o número…"
-                autocomplete="off">
-        </div>
-
-        <!-- Results grid -->
-        <div class="picker-grid-wrap">
-            <div class="picker-grid" id="picker-grid">
-                <!-- filled by JS -->
-            </div>
-            <div class="picker-loading" id="picker-loading" style="display:none">
-                <div class="picker-spinner"></div>
-                <span>Buscando…</span>
-            </div>
-            <div class="picker-empty" id="picker-empty" style="display:none">
-                No se encontró ningún Pokémon
-            </div>
-
-            <div class="picker-pagination" id="picker-pagination"
-                style="display:none; justify-content:center; gap: 1rem; margin-top: 1rem; align-items: center; padding-bottom: 1rem;">
-                <button class="battle-fight-btn" id="btn-prev-page" onclick="changePage(-1)"
-                    style="font-size: 0.9rem; padding: 0.5rem 1rem;">◀ Anterior</button>
-                <span id="page-indicator" style="font-weight: 500;">Página 1</span>
-                <button class="battle-fight-btn" id="btn-next-page" onclick="changePage(1)"
-                    style="font-size: 0.9rem; padding: 0.5rem 1rem;">Siguiente ▶</button>
-            </div>
-        </div>
-
+    <div class="picker-header-v2">
+      <h2 class="picker-title-v2" id="picker-title">Elegir Pokémon</h2>
+      <button class="picker-close-v2" onclick="closePicker()">✕</button>
     </div>
-</div>
 
+    <!-- Gen tabs -->
+    <div class="picker-gen-tabs">
+      <button class="picker-gen-tab active" data-gen="all" onclick="filterPickerGen('all',this)">Todos</button>
+      <button class="picker-gen-tab" data-gen="1" onclick="filterPickerGen('1',this)">🔴 Kanto</button>
+      <button class="picker-gen-tab" data-gen="2" onclick="filterPickerGen('2',this)">⭐ Johto</button>
+      <button class="picker-gen-tab" data-gen="3" onclick="filterPickerGen('3',this)">🌿 Hoenn</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="picker-filters-v2">
+      <div class="picker-search-wrap">
+        <svg class="picker-search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="picker-search" class="picker-search-v2" placeholder="Nombre o número…" autocomplete="off">
+      </div>
+      <select id="picker-type" class="picker-type-select">
+        <option value="">Todos los tipos</option>
+        {% for t in available_types %}
+        <option value="{{ t.name }}">{{ t.name | capitalize }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Grid -->
+    <div class="picker-grid-v2" id="picker-grid-v2">
+      <div class="picker-loading-v2" id="picker-loading">
+        <div class="pk-spinner"></div>
+        <span>Cargando Pokémon…</span>
+      </div>
+    </div>
+
+    <div class="picker-footer-v2">
+      <span id="picker-count-v2">0 Pokémon</span>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // ── State ────────────────────────────────────────────────────
-    const state = { p1: null, p2: null };
-    let activeModalSlot = 1;
-    let searchTimer = null;
-    let currentPage = 0;
-    const PAGE = 24;
+// ══════════════════════════════════════════════════════════════
+//  BATALLA V2 — Visual battle with sounds
+// ══════════════════════════════════════════════════════════════
 
-    let currentFiltered = [];
-    let currentPageIndex = 0;
-    const ITEMS_PER_PAGE = 36;
+// ── State ─────────────────────────────────────────────────────
+const battleState = { p1: null, p2: null, soundEnabled: true, battleActive: false };
+let activePickerSlot = 1;
+let allPokemon = [];
+let pickerFiltered = [];
+let pickerGen = 'all';
+let pickerType = '';
+let pickerQuery = '';
 
-    const STAT_LABELS = {
-        'HP': 'HP', 'Attack': 'Ataque', 'Defense': 'Defensa',
-        'Sp. Atk': 'Sp. Atq.', 'Sp. Def': 'Sp. Def.', 'Speed': 'Velocidad',
-    };
+// Generation ranges
+const GEN_RANGES = { '1': [1, 151], '2': [152, 251], '3': [252, 386] };
+const GEN_LABELS = { 1: '🔴 Kanto', 2: '⭐ Johto', 3: '🌿 Hoenn' };
+function getGenForId(id) {
+  if (id <= 151) return 1;
+  if (id <= 251) return 2;
+  return 3;
+}
 
-    // ── Preload all Pokémon ──────────────────────────────────────
-    let allPokemon = [];
-    async function preloadAllPokemon() {
-        try {
-            const res = await fetch('/api/pokemon/all');
-            const data = await res.json();
-            allPokemon = data.pokemon || [];
-        } catch {
-            console.error("Failed to preload Pokémon list");
-        }
-    }
+// ── Audio System ─────────────────────────────────────────────
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
 
-    // ── On load ──────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', () => {
-        preloadAllPokemon(); // Load in background
+function playPokemonCry(pokemonId) {
+  if (!battleState.soundEnabled) return;
+  const audio = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`);
+  audio.volume = 0.65;
+  audio.play().catch(() => {});
+}
 
-        const params = new URLSearchParams(window.location.search);
-        const p1 = params.get('p1');
-        const p2 = params.get('p2');
-        if (p1) loadPokemonByName(1, p1);
-        if (p2) loadPokemonByName(2, p2);
+function playSound(type) {
+  if (!battleState.soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
 
-        document.getElementById('picker-search').addEventListener('input', e => {
-            const q = e.target.value.trim().toLowerCase();
-            renderFilteredGrid(q);
+    switch (type) {
+      case 'attack': {
+        const osc = ctx.createOscillator(); const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
+        g.gain.setValueAtTime(0.35, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.start(now); osc.stop(now + 0.18);
+        break;
+      }
+      case 'hit': {
+        // White noise burst
+        const bufSize = Math.floor(ctx.sampleRate * 0.08);
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const filt = ctx.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = 1200;
+        const g = ctx.createGain();
+        src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.55, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        src.start(now); src.stop(now + 0.08);
+        break;
+      }
+      case 'superEffective': {
+        [440, 550, 660].forEach((freq, i) => {
+          const osc = ctx.createOscillator(); const g = ctx.createGain();
+          osc.connect(g); g.connect(ctx.destination);
+          osc.type = 'square'; osc.frequency.value = freq;
+          const t = now + i * 0.08;
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+          osc.start(t); osc.stop(t + 0.18);
         });
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeModal();
+        break;
+      }
+      case 'notVeryEffective': {
+        const osc = ctx.createOscillator(); const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(180, now + 0.2);
+        g.gain.setValueAtTime(0.25, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now); osc.stop(now + 0.25);
+        break;
+      }
+      case 'victory': {
+        const melody = [523, 659, 784, 1047];
+        melody.forEach((freq, i) => {
+          const osc = ctx.createOscillator(); const g = ctx.createGain();
+          osc.connect(g); g.connect(ctx.destination);
+          osc.type = 'square'; osc.frequency.value = freq;
+          const t = now + i * 0.14;
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t + 0.06);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+          osc.start(t); osc.stop(t + 0.4);
         });
-    });
-
-    // ── Modal ─────────────────────────────────────────────────────
-    function openModal(slot) {
-        activeModalSlot = slot;
-        document.getElementById('picker-title').textContent =
-            `Elegir Pokémon ${slot === 1 ? '1' : '2'}`;
-        document.getElementById('picker-search').value = '';
-        document.getElementById('picker-overlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => document.getElementById('picker-search').focus(), 200);
-        renderFilteredGrid('');
+        break;
+      }
+      case 'faint': {
+        const osc = ctx.createOscillator(); const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.6);
+        g.gain.setValueAtTime(0.35, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc.start(now); osc.stop(now + 0.6);
+        break;
+      }
+      case 'select': {
+        const osc = ctx.createOscillator(); const g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'square'; osc.frequency.value = 880;
+        g.gain.setValueAtTime(0.2, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now); osc.stop(now + 0.08);
+        break;
+      }
     }
+  } catch (e) {}
+}
 
-    function closeModal() {
-        document.getElementById('picker-overlay').classList.remove('open');
-        document.body.style.overflow = '';
-    }
+function toggleSound() {
+  battleState.soundEnabled = !battleState.soundEnabled;
+  document.getElementById('sound-icon').textContent = battleState.soundEnabled ? '🔊' : '🔇';
+  document.getElementById('sound-toggle').classList.toggle('muted', !battleState.soundEnabled);
+  if (battleState.soundEnabled) playSound('select');
+}
 
-    function closeModalOutside(e) {
-        if (e.target === document.getElementById('picker-overlay')) closeModal();
-    }
+// ── Load All Pokemon ──────────────────────────────────────────
+async function preloadPokemon() {
+  document.getElementById('picker-loading').style.display = 'flex';
+  try {
+    const res = await fetch('/api/pokemon/all');
+    const data = await res.json();
+    allPokemon = (data.pokemon || []).filter(p => p.id <= 386);
+    allPokemon.sort((a, b) => a.id - b.id);
+  } catch {
+    console.error('Failed to load pokemon list');
+  }
+}
 
-    // ── Grid helpers ──────────────────────────────────────────────
-    function renderFilteredGrid(q) {
-        if (!allPokemon.length) {
-            // Fallback if not loaded yet
-            showGridLoading();
-            setTimeout(() => renderFilteredGrid(q), 500);
-            return;
-        }
+// ── Picker Modal ──────────────────────────────────────────────
+function openPicker(slot) {
+  activePickerSlot = slot;
+  document.getElementById('picker-title').textContent = `Elegir Pokémon ${slot}`;
+  document.getElementById('picker-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('picker-search').focus(), 150);
+  renderPickerGrid();
+}
 
-        if (q) {
-            currentFiltered = allPokemon.filter(p =>
-                p.name.toLowerCase().includes(q) || String(p.id).includes(q)
-            );
-        } else {
-            currentFiltered = allPokemon;
-        }
+function closePicker() {
+  document.getElementById('picker-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-        currentPageIndex = 0;
+function closePickerOutside(e) {
+  if (e.target === document.getElementById('picker-overlay')) closePicker();
+}
 
-        if (currentFiltered.length === 0) {
-            showGridEmpty();
-        } else {
-            renderCurrentPage();
-        }
-    }
+function filterPickerGen(gen, btn) {
+  pickerGen = gen;
+  document.querySelectorAll('.picker-gen-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPickerGrid();
+}
 
-    function renderCurrentPage() {
-        const start = currentPageIndex * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE;
-        renderGrid(currentFiltered.slice(start, end));
+function getPickerFiltered() {
+  let list = allPokemon;
+  if (pickerGen !== 'all') {
+    const [lo, hi] = GEN_RANGES[pickerGen];
+    list = list.filter(p => p.id >= lo && p.id <= hi);
+  }
+  if (pickerType) {
+    list = list.filter(p => (p.types || []).some(t => t.name === pickerType));
+  }
+  if (pickerQuery) {
+    const q = pickerQuery.toLowerCase();
+    list = list.filter(p => p.name.includes(q) || String(p.id).includes(q));
+  }
+  return list;
+}
 
-        const totalPages = Math.ceil(currentFiltered.length / ITEMS_PER_PAGE);
-        const paginator = document.getElementById('picker-pagination');
+function renderPickerGrid() {
+  const grid = document.getElementById('picker-grid-v2');
+  const loading = document.getElementById('picker-loading');
 
-        if (totalPages > 1) {
-            paginator.style.display = 'flex';
-            document.getElementById('page-indicator').textContent = `Página ${currentPageIndex + 1} de ${totalPages}`;
-            document.getElementById('btn-prev-page').disabled = currentPageIndex === 0;
-            document.getElementById('btn-next-page').disabled = currentPageIndex >= totalPages - 1;
-        } else {
-            paginator.style.display = 'none';
-        }
-    }
+  if (!allPokemon.length) {
+    loading.style.display = 'flex';
+    setTimeout(renderPickerGrid, 400);
+    return;
+  }
 
-    function changePage(delta) {
-        currentPageIndex += delta;
-        renderCurrentPage();
-    }
+  loading.style.display = 'none';
+  const filtered = getPickerFiltered();
+  document.getElementById('picker-count-v2').textContent = `${filtered.length} Pokémon`;
 
-    function renderGrid(pokemon) {
-        const grid = document.getElementById('picker-grid');
-        document.getElementById('picker-loading').style.display = 'none';
-        document.getElementById('picker-empty').style.display = 'none';
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="picker-empty-v2">No se encontró ningún Pokémon</div>';
+    return;
+  }
 
-        if (!pokemon || pokemon.length === 0) { showGridEmpty(); return; }
-
-        grid.innerHTML = pokemon.map(p => `
-        <div class="picker-card ripple-container" onclick="selectPokemon('${p.name}')">
-            <img class="picker-card-sprite" src="${p.sprite_url}" alt="${p.name}"
-                onerror="this.src='/static/fallback.png'">
-            <div class="picker-card-id">#${String(p.id).padStart(3, '0')}</div>
-            <div class="picker-card-name">${p.name.charAt(0).toUpperCase() + p.name.slice(1)}</div>
+  grid.innerHTML = filtered.map(p => {
+    const gen = getGenForId(p.id);
+    const genLabel = GEN_LABELS[gen];
+    const typeColors = (p.types || []).map(t => `<span class="pk-type-dot" style="background:${t.color}" title="${t.name}"></span>`).join('');
+    return `
+      <div class="picker-card-v2 ripple-container" onclick="selectPokemon('${p.name}', ${p.id})">
+        <div class="pkc-gen-tag" data-gen="${gen}">${genLabel}</div>
+        <div class="pkc-img-wrap">
+          <img class="pkc-img" src="${p.sprite_url}" alt="${p.name}"
+            onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png'">
         </div>
-    `).join('');
-        grid.style.display = 'grid';
+        <div class="pkc-id">#${String(p.id).padStart(3,'0')}</div>
+        <div class="pkc-name">${capitalize(p.name)}</div>
+        <div class="pkc-types">${typeColors}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Select Pokemon ────────────────────────────────────────────
+async function selectPokemon(name, id) {
+  closePicker();
+  playSound('select');
+  setStatus(`Cargando ${capitalize(name)}…`, 'loading');
+  try {
+    const res = await fetch(`/api/pokemon/${encodeURIComponent(name.toLowerCase())}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    battleState[`p${activePickerSlot}`] = data;
+    renderPickCard(activePickerSlot, data);
+    clearStatus();
+    playPokemonCry(data.id);
+
+    const url = new URL(window.location);
+    url.searchParams.set(`p${activePickerSlot}`, name.toLowerCase());
+    window.history.replaceState({}, '', url);
+
+    if (battleState.p1 && battleState.p2) {
+      const btn = document.getElementById('fight-btn');
+      btn.disabled = false;
+      btn.classList.add('ready');
+      document.getElementById('vs-bolt').style.opacity = '1';
+    }
+  } catch {
+    setStatus(`⚠️ No se pudo cargar "${capitalize(name)}"`, 'error');
+  }
+}
+
+function renderPickCard(slot, data) {
+  document.getElementById(`pick-empty-${slot}`).style.display = 'none';
+  const filled = document.getElementById(`pick-filled-${slot}`);
+  filled.style.display = 'flex';
+
+  const gen = getGenForId(data.id);
+  document.getElementById(`pick-gen-${slot}`).textContent = GEN_LABELS[gen];
+  document.getElementById(`pick-artwork-${slot}`).src = data.sprite_url;
+  document.getElementById(`pick-artwork-${slot}`).alt = data.name;
+  document.getElementById(`pick-number-${slot}`).textContent = `#${String(data.id).padStart(3,'0')}`;
+  document.getElementById(`pick-name-v2-${slot}`).textContent = capitalize(data.name);
+
+  const bst = data.stats.reduce((s, st) => s + st.value, 0);
+  document.getElementById(`pick-bst-${slot}`).textContent = `BST ${bst}`;
+
+  document.getElementById(`pick-types-v2-${slot}`).innerHTML = (data.types||[]).map(t =>
+    `<span class="pick-type-badge" style="background:${t.color}">${t.name}</span>`).join('');
+
+  const color = (data.types && data.types[0]) ? data.types[0].color : '#e63946';
+  const slot_el = document.getElementById(`pick-slot-${slot}`);
+  slot_el.style.setProperty('--pick-accent', color);
+  slot_el.classList.add('filled');
+}
+
+// ── Battle ────────────────────────────────────────────────────
+
+// Type effectiveness lookup (simplified)
+const TYPE_WEAK = {
+  fire:['water','rock','ground'], water:['electric','grass'], grass:['fire','ice','poison','flying','bug'],
+  electric:['ground'], ice:['fire','fighting','rock','steel'], fighting:['flying','psychic','fairy'],
+  poison:['ground','psychic'], ground:['water','grass','ice'], flying:['electric','ice','rock'],
+  psychic:['bug','ghost','dark'], bug:['fire','flying','rock'], rock:['water','grass','fighting','ground','steel'],
+  ghost:['ghost','dark'], dragon:['ice','dragon','fairy'], dark:['fighting','bug','fairy'],
+  steel:['fire','fighting','ground'], fairy:['poison','steel'], normal:['fighting'],
+};
+
+function typeMultiplier(atkType, defTypes) {
+  let mult = 1;
+  (defTypes||[]).forEach(dt => {
+    const weakTo = TYPE_WEAK[dt.name] || [];
+    if (weakTo.includes(atkType)) mult *= 2;
+    // Resistances (simplified: no immunity)
+  });
+  return mult;
+}
+
+function calcDamage(attacker, defender, move) {
+  const isSpecial = ['psychic','fire','water','grass','electric','ice','dragon','dark','fairy'].includes(move.type);
+  const atk = isSpecial
+    ? (attacker.stats.find(s => s.name === 'Sp. Atk')?.value || 50)
+    : (attacker.stats.find(s => s.name === 'Attack')?.value || 50);
+  const def = isSpecial
+    ? (defender.stats.find(s => s.name === 'Sp. Def')?.value || 50)
+    : (defender.stats.find(s => s.name === 'Defense')?.value || 50);
+  const power = move.power || 60;
+  const stab = (attacker.types||[]).some(t => t.name === move.type) ? 1.5 : 1;
+  const mult = typeMultiplier(move.type, defender.types);
+  const raw = Math.floor((atk / def) * power * stab * mult / 8);
+  const variation = 0.85 + Math.random() * 0.15;
+  return { damage: Math.max(1, Math.floor(raw * variation)), multiplier: mult, stab };
+}
+
+async function fetchMoves(name) {
+  try {
+    const res = await fetch(`/api/pokemon/${encodeURIComponent(name)}/moves`);
+    const data = await res.json();
+    return (data.moves || []).filter(m => m.power > 0);
+  } catch { return []; }
+}
+
+function generateDefaultMoves(pokemon) {
+  return (pokemon.types || [{name:'normal'}]).map(t => ({
+    name: `${t.name}-attack`, type: t.name, power: 60, pp: 20, category: 'physical'
+  })).concat([
+    { name: 'tackle', type: 'normal', power: 40, pp: 35, category: 'physical' },
+    { name: 'quick-attack', type: 'normal', power: 40, pp: 30, category: 'physical' }
+  ]);
+}
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+async function startBattle() {
+  if (!battleState.p1 || !battleState.p2 || battleState.battleActive) return;
+  battleState.battleActive = true;
+
+  const fightBtn = document.getElementById('fight-btn');
+  fightBtn.disabled = true;
+  fightBtn.innerHTML = '<span class="fight-btn-icon">⚡</span><span>Luchando…</span>';
+
+  // Show arena
+  const arena = document.getElementById('battle-arena');
+  arena.style.display = 'block';
+  arena.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('post-battle-stats').style.display = 'none';
+
+  const p1 = battleState.p1, p2 = battleState.p2;
+
+  // Setup arena
+  setupArenaFighter(1, p1);
+  setupArenaFighter(2, p2);
+  setArenaBg(p1, p2);
+  clearBattleLog();
+
+  // Fetch moves
+  addLog(`⚔️ <strong>${capitalize(p1.name)}</strong> y <strong>${capitalize(p2.name)}</strong> entran en la arena!`);
+  await wait(600);
+
+  let [moves1, moves2] = await Promise.all([fetchMoves(p1.name), fetchMoves(p2.name)]);
+  if (!moves1.length) moves1 = generateDefaultMoves(p1);
+  if (!moves2.length) moves2 = generateDefaultMoves(p2);
+
+  // Play entry cries
+  playPokemonCry(p1.id);
+  document.getElementById('arena-p1').classList.add('fighter-enter');
+  await wait(900);
+  playPokemonCry(p2.id);
+  document.getElementById('arena-p2').classList.add('fighter-enter');
+  await wait(600);
+
+  // Speed determines first mover
+  const p1Speed = p1.stats.find(s => s.name === 'Speed')?.value || 50;
+  const p2Speed = p2.stats.find(s => s.name === 'Speed')?.value || 50;
+  const p1MaxHP = p1.stats.find(s => s.name === 'HP')?.value || 100;
+  const p2MaxHP = p2.stats.find(s => s.name === 'HP')?.value || 100;
+
+  let p1CurHP = p1MaxHP, p2CurHP = p2MaxHP;
+  updateHPBar(1, p1CurHP, p1MaxHP);
+  updateHPBar(2, p2CurHP, p2MaxHP);
+
+  if (p1Speed > p2Speed) {
+    addLog(`⚡ ${capitalize(p1.name)} es más veloz (${p1Speed} > ${p2Speed})! Va primero.`);
+    document.getElementById('speed-ind').textContent = `⚡ ${capitalize(p1.name)} primero`;
+  } else if (p2Speed > p1Speed) {
+    addLog(`⚡ ${capitalize(p2.name)} es más veloz (${p2Speed} > ${p1Speed})! Va primero.`);
+    document.getElementById('speed-ind').textContent = `⚡ ${capitalize(p2.name)} primero`;
+  } else {
+    addLog(`⚡ Ambos tienen la misma velocidad (${p1Speed}). Turno aleatorio!`);
+    document.getElementById('speed-ind').textContent = `⚡ Velocidad empatada`;
+  }
+  await wait(800);
+
+  // Turn order: first by speed, then alternate
+  let turn = p1Speed >= p2Speed ? 1 : 2;
+  const MAX_ROUNDS = 6;
+
+  for (let round = 1; round <= MAX_ROUNDS; round++) {
+    if (p1CurHP <= 0 || p2CurHP <= 0) break;
+
+    document.getElementById('round-badge').textContent = `Ronda ${round}`;
+
+    // Attacker and defender
+    const atk = turn === 1 ? p1 : p2;
+    const def = turn === 1 ? p2 : p1;
+    const atkMoves = turn === 1 ? moves1 : moves2;
+    const defSlot = turn === 1 ? 2 : 1;
+    const atkSlot = turn;
+
+    const move = atkMoves[Math.floor(Math.random() * atkMoves.length)];
+    const { damage, multiplier } = calcDamage(atk, def, move);
+
+    // Announce move
+    const moveName = capitalize(move.name.replace(/-/g,' '));
+    addLog(`🎯 <strong>${capitalize(atk.name)}</strong> usa <em>${moveName}</em>!`);
+    await wait(400);
+
+    // Attack animation
+    playSound('attack');
+    document.getElementById(`arena-p${atkSlot}`).classList.add('attacker-lunge');
+    await wait(350);
+    document.getElementById(`arena-p${atkSlot}`).classList.remove('attacker-lunge');
+
+    // Hit animation + sound
+    playSound('hit');
+    showTypeFlash(defSlot, move.type);
+    document.getElementById(`arena-p${defSlot}`).classList.add('hit-shake');
+    await wait(150);
+    document.getElementById(`arena-p${defSlot}`).classList.remove('hit-shake');
+
+    // Type effectiveness
+    if (multiplier >= 2) {
+      playSound('superEffective');
+      addLog(`✨ ¡Es muy eficaz! (×${multiplier})`);
+    } else if (multiplier <= 0.5) {
+      playSound('notVeryEffective');
+      addLog(`💤 No es muy eficaz… (×${multiplier})`);
+    }
+    await wait(300);
+
+    // Apply damage
+    if (turn === 1) {
+      p2CurHP = Math.max(0, p2CurHP - damage);
+      updateHPBar(2, p2CurHP, p2MaxHP);
+      showDamageNumber(2, damage);
+    } else {
+      p1CurHP = Math.max(0, p1CurHP - damage);
+      updateHPBar(1, p1CurHP, p1MaxHP);
+      showDamageNumber(1, damage);
     }
 
-    function showGridLoading() {
-        document.getElementById('picker-grid').innerHTML = '';
-        document.getElementById('picker-grid').style.display = 'none';
-        document.getElementById('picker-loading').style.display = 'flex';
-        document.getElementById('picker-empty').style.display = 'none';
-        document.getElementById('picker-pagination').style.display = 'none';
-    }
+    addLog(`💥 <strong>${capitalize(def.name)}</strong> pierde <strong>${damage} HP</strong> (${turn===1?p2CurHP:p1CurHP}/${turn===1?p2MaxHP:p1MaxHP})`);
+    await wait(700);
 
-    function showGridEmpty() {
-        document.getElementById('picker-grid').innerHTML = '';
-        document.getElementById('picker-grid').style.display = 'none';
-        document.getElementById('picker-loading').style.display = 'none';
-        document.getElementById('picker-empty').style.display = 'flex';
-        document.getElementById('picker-pagination').style.display = 'none';
-    }
+    if (p1CurHP <= 0 || p2CurHP <= 0) break;
+    turn = turn === 1 ? 2 : 1;
+    await wait(200);
+  }
 
-    // ── Select Pokemon ────────────────────────────────────────────
-    async function selectPokemon(name) {
-        closeModal();
-        await loadPokemonByName(activeModalSlot, name);
-    }
+  // ── Determine winner ──
+  await wait(500);
+  let winnerPoke, loserSlot, winnerSlot;
+  if (p1CurHP <= 0 && p2CurHP <= 0) {
+    addLog(`🤝 ¡Ambos han caído! ¡Es un empate!`);
+    winnerPoke = null;
+  } else if (p1CurHP <= 0) {
+    winnerPoke = p2; loserSlot = 1; winnerSlot = 2;
+  } else if (p2CurHP <= 0) {
+    winnerPoke = p1; loserSlot = 2; winnerSlot = 1;
+  } else {
+    // Decision by HP percentage
+    const p1Pct = p1CurHP / p1MaxHP;
+    const p2Pct = p2CurHP / p2MaxHP;
+    if (p1Pct > p2Pct) { winnerPoke = p1; loserSlot = 2; winnerSlot = 1; }
+    else if (p2Pct > p1Pct) { winnerPoke = p2; loserSlot = 1; winnerSlot = 2; }
+    else { winnerPoke = null; }
+    addLog(`⏱️ ¡Se acabó el tiempo! Decisión por HP restante.`);
+  }
 
-    async function loadPokemonByName(slot, name) {
-        setStatus(`Cargando ${name}…`, 'loading');
-        try {
-            const res = await fetch(`/api/pokemon/${encodeURIComponent(name.toLowerCase())}`);
-            if (!res.ok) throw new Error('No encontrado');
-            const data = await res.json();
+  if (loserSlot) {
+    playSound('faint');
+    document.getElementById(`arena-p${loserSlot}`).classList.add('fighter-faint');
+    document.getElementById(`a-p${loserSlot}-sprite`).classList.add('sprite-faint');
+    await wait(700);
+    addLog(`😵 <strong>${capitalize(loserSlot === 1 ? p1.name : p2.name)}</strong> se ha debilitado!`);
+  }
 
-            state[`p${slot}`] = data;
-            renderPickCard(slot, data);
-            renderArenaSlot(slot, data);
-            clearStatus();
+  if (winnerPoke) {
+    await wait(600);
+    playSound('victory');
+    playPokemonCry(winnerPoke.id);
+    addLog(`🏆 ¡<strong>${capitalize(winnerPoke.name)}</strong> gana la batalla!`);
+    document.getElementById(`arena-p${winnerSlot}`).classList.add('fighter-victory');
+  }
 
-            const url = new URL(window.location);
-            url.searchParams.set(`p${slot}`, name.toLowerCase());
-            window.history.replaceState({}, '', url);
+  // Show stats comparison
+  await wait(800);
+  renderPostBattleStats(p1, p2);
 
-            if (state.p1 && state.p2) {
-                const btn = document.getElementById('fight-btn');
-                btn.disabled = false;
-                btn.classList.add('ready');
-            }
-        } catch {
-            setStatus(`⚠️ Pokémon no encontrado: "${name}"`, 'error');
-        }
-    }
+  // Reset btn
+  document.getElementById('reset-btn').style.display = 'inline-flex';
+  fightBtn.style.display = 'none';
+  battleState.battleActive = false;
+}
 
-    // ── Render pick card ─────────────────────────────────────────
-    function renderPickCard(slot, data) {
-        document.getElementById(`pick-empty-${slot}`).style.display = 'none';
-        document.getElementById(`pick-filled-${slot}`).style.display = 'flex';
+function setupArenaFighter(slot, data) {
+  const bst = data.stats.reduce((s, st) => s + st.value, 0);
+  document.getElementById(`a-p${slot}-name`).textContent = capitalize(data.name);
+  document.getElementById(`a-p${slot}-sprite`).src = data.sprite_url;
+  document.getElementById(`a-p${slot}-bst`).textContent = `BST: ${bst}`;
+  document.getElementById(`a-p${slot}-types`).innerHTML = (data.types||[]).map(t =>
+    `<span class="arena-type-tag" style="background:${t.color}">${t.name}</span>`).join('');
 
-        document.getElementById(`pick-sprite-${slot}`).src = data.sprite_url;
-        document.getElementById(`pick-name-${slot}`).textContent =
-            data.name.charAt(0).toUpperCase() + data.name.slice(1);
+  const maxHP = data.stats.find(s => s.name === 'HP')?.value || 100;
+  updateHPBar(slot, maxHP, maxHP);
 
-        document.getElementById(`pick-types-${slot}`).innerHTML =
-            (data.types || []).map(t =>
-                `<span class="battle-type-tag" style="background:${t.color}">${t.name}</span>`
-            ).join('');
+  // Reset classes
+  const fighter = document.getElementById(`arena-p${slot}`);
+  fighter.classList.remove('fighter-enter','fighter-faint','fighter-victory','attacker-lunge','hit-shake');
+}
 
-        // Color the card border by first type
-        const color = (data.types && data.types[0]) ? data.types[0].color : '#e63946';
-        document.getElementById(`pick-card-${slot}`).style.setProperty('--pick-color', color);
-        document.getElementById(`pick-card-${slot}`).classList.add('filled');
-    }
+function setArenaBg(p1, p2) {
+  const bg = document.getElementById('arena-bg');
+  const t1 = p1.types?.[0]?.color || '#e63946';
+  const t2 = p2.types?.[0]?.color || '#4361ee';
+  bg.style.background = `linear-gradient(135deg, ${t1}22 0%, #0a0a14 50%, ${t2}22 100%)`;
+}
 
-    // ── Render arena slot ─────────────────────────────────────────
-    function renderArenaSlot(slot, data) {
-        document.getElementById(`p${slot}-sprite`).src = data.sprite_url;
-        document.getElementById(`p${slot}-sprite`).alt = data.name;
-        document.getElementById(`p${slot}-name-display`).textContent =
-            data.name.charAt(0).toUpperCase() + data.name.slice(1);
+function updateHPBar(slot, current, max) {
+  const pct = Math.max(0, (current / max) * 100);
+  const fill = document.getElementById(`p${slot}-hp-fill`);
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 50 ? '#2dc653' : pct > 25 ? '#f4c430' : '#e63946';
+  document.getElementById(`p${slot}-hp-text`).textContent = `${current}/${max}`;
+}
 
-        const bst = data.stats.reduce((s, st) => s + st.value, 0);
-        document.getElementById(`p${slot}-bst`).textContent = `BST: ${bst}`;
+function showDamageNumber(slot, damage) {
+  const pop = document.getElementById(`p${slot}-dmg-pop`);
+  pop.textContent = `-${damage}`;
+  pop.classList.remove('pop-animate');
+  void pop.offsetWidth;
+  pop.classList.add('pop-animate');
+}
 
-        document.getElementById(`p${slot}-types`).innerHTML =
-            (data.types || []).map(t =>
-                `<span class="battle-type-tag" style="background:${t.color}">${t.name}</span>`
-            ).join('');
+function showTypeFlash(slot, type) {
+  const flash = document.getElementById(`p${slot}-type-flash`);
+  const typeColors = {
+    fire:'#EE8130',water:'#6390F0',grass:'#7AC74C',electric:'#F7D02C',
+    ice:'#96D9D6',psychic:'#F95587',dragon:'#6F35FC',dark:'#705746',
+    normal:'#A8A77A',fighting:'#C22E28',poison:'#A33EA1',ground:'#E2BF65',
+    flying:'#A98FF3',bug:'#A6B91A',rock:'#B6A136',ghost:'#735797',
+    steel:'#B7B7CE',fairy:'#D685AD'
+  };
+  flash.style.background = `radial-gradient(circle, ${typeColors[type] || '#fff'}88, transparent)`;
+  flash.classList.remove('flash-animate');
+  void flash.offsetWidth;
+  flash.classList.add('flash-animate');
+}
 
-        document.getElementById('battle-arena').style.display = 'block';
-        document.getElementById('winner-badge').style.display = 'none';
-        document.getElementById('battle-stats').style.display = 'none';
-        document.getElementById(`p${slot}-hp-bar`).style.background = '#4caf50';
-        document.getElementById(`p${slot}-card`).classList.remove('winner-glow', 'loser-dim');
+function addLog(html) {
+  const scroll = document.getElementById('battle-log-scroll');
+  const p = document.createElement('p');
+  p.className = 'log-line';
+  p.innerHTML = html;
+  scroll.appendChild(p);
+  scroll.scrollTop = scroll.scrollHeight;
+}
 
-        // Show slot
-        const card = document.getElementById(`p${slot}-card`);
-        card.style.opacity = '1';
-        card.style.pointerEvents = 'all';
+function clearBattleLog() {
+  document.getElementById('battle-log-scroll').innerHTML = '';
+}
 
-        // Show lightning if both ready
-        if (state.p1 && state.p2) {
-            document.getElementById('battle-lightning').style.opacity = '1';
-        }
-    }
+function renderPostBattleStats(p1, p2) {
+  const section = document.getElementById('post-battle-stats');
+  section.style.display = 'block';
+  document.getElementById('pbs-p1-name').textContent = capitalize(p1.name);
+  document.getElementById('pbs-p2-name').textContent = capitalize(p2.name);
+  const labels = { 'HP':'HP','Attack':'Ataque','Defense':'Defensa','Sp. Atk':'Sp.Atq','Sp. Def':'Sp.Def','Speed':'Veloc.' };
+  document.getElementById('pbs-rows').innerHTML = p1.stats.map((st, i) => {
+    const s2 = p2.stats[i]; if (!s2) return '';
+    const l = labels[st.name] || st.name;
+    const p1w = Math.round((st.value/255)*100), p2w = Math.round((s2.value/255)*100);
+    return `<div class="pbs-row">
+      <span class="pbs-val ${st.value>s2.value?'pbs-win':''}">${st.value}</span>
+      <div class="pbs-bars">
+        <div class="pbs-label">${l}</div>
+        <div class="pbs-track">
+          <div class="pbs-fill pbs-p1-fill ${st.value>s2.value?'pbs-dominant':''}" style="width:${p1w}%"></div>
+          <div class="pbs-fill pbs-p2-fill ${s2.value>st.value?'pbs-dominant':''}" style="width:${p2w}%"></div>
+        </div>
+      </div>
+      <span class="pbs-val ${s2.value>st.value?'pbs-win':''}">${s2.value}</span>
+    </div>`;
+  }).join('');
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-    // ── Start Battle ─────────────────────────────────────────────
-    async function startBattle() {
-        if (!state.p1 || !state.p2) return;
+function resetBattle() {
+  battleState.battleActive = false;
+  document.getElementById('battle-arena').style.display = 'none';
+  document.getElementById('fight-btn').style.display = 'inline-flex';
+  document.getElementById('fight-btn').innerHTML = '<span class="fight-btn-icon">⚔️</span><span>¡BATALLA!</span>';
+  document.getElementById('fight-btn').disabled = false;
+  document.getElementById('reset-btn').style.display = 'none';
+}
 
-        const btn = document.getElementById('fight-btn');
-        btn.disabled = true;
-        btn.textContent = '⚡ Calculando…';
+// ── Status helpers ────────────────────────────────────────────
+function setStatus(msg, type) {
+  const el = document.getElementById('battle-status');
+  el.textContent = msg; el.className = `battle-status-v2 status-${type}`;
+}
+function clearStatus() {
+  const el = document.getElementById('battle-status');
+  el.textContent = ''; el.className = 'battle-status-v2';
+}
 
-        ['p1-card', 'p2-card'].forEach(id =>
-            document.getElementById(id).classList.remove('winner-glow', 'loser-dim', 'shake-anim'));
-        document.getElementById('winner-badge').style.display = 'none';
-        document.getElementById('battle-stats').style.display = 'none';
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-        await new Promise(r => setTimeout(r, 200));
-        document.getElementById('p1-card').classList.add('shake-anim');
-        document.getElementById('p2-card').classList.add('shake-anim');
-        await new Promise(r => setTimeout(r, 700));
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  preloadPokemon();
 
-        const p1 = state.p1, p2 = state.p2;
-        const p1bst = p1.stats.reduce((s, st) => s + st.value, 0);
-        const p2bst = p2.stats.reduce((s, st) => s + st.value, 0);
+  document.getElementById('picker-search').addEventListener('input', e => {
+    pickerQuery = e.target.value.trim().toLowerCase();
+    renderPickerGrid();
+  });
 
-        const p1AdvNames = (p1.advantages || []).map(a => a.name);
-        const p2AdvNames = (p2.advantages || []).map(a => a.name);
-        const p1TypeNames = (p1.types || []).map(t => t.name);
-        const p2TypeNames = (p2.types || []).map(t => t.name);
+  document.getElementById('picker-type').addEventListener('change', e => {
+    pickerType = e.target.value;
+    renderPickerGrid();
+  });
 
-        const p1AdvantageOver = p1AdvNames.filter(t => p2TypeNames.includes(t));
-        const p2AdvantageOver = p2AdvNames.filter(t => p1TypeNames.includes(t));
-        const p1TypeBonus = p1AdvantageOver.length > 0 ? 20 : 0;
-        const p2TypeBonus = p2AdvantageOver.length > 0 ? 20 : 0;
-        const p1Total = p1bst + p1TypeBonus;
-        const p2Total = p2bst + p2TypeBonus;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePicker();
+  });
 
-        // Visual Clash Feedback
-        const showClash = (slot, text) => {
-            const card = document.getElementById(`p${slot}-card`);
-            const pop = document.createElement('div');
-            pop.className = 'clash-feedback-pop';
-            pop.textContent = text;
-            card.appendChild(pop);
-            setTimeout(() => pop.remove(), 1200);
-        };
-
-        if (p1TypeBonus > 0) showClash(1, '¡ES SÚPER EFICAZ!');
-        if (p2TypeBonus > 0) showClash(2, '¡Eficacia extra!');
-
-        renderStats(p1, p2, p1bst, p2bst, p1TypeBonus, p2TypeBonus, p1Total, p2Total,
-            p1AdvantageOver, p2AdvantageOver);
-
-        const hpRatio = p1Total > p2Total
-            ? [100, Math.round(((p1Total - p2Total) / p1Total) * 60 + 15)]
-            : p2Total > p1Total
-                ? [Math.round(((p2Total - p1Total) / p2Total) * 60 + 15), 100]
-                : [50, 50];
-        animateHpBars(hpRatio[0], hpRatio[1]);
-
-        await new Promise(r => setTimeout(r, 800));
-
-        const badge = document.getElementById('winner-badge');
-        if (p1Total > p2Total) {
-            document.getElementById('p1-card').classList.add('winner-glow');
-            document.getElementById('p2-card').classList.add('loser-dim');
-            badge.textContent = '🏆 ' + (p1.name.charAt(0).toUpperCase() + p1.name.slice(1)) + ' gana';
-        } else if (p2Total > p1Total) {
-            document.getElementById('p2-card').classList.add('winner-glow');
-            document.getElementById('p1-card').classList.add('loser-dim');
-            badge.textContent = '🏆 ' + (p2.name.charAt(0).toUpperCase() + p2.name.slice(1)) + ' gana';
-        } else {
-            badge.textContent = '🤝 ¡Empate!';
-        }
-        badge.style.display = 'flex';
-        badge.classList.remove('pop-in');
-        void badge.offsetWidth;
-        badge.classList.add('pop-in');
-
-        ['p1-card', 'p2-card'].forEach(id =>
-            document.getElementById(id).classList.remove('shake-anim'));
-
-        btn.disabled = false;
-        btn.textContent = '⚔️ ¡Repetir!';
-        btn.classList.add('ready');
-    }
-
-    function animateHpBars(p1Pct, p2Pct) {
-        const p1Bar = document.getElementById('p1-hp-bar');
-        const p2Bar = document.getElementById('p2-hp-bar');
-        p1Bar.style.width = '100%'; p2Bar.style.width = '100%';
-        const hpColor = pct => pct > 50 ? '#4caf50' : pct > 25 ? '#ffb300' : '#f44336';
-        setTimeout(() => {
-            p1Bar.style.width = p1Pct + '%'; p1Bar.style.background = hpColor(p1Pct);
-            p2Bar.style.width = p2Pct + '%'; p2Bar.style.background = hpColor(p2Pct);
-        }, 100);
-    }
-
-    function renderStats(p1, p2, p1bst, p2bst, p1Bonus, p2Bonus, p1Total, p2Total, p1AdvOver, p2AdvOver) {
-        document.getElementById('legend-p1-name').textContent = p1.name.charAt(0).toUpperCase() + p1.name.slice(1);
-        document.getElementById('legend-p2-name').textContent = p2.name.charAt(0).toUpperCase() + p2.name.slice(1);
-        const container = document.getElementById('stat-rows-container');
-        container.innerHTML = '';
-        p1.stats.forEach((stat, i) => {
-            const s2 = p2.stats[i]; if (!s2) return;
-            const label = STAT_LABELS[stat.name] || stat.name;
-            const p1Pct = Math.round((stat.value / 255) * 100);
-            const p2Pct = Math.round((s2.value / 255) * 100);
-            container.innerHTML += `
-        <div class="battle-stat-row">
-            <span class="bsr-val bsr-left ${stat.value > s2.value ? 'bsr-win' : ''}">${stat.value}</span>
-            <div class="bsr-bars">
-                <div class="bsr-label">${label}</div>
-                <div class="bsr-track-wrap">
-                    <div class="bsr-fill p1-fill ${stat.value > s2.value ? 'bsr-dominant' : ''}" style="width:${p1Pct}%"></div>
-                    <div class="bsr-fill p2-fill ${s2.value > stat.value ? 'bsr-dominant' : ''}" style="width:${p2Pct}%"></div>
-                </div>
-            </div>
-            <span class="bsr-val bsr-right ${s2.value > stat.value ? 'bsr-win' : ''}">${s2.value}</span>
-        </div>`;
-        });
-
-        const p1Name = p1.name.charAt(0).toUpperCase() + p1.name.slice(1);
-        const p2Name = p2.name.charAt(0).toUpperCase() + p2.name.slice(1);
-        let advHTML = '';
-        if (p1AdvOver.length > 0) advHTML += `<div class="adv-line p1-adv"><span class="adv-name">${p1Name}</span> es fuerte frente a los tipos: <strong>${p1AdvOver.join(', ')}</strong> → <span class="adv-bonus">+20 pts</span></div>`;
-        if (p2AdvOver.length > 0) advHTML += `<div class="adv-line p2-adv"><span class="adv-name">${p2Name}</span> es fuerte frente a los tipos: <strong>${p2AdvOver.join(', ')}</strong> → <span class="adv-bonus">+20 pts</span></div>`;
-        if (!advHTML) advHTML = '<div style="color:var(--text-secondary);font-size:0.85rem">Ninguno tiene ventaja de tipo directa.</div>';
-        document.getElementById('type-advantage-text').innerHTML = advHTML;
-        document.getElementById('type-advantage-section').style.display = 'block';
-
-        document.getElementById('p1-final-score').innerHTML = `<span class="score-name">${p1Name}</span><span class="score-num">${p1Total}</span>${p1Bonus ? `<span class="score-bonus">+${p1Bonus}</span>` : ''}`;
-        document.getElementById('p2-final-score').innerHTML = `<span class="score-name">${p2Name}</span><span class="score-num">${p2Total}</span>${p2Bonus ? `<span class="score-bonus">+${p2Bonus}</span>` : ''}`;
-        document.getElementById('battle-stats').style.display = 'block';
-    }
-
-    function setStatus(msg, type) {
-        const el = document.getElementById('battle-status');
-        el.textContent = msg; el.className = 'battle-status ' + type;
-    }
-    function clearStatus() {
-        const el = document.getElementById('battle-status');
-        el.textContent = ''; el.className = 'battle-status';
-    }
+  // URL params
+  const params = new URLSearchParams(window.location.search);
+  const pr1 = params.get('p1'), pr2 = params.get('p2');
+  if (pr1) { activePickerSlot = 1; selectPokemon(pr1, 0); }
+  if (pr2) { activePickerSlot = 2; selectPokemon(pr2, 0); }
+});
 </script>
 {% endblock %}
