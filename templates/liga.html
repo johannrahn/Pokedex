@@ -2894,8 +2894,8 @@
     function renderTBGrid() {
         const grid = document.getElementById('tb-grid');
         const loading = document.getElementById('tb-loading');
-        if (!tbAllPokemon.length) { loading.style.display='flex'; return; }
-        loading.style.display = 'none';
+        if (!tbAllPokemon.length) { if (loading) loading.style.display='flex'; return; }
+        if (loading) loading.style.display = 'none';
 
         const q = (document.getElementById('tb-search')?.value||'').trim().toLowerCase();
         const typeF = document.getElementById('tb-type')?.value || '';

@@ -632,8 +632,8 @@ function pickerFiltered() {
 function renderPickerGrid() {
   const grid = document.getElementById('picker-grid-v2');
   const loading = document.getElementById('picker-loading');
-  if (!allPokemon.length) { loading.style.display='flex'; setTimeout(renderPickerGrid,400); return; }
-  loading.style.display = 'none';
+  if (!allPokemon.length) { if (loading) loading.style.display='flex'; setTimeout(renderPickerGrid,400); return; }
+  if (loading) loading.style.display = 'none';
   const filtered = pickerFiltered();
   document.getElementById('picker-count-v2').textContent = `${filtered.length} Pokémon`;
   if (!filtered.length) { grid.innerHTML='<div class="picker-empty-v2">Sin resultados</div>'; return; }
@@ -818,7 +818,6 @@ function showActions() {
   document.getElementById('arena-control-panel').style.display = 'grid';
   document.getElementById('acp-actions').style.display = 'grid';
   document.getElementById('acp-moves').style.display = 'none';
-  document.getElementById('acp-poke-name').textContent = cap(p.name);
   document.getElementById('acp-narration').innerHTML = `¿Qué hará <strong>${cap(p.name)}</strong>?`;
   battle.phase = 'action';
 }
@@ -1035,8 +1034,8 @@ async function checkFaintsAndContinue() {
     addLog('❗ ¡Tu Pokémon se debilitó! Elige el siguiente.');
     narrate('¡Elige tu siguiente Pokémon!');
     await wait(400);
-    showSwitchMenu();
     battle.phase = 'action';
+    showSwitchMenu();
     return;
   }
 
