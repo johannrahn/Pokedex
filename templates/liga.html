@@ -20,9 +20,9 @@
     <!-- Empty State -->
     <div id="league-empty-state" class="lx-empty-state" style="display:none">
         <div class="lx-empty-icon">🛡️</div>
-        <h3>¡Sin Pokémon en tu equipo!</h3>
-        <p>Vuelve a la página principal y usa el <strong>Team Builder</strong>.</p>
-        <a href="{{ url_for('index') }}" class="lx-btn lx-btn-primary" style="margin-top:1.5rem">← Crear mi equipo</a>
+        <h3>¡Elige tu equipo!</h3>
+        <p>Selecciona hasta 6 Pokémon de las primeras 3 generaciones para competir en la Liga.</p>
+        <button class="lx-btn lx-btn-primary" onclick="openTeamBuilder()" style="margin-top:1.5rem">⚡ Elegir Pokémon</button>
     </div>
 
     <!-- Active State -->
@@ -36,7 +36,9 @@
 
             <!-- Team Panel -->
             <div class="lx-panel lx-panel-team">
-                <div class="lx-panel-header"><span class="lx-panel-icon">👥</span><span>Tu Equipo</span></div>
+                <div class="lx-panel-header"><span class="lx-panel-icon">👥</span><span>Tu Equipo</span>
+                    <button class="lx-btn lx-btn-ghost lx-btn-sm" onclick="openTeamBuilder()" style="margin-left:auto;padding:.22rem .65rem;font-size:.7rem">✏️ Cambiar</button>
+                </div>
                 <div class="lx-hp-section">
                     <div class="lx-hp-labels"><span>❤️ Vida del Equipo</span><span id="hp-text">600 / 600</span></div>
                     <div class="lx-hp-bar-wrap">
@@ -172,6 +174,49 @@
                 <div class="lx-cov-body" id="lx-cov-body">
                     <p class="lx-hint-txt">Cargando equipo…</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TEAM BUILDER MODAL ══════════════════════════════ -->
+    <div class="tb-overlay" id="tb-overlay" onclick="closeTBOutside(event)">
+        <div class="tb-modal" id="tb-modal">
+            <div class="tb-header">
+                <h2>Elige tu Equipo</h2>
+                <button class="tb-close" onclick="closeTB()">✕</button>
+            </div>
+            <!-- Selected slots preview -->
+            <div class="tb-selected-bar" id="tb-selected-bar"></div>
+            <!-- Gen tabs -->
+            <div class="picker-gen-tabs" style="padding:.5rem .75rem 0">
+                <button class="picker-gen-tab active" data-gen="all" onclick="filterTBGen('all',this)">Todos</button>
+                <button class="picker-gen-tab" data-gen="1" onclick="filterTBGen('1',this)">🔴 Kanto</button>
+                <button class="picker-gen-tab" data-gen="2" onclick="filterTBGen('2',this)">⭐ Johto</button>
+                <button class="picker-gen-tab" data-gen="3" onclick="filterTBGen('3',this)">🌿 Hoenn</button>
+            </div>
+            <!-- Search + type -->
+            <div class="tb-filters">
+                <div class="picker-search-wrap" style="flex:1">
+                    <svg class="picker-search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="tb-search" class="picker-search-v2" placeholder="Nombre o número…" autocomplete="off" oninput="renderTBGrid()">
+                </div>
+                <select id="tb-type" class="picker-type-select" onchange="renderTBGrid()">
+                    <option value="">Todos los tipos</option>
+                    {% for t in available_types %}
+                    <option value="{{ t.name }}">{{ t.name | capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Grid -->
+            <div class="picker-grid-v2 tb-grid" id="tb-grid">
+                <div class="picker-loading-v2" id="tb-loading">
+                    <div class="pk-spinner"></div><span>Cargando Pokémon…</span>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="tb-footer">
+                <span id="tb-count-txt">0/6 seleccionados</span>
+                <button class="lx-btn lx-btn-primary" id="tb-confirm-btn" onclick="confirmTeam()" disabled>Confirmar equipo →</button>
             </div>
         </div>
     </div>
@@ -1746,6 +1791,129 @@
         padding: .2rem .1rem;
         line-height: 1.6
     }
+
+    /* ══ TEAM BUILDER MODAL ══════════════════════════════ */
+    .tb-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.82);
+        backdrop-filter: blur(8px);
+        z-index: 9000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+    .tb-overlay.open { display: flex; }
+    .tb-modal {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        width: min(760px, 96vw);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 24px 64px rgba(0,0,0,.6);
+    }
+    .tb-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.4rem;
+        border-bottom: 1px solid var(--glass-border);
+        flex-shrink: 0;
+    }
+    .tb-header h2 { margin:0; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:.8px; }
+    .tb-close {
+        background: none; border: none; color: var(--text-muted);
+        font-size: 1.2rem; cursor: pointer; padding: .2rem .5rem;
+        transition: color .15s;
+    }
+    .tb-close:hover { color: #fff; }
+
+    /* Selected slots bar */
+    .tb-selected-bar {
+        display: flex;
+        gap: .5rem;
+        padding: .75rem 1rem;
+        border-bottom: 1px solid var(--glass-border);
+        flex-shrink: 0;
+        background: rgba(255,255,255,.02);
+        flex-wrap: wrap;
+    }
+    .tb-slot {
+        width: 62px;
+        height: 62px;
+        border-radius: 10px;
+        border: 2px dashed rgba(255,255,255,.2);
+        background: rgba(255,255,255,.03);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+        transition: all .2s;
+    }
+    .tb-slot.filled { border-style: solid; border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.06); }
+    .tb-slot img { width: 42px; height: 42px; object-fit: contain; }
+    .tb-slot span { font-size: .5rem; text-transform: capitalize; color: rgba(255,255,255,.6); }
+    .tb-slot .tb-remove {
+        position: absolute;
+        top: -5px; right: -5px;
+        width: 16px; height: 16px;
+        border-radius: 50%;
+        background: #e63946;
+        color: #fff;
+        font-size: .6rem;
+        font-weight: 900;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .tb-slot-empty-num { font-size: .85rem; color: rgba(255,255,255,.2); font-weight: 700; }
+
+    .tb-filters {
+        display: flex;
+        gap: .6rem;
+        padding: .6rem .75rem;
+        border-bottom: 1px solid var(--glass-border);
+        flex-shrink: 0;
+    }
+    .tb-grid {
+        flex: 1;
+        overflow-y: auto;
+        padding: .75rem;
+        min-height: 0;
+    }
+    .tb-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .75rem 1.2rem;
+        border-top: 1px solid var(--glass-border);
+        background: rgba(255,255,255,.02);
+        flex-shrink: 0;
+        font-size: .85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Selected overlay on picker cards */
+    .pkc-selected-badge {
+        position: absolute;
+        inset: 0;
+        background: rgba(45,198,83,.18);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        pointer-events: none;
+        border: 2px solid rgba(45,198,83,.5);
+    }
+    .picker-card-v2 { position: relative; }
 </style>
 
 
@@ -2684,6 +2852,125 @@
         dragón: '#7038f8', siniestro: '#705848', acero: '#b8b8d0', hada: '#ee99ac',
     };
     function typeColor(t) { return TYPE_COLORS[t.toLowerCase()] || '#888'; }
+
+    // ══ TEAM BUILDER ══════════════════════════════════════════
+    let tbAllPokemon = [];
+    let tbSelected = []; // [{name, id, sprite_url}]
+    let tbGen = 'all';
+    const TB_GEN = { '1':[1,151], '2':[152,251], '3':[252,386] };
+    const TB_GEN_LABELS = { 1:'🔴 Kanto', 2:'⭐ Johto', 3:'🌿 Hoenn' };
+    function tbGetGen(id) { return id<=151?1:id<=251?2:3; }
+
+    async function openTeamBuilder() {
+        document.getElementById('tb-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (!tbAllPokemon.length) {
+            document.getElementById('tb-loading').style.display = 'flex';
+            try {
+                const res = await fetch('/api/pokemon/all');
+                const data = await res.json();
+                tbAllPokemon = (data.pokemon||[]).filter(p=>p.id<=386).sort((a,b)=>a.id-b.id);
+            } catch(e) { console.error('TB load failed', e); }
+        }
+        renderTBSelectedBar();
+        renderTBGrid();
+    }
+
+    function closeTB() {
+        document.getElementById('tb-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    function closeTBOutside(e) {
+        if (e.target === document.getElementById('tb-overlay')) closeTB();
+    }
+
+    function filterTBGen(gen, btn) {
+        tbGen = gen;
+        document.querySelectorAll('#tb-overlay .picker-gen-tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTBGrid();
+    }
+
+    function renderTBGrid() {
+        const grid = document.getElementById('tb-grid');
+        const loading = document.getElementById('tb-loading');
+        if (!tbAllPokemon.length) { loading.style.display='flex'; return; }
+        loading.style.display = 'none';
+
+        const q = (document.getElementById('tb-search')?.value||'').trim().toLowerCase();
+        const typeF = document.getElementById('tb-type')?.value || '';
+
+        let list = tbAllPokemon;
+        if (tbGen !== 'all') { const [lo,hi]=TB_GEN[tbGen]; list=list.filter(p=>p.id>=lo&&p.id<=hi); }
+        if (typeF) list = list.filter(p=>(p.types||[]).some(t=>t.name===typeF));
+        if (q) list = list.filter(p=>p.name.includes(q)||String(p.id).includes(q));
+
+        const selectedIds = new Set(tbSelected.map(p=>p.id));
+        grid.innerHTML = list.map(p => {
+            const gen = tbGetGen(p.id);
+            const dots = (p.types||[]).map(t=>`<span class="pk-type-dot" style="background:${t.color}" title="${t.name}"></span>`).join('');
+            const isSel = selectedIds.has(p.id);
+            return `<div class="picker-card-v2 ripple-container ${isSel?'tb-card-selected':''}" onclick="toggleTBSelect('${p.name}',${p.id},'${p.sprite_url}')">
+                <div class="pkc-gen-tag" data-gen="${gen}">${TB_GEN_LABELS[gen]}</div>
+                <div class="pkc-img-wrap"><img class="pkc-img" src="${p.sprite_url}" alt="${p.name}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png'"></div>
+                <div class="pkc-id">#${String(p.id).padStart(3,'0')}</div>
+                <div class="pkc-name">${cap(p.name)}</div>
+                <div class="pkc-types">${dots}</div>
+                ${isSel?'<div class="pkc-selected-badge">✓</div>':''}
+            </div>`;
+        }).join('');
+    }
+
+    function toggleTBSelect(name, id, spriteUrl) {
+        const idx = tbSelected.findIndex(p=>p.id===id);
+        if (idx >= 0) {
+            tbSelected.splice(idx, 1);
+        } else {
+            if (tbSelected.length >= 6) return;
+            tbSelected.push({ name, id, sprite_url: spriteUrl });
+        }
+        renderTBSelectedBar();
+        renderTBGrid();
+    }
+
+    function tbRemove(id) {
+        tbSelected = tbSelected.filter(p=>p.id!==id);
+        renderTBSelectedBar();
+        renderTBGrid();
+    }
+
+    function renderTBSelectedBar() {
+        const bar = document.getElementById('tb-selected-bar');
+        let html = tbSelected.map(p =>
+            `<div class="tb-slot filled">
+                <button class="tb-remove" onclick="event.stopPropagation();tbRemove(${p.id})">✕</button>
+                <img src="${p.sprite_url}" alt="${p.name}">
+                <span>${cap(p.name)}</span>
+            </div>`
+        ).join('');
+        for (let i=tbSelected.length; i<6; i++) {
+            html += `<div class="tb-slot"><span class="tb-slot-empty-num">${i+1}</span></div>`;
+        }
+        bar.innerHTML = html;
+        document.getElementById('tb-count-txt').textContent = `${tbSelected.length}/6 seleccionados`;
+        document.getElementById('tb-confirm-btn').disabled = tbSelected.length === 0;
+    }
+
+    async function confirmTeam() {
+        if (!tbSelected.length) return;
+        const teamIds = tbSelected.map(p => ({ id: p.id, name: p.name, moves: [] }));
+        localStorage.setItem('pkTeam', JSON.stringify(teamIds));
+        pkTeam = teamIds;
+        closeTB();
+        document.getElementById('league-empty-state').style.display = 'none';
+        document.getElementById('league-active-state').style.display = 'block';
+        await loadMyTeam();
+        renderMedalGallery();
+        renderStats();
+        renderDashboard();
+        renderCoverage();
+        renderMVPList();
+    }
 
     function renderCoverage() {
         const body = document.getElementById('lx-cov-body');

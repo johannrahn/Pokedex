@@ -9,7 +9,7 @@
   <div class="battle-header-v2">
     <div class="battle-header-left">
       <h1 class="battle-title-v2">Arena de Batalla</h1>
-      <p class="battle-subtitle-v2">Generaciones I · II · III &mdash; 386 Pokémon</p>
+      <p class="battle-subtitle-v2">Generaciones I · II · III &mdash; Elige tu equipo y combate</p>
     </div>
     <button id="sound-toggle" class="btn-sound-toggle" title="Alternar sonido" onclick="toggleSound()">
       <span id="sound-icon">🔊</span>
@@ -19,9 +19,9 @@
   <!-- ── Pick Row ──────────────────────────────────────────── -->
   <div class="pick-row-v2">
 
-    <!-- Slot 1 -->
-    <div class="pick-slot-v2" id="pick-slot-1" onclick="openPicker(1)">
-      <div class="pick-empty-v2" id="pick-empty-1">
+    <!-- Slot 1 — Player -->
+    <div class="pick-slot-v2" id="pick-slot-1">
+      <div class="pick-empty-v2" id="pick-empty-1" onclick="openPicker(1,0)">
         <div class="pick-pokeball-icon">
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"/>
@@ -29,33 +29,45 @@
             <circle cx="50" cy="50" r="12" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none"/>
           </svg>
         </div>
-        <p>Elige tu Pokémon</p>
+        <p>Tu Líder</p>
         <span>Haz clic para elegir</span>
       </div>
       <div class="pick-filled-v2" id="pick-filled-1" style="display:none">
         <div class="pick-gen-badge" id="pick-gen-1"></div>
-        <img class="pick-artwork" id="pick-artwork-1" src="" alt="">
+        <img class="pick-artwork" id="pick-artwork-1" src="" alt="" onclick="openPicker(1,0)" style="cursor:pointer">
         <div class="pick-info-v2">
           <div class="pick-number" id="pick-number-1"></div>
           <div class="pick-name-v2" id="pick-name-v2-1"></div>
           <div class="pick-types-v2" id="pick-types-v2-1"></div>
           <div class="pick-bst-chip" id="pick-bst-1"></div>
         </div>
-        <div class="pick-change-hint">Clic para cambiar</div>
+        <div class="pick-bench-row">
+          <div class="pick-bench-slot" id="bench-1-1" onclick="openPicker(1,1)">
+            <div class="bench-empty-icon">+</div>
+            <div class="bench-filled-wrap" id="bench-filled-1-1" style="display:none">
+              <img id="bench-img-1-1" src="" alt=""><span id="bench-name-1-1"></span>
+            </div>
+          </div>
+          <div class="pick-bench-slot" id="bench-1-2" onclick="openPicker(1,2)">
+            <div class="bench-empty-icon">+</div>
+            <div class="bench-filled-wrap" id="bench-filled-1-2" style="display:none">
+              <img id="bench-img-1-2" src="" alt=""><span id="bench-name-1-2"></span>
+            </div>
+          </div>
+        </div>
+        <div class="pick-change-hint" onclick="openPicker(1,0)">Líder · clic para cambiar</div>
       </div>
     </div>
 
     <!-- VS -->
     <div class="vs-divider-v2">
-      <div class="vs-circle">
-        <span>VS</span>
-      </div>
+      <div class="vs-circle"><span>VS</span></div>
       <div class="vs-bolt" id="vs-bolt" style="opacity:0">⚡</div>
     </div>
 
-    <!-- Slot 2 -->
-    <div class="pick-slot-v2 pick-slot-right" id="pick-slot-2" onclick="openPicker(2)">
-      <div class="pick-empty-v2" id="pick-empty-2">
+    <!-- Slot 2 — Rival -->
+    <div class="pick-slot-v2 pick-slot-right" id="pick-slot-2">
+      <div class="pick-empty-v2" id="pick-empty-2" onclick="openPicker(2,0)">
         <div class="pick-pokeball-icon">
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"/>
@@ -63,19 +75,33 @@
             <circle cx="50" cy="50" r="12" stroke="rgba(255,255,255,0.4)" stroke-width="4" fill="none"/>
           </svg>
         </div>
-        <p>Elige tu Pokémon</p>
+        <p>Pokémon Rival</p>
         <span>Haz clic para elegir</span>
       </div>
       <div class="pick-filled-v2" id="pick-filled-2" style="display:none">
         <div class="pick-gen-badge" id="pick-gen-2"></div>
-        <img class="pick-artwork" id="pick-artwork-2" src="" alt="">
+        <img class="pick-artwork" id="pick-artwork-2" src="" alt="" onclick="openPicker(2,0)" style="cursor:pointer">
         <div class="pick-info-v2">
           <div class="pick-number" id="pick-number-2"></div>
           <div class="pick-name-v2" id="pick-name-v2-2"></div>
           <div class="pick-types-v2" id="pick-types-v2-2"></div>
           <div class="pick-bst-chip" id="pick-bst-2"></div>
         </div>
-        <div class="pick-change-hint">Clic para cambiar</div>
+        <div class="pick-bench-row">
+          <div class="pick-bench-slot" id="bench-2-1" onclick="openPicker(2,1)">
+            <div class="bench-empty-icon">+</div>
+            <div class="bench-filled-wrap" id="bench-filled-2-1" style="display:none">
+              <img id="bench-img-2-1" src="" alt=""><span id="bench-name-2-1"></span>
+            </div>
+          </div>
+          <div class="pick-bench-slot" id="bench-2-2" onclick="openPicker(2,2)">
+            <div class="bench-empty-icon">+</div>
+            <div class="bench-filled-wrap" id="bench-filled-2-2" style="display:none">
+              <img id="bench-img-2-2" src="" alt=""><span id="bench-name-2-2"></span>
+            </div>
+          </div>
+        </div>
+        <div class="pick-change-hint" onclick="openPicker(2,0)">Líder · clic para cambiar</div>
       </div>
     </div>
 
@@ -120,11 +146,12 @@
           <div class="type-flash" id="p1-type-flash"></div>
         </div>
         <div class="fighter-bst-row" id="a-p1-bst"></div>
+        <div class="arena-team-balls" id="p1-balls"></div>
       </div>
 
       <!-- Center -->
       <div class="arena-center-v2">
-        <div class="round-badge" id="round-badge">Ronda 1</div>
+        <div class="round-badge" id="round-badge">Turno 1</div>
         <div class="speed-indicator" id="speed-ind"></div>
       </div>
 
@@ -150,15 +177,39 @@
           <div class="type-flash" id="p2-type-flash"></div>
         </div>
         <div class="fighter-bst-row" id="a-p2-bst"></div>
+        <div class="arena-team-balls" id="p2-balls"></div>
       </div>
     </div>
 
-    <!-- Battle log -->
+    <!-- Battle Log -->
     <div class="battle-log-v2" id="battle-log">
       <div class="battle-log-scroll" id="battle-log-scroll"></div>
     </div>
 
-    <!-- Stats comparison (post-battle) -->
+    <!-- ── Interactive Control Panel ── -->
+    <div class="arena-control-panel" id="arena-control-panel" style="display:none">
+      <div class="acp-textbox">
+        <p id="acp-narration">¿Qué hará <strong id="acp-poke-name">---</strong>?</p>
+      </div>
+      <!-- Action buttons -->
+      <div class="acp-actions" id="acp-actions">
+        <button class="acp-btn acp-btn-fight" onclick="showMoveMenu()">▶ LUCHA</button>
+        <button class="acp-btn acp-btn-poke" onclick="showSwitchMenu()">POKÉMON</button>
+        <button class="acp-btn acp-btn-run" onclick="tryRun()">HUIDA</button>
+      </div>
+      <!-- Moves sub-panel -->
+      <div class="acp-moves" id="acp-moves" style="display:none">
+        <div class="acp-moves-grid" id="acp-moves-grid"></div>
+        <div class="acp-move-detail" id="acp-move-detail">
+          <span id="acp-move-pp">PP --/--</span>
+          <span id="acp-move-type" style="font-weight:800">---</span>
+          <span id="acp-move-power">Poder: --</span>
+        </div>
+        <button class="acp-back-btn" onclick="hideMoveMenu()">← Atrás</button>
+      </div>
+    </div>
+
+    <!-- Post-battle Stats -->
     <div class="post-battle-stats" id="post-battle-stats" style="display:none">
       <div class="pbs-header">Comparación de Estadísticas</div>
       <div class="pbs-legend">
@@ -169,7 +220,16 @@
     </div>
   </div>
 
-  <!-- ── Status ─────────────────────────────────────────────── -->
+  <!-- ── Switch Overlay ────────────────────────────────────── -->
+  <div class="acp-switch-overlay" id="acp-switch-overlay" style="display:none">
+    <div class="acp-switch-panel">
+      <h3>Cambiar Pokémon</h3>
+      <div class="acp-switch-grid" id="acp-switch-grid"></div>
+      <button class="acp-back-btn" style="margin-top:.8rem;display:block;text-align:center" onclick="hideSwitchMenu()">← Atrás</button>
+    </div>
+  </div>
+
+  <!-- Status -->
   <div id="battle-status" class="battle-status-v2"></div>
 
 </div>
@@ -177,21 +237,16 @@
 <!-- ══ POKEMON PICKER MODAL ══════════════════════════════════ -->
 <div class="picker-overlay-v2" id="picker-overlay" onclick="closePickerOutside(event)">
   <div class="picker-modal-v2" id="picker-modal">
-
     <div class="picker-header-v2">
       <h2 class="picker-title-v2" id="picker-title">Elegir Pokémon</h2>
       <button class="picker-close-v2" onclick="closePicker()">✕</button>
     </div>
-
-    <!-- Gen tabs -->
     <div class="picker-gen-tabs">
       <button class="picker-gen-tab active" data-gen="all" onclick="filterPickerGen('all',this)">Todos</button>
       <button class="picker-gen-tab" data-gen="1" onclick="filterPickerGen('1',this)">🔴 Kanto</button>
       <button class="picker-gen-tab" data-gen="2" onclick="filterPickerGen('2',this)">⭐ Johto</button>
       <button class="picker-gen-tab" data-gen="3" onclick="filterPickerGen('3',this)">🌿 Hoenn</button>
     </div>
-
-    <!-- Filters -->
     <div class="picker-filters-v2">
       <div class="picker-search-wrap">
         <svg class="picker-search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -204,15 +259,12 @@
         {% endfor %}
       </select>
     </div>
-
-    <!-- Grid -->
     <div class="picker-grid-v2" id="picker-grid-v2">
       <div class="picker-loading-v2" id="picker-loading">
         <div class="pk-spinner"></div>
         <span>Cargando Pokémon…</span>
       </div>
     </div>
-
     <div class="picker-footer-v2">
       <span id="picker-count-v2">0 Pokémon</span>
     </div>
@@ -221,628 +273,900 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-// ══════════════════════════════════════════════════════════════
-//  BATALLA V2 — Visual battle with sounds
-// ══════════════════════════════════════════════════════════════
+<style>
+/* ── Bench Slots ─────────────────────────────────────── */
+.pick-bench-row {
+  display: flex;
+  gap: .5rem;
+  margin-top: .75rem;
+  justify-content: center;
+}
+.pick-bench-slot {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  border: 2px dashed rgba(255,255,255,.22);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: all .2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.pick-bench-slot:hover {
+  border-color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.09);
+  transform: scale(1.06);
+}
+.pick-bench-slot.bench-has-pokemon {
+  border-style: solid;
+  border-color: rgba(255,255,255,.3);
+}
+.bench-empty-icon {
+  font-size: 1.5rem;
+  color: rgba(255,255,255,.3);
+  font-weight: 200;
+  line-height: 1;
+}
+.bench-filled-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: .15rem;
+}
+.bench-filled-wrap img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+.bench-filled-wrap span {
+  font-size: .52rem;
+  text-transform: capitalize;
+  color: rgba(255,255,255,.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
 
-// ── State ─────────────────────────────────────────────────────
-const battleState = { p1: null, p2: null, soundEnabled: true, battleActive: false };
-let activePickerSlot = 1;
+/* ── Team Balls in Arena ─────────────────────────────── */
+.arena-team-balls {
+  display: flex;
+  gap: 4px;
+  margin-top: .35rem;
+  justify-content: center;
+}
+.arena-pball {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.arena-pball-alive {
+  background: radial-gradient(circle at 40% 35%, #ff5555, #cc2222);
+  border: 1.5px solid rgba(255,255,255,.7);
+}
+.arena-pball-fainted {
+  background: #444;
+  border: 1.5px solid #666;
+}
+
+/* ── Arena Control Panel ─────────────────────────────── */
+.arena-control-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 3px solid rgba(255,255,255,.1);
+  background: linear-gradient(180deg, rgba(14,14,22,.97), rgba(8,8,16,.99));
+  min-height: 110px;
+  border-radius: 0 0 16px 16px;
+}
+.acp-textbox {
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: center;
+  border-right: 2px solid rgba(255,255,255,.07);
+  font-size: .93rem;
+  color: #ddd;
+  line-height: 1.5;
+}
+.acp-textbox p { margin: 0; }
+.acp-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: .75rem;
+  align-content: center;
+}
+.acp-btn {
+  padding: .6rem .4rem;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,.12);
+  font-family: inherit;
+  font-size: .8rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  transition: all .15s ease;
+  background: rgba(255,255,255,.05);
+  color: #ddd;
+}
+.acp-btn:hover:not(:disabled) { transform: scale(1.04); border-color: rgba(255,255,255,.3); }
+.acp-btn:disabled { opacity: .35; cursor: not-allowed; }
+.acp-btn-fight {
+  grid-column: span 2;
+  background: rgba(230,57,70,.14);
+  color: #ff6b7a;
+  border-color: rgba(230,57,70,.32);
+}
+.acp-btn-fight:hover:not(:disabled) { background: rgba(230,57,70,.28) !important; }
+.acp-btn-poke {
+  background: rgba(67,97,238,.11);
+  color: #7da5ff;
+  border-color: rgba(67,97,238,.28);
+}
+.acp-btn-poke:hover:not(:disabled) { background: rgba(67,97,238,.23) !important; }
+.acp-btn-run {
+  background: rgba(120,200,80,.09);
+  color: #8cd660;
+  border-color: rgba(120,200,80,.22);
+}
+.acp-btn-run:hover:not(:disabled) { background: rgba(120,200,80,.18) !important; }
+.acp-moves {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .5rem;
+  padding: .75rem;
+  align-items: start;
+}
+.acp-moves-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.acp-move-btn {
+  padding: .55rem .6rem;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: #ddd;
+  font-family: inherit;
+  font-size: .79rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  text-transform: capitalize;
+}
+.acp-move-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); transform: scale(1.02); }
+.acp-move-btn:disabled { opacity: .28; cursor: not-allowed; }
+.acp-move-detail {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  align-items: flex-end;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding-top: .3rem;
+  min-width: 70px;
+}
+.acp-back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: .3rem .5rem;
+  transition: color .15s;
+}
+.acp-back-btn:hover { color: #fff; }
+
+/* ── Switch Overlay ──────────────────────────────────── */
+.acp-switch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.82);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.acp-switch-panel {
+  background: rgba(18,18,30,.97);
+  border: 2px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  padding: 1.5rem;
+  max-width: 480px;
+  width: 92%;
+}
+.acp-switch-panel h3 {
+  text-align: center;
+  font-size: 1rem;
+  margin: 0 0 1rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+.acp-switch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.acp-switch-card {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem .8rem;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: all .15s;
+}
+.acp-switch-card:hover:not(.fainted):not(.acp-active) {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.25);
+}
+.acp-switch-card.fainted { opacity: .32; cursor: not-allowed; }
+.acp-switch-card.acp-active { border-color: #f8d030; background: rgba(248,208,48,.08); cursor: default; }
+.acp-switch-card img { width: 46px; height: 46px; object-fit: contain; flex-shrink: 0; }
+.acp-switch-info { flex: 1; min-width: 0; }
+.acp-switch-name { font-size: .82rem; font-weight: 700; text-transform: capitalize; color: #fff; }
+.acp-switch-hp-bar { height: 4px; background: rgba(255,255,255,.1); border-radius: 4px; margin-top: .25rem; overflow: hidden; }
+.acp-switch-hp-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+.acp-switch-hp-txt { font-size: .63rem; color: var(--text-muted); margin-top: .15rem; }
+
+@media (max-width:600px) {
+  .arena-control-panel { grid-template-columns: 1fr; min-height: auto; }
+  .acp-textbox { border-right: none; border-bottom: 2px solid rgba(255,255,255,.07); padding: .7rem .9rem; }
+  .acp-switch-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  BATALLA V2 — Interactive Teams + Turn-Based Battle
+// ══════════════════════════════════════════════════════
+
+// ── State ──────────────────────────────────────────────
+// teams[side][index]: side=1(player)|2(rival), index=0(lead)|1|2(bench)
+const teams = { 1: [null, null, null], 2: [null, null, null] };
+let activePickerTeam = 1;
+let activePickerIndex = 0;
 let allPokemon = [];
-let pickerFiltered = [];
 let pickerGen = 'all';
 let pickerType = '';
 let pickerQuery = '';
+let battle = null;
+const soundOn = { v: true };
 
-// Generation ranges
 const GEN_RANGES = { '1': [1, 151], '2': [152, 251], '3': [252, 386] };
 const GEN_LABELS = { 1: '🔴 Kanto', 2: '⭐ Johto', 3: '🌿 Hoenn' };
-function getGenForId(id) {
-  if (id <= 151) return 1;
-  if (id <= 251) return 2;
-  return 3;
-}
+function getGen(id) { return id <= 151 ? 1 : id <= 251 ? 2 : 3; }
 
-// ── Audio System ─────────────────────────────────────────────
-let _audioCtx = null;
-function getAudioCtx() {
-  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (_audioCtx.state === 'suspended') _audioCtx.resume();
-  return _audioCtx;
+// ── Audio ──────────────────────────────────────────────
+let _ctx = null;
+function actx() {
+  if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_ctx.state === 'suspended') _ctx.resume();
+  return _ctx;
 }
-
-function playPokemonCry(pokemonId) {
-  if (!battleState.soundEnabled) return;
-  const audio = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`);
-  audio.volume = 0.65;
-  audio.play().catch(() => {});
+function playPokemonCry(id) {
+  if (!soundOn.v) return;
+  const a = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`);
+  a.volume = 0.65; a.play().catch(() => {});
 }
-
 function playSound(type) {
-  if (!battleState.soundEnabled) return;
+  if (!soundOn.v) return;
   try {
-    const ctx = getAudioCtx();
-    const now = ctx.currentTime;
-
+    const ctx = actx(), now = ctx.currentTime;
     switch (type) {
-      case 'attack': {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
-        g.gain.setValueAtTime(0.35, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.start(now); osc.stop(now + 0.18);
-        break;
-      }
-      case 'hit': {
-        // White noise burst
-        const bufSize = Math.floor(ctx.sampleRate * 0.08);
-        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1);
-        const src = ctx.createBufferSource(); src.buffer = buf;
-        const filt = ctx.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = 1200;
-        const g = ctx.createGain();
-        src.connect(filt); filt.connect(g); g.connect(ctx.destination);
-        g.gain.setValueAtTime(0.55, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        src.start(now); src.stop(now + 0.08);
-        break;
-      }
-      case 'superEffective': {
-        [440, 550, 660].forEach((freq, i) => {
-          const osc = ctx.createOscillator(); const g = ctx.createGain();
-          osc.connect(g); g.connect(ctx.destination);
-          osc.type = 'square'; osc.frequency.value = freq;
-          const t = now + i * 0.08;
-          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t + 0.04);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-          osc.start(t); osc.stop(t + 0.18);
-        });
-        break;
-      }
-      case 'notVeryEffective': {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.type = 'sine'; osc.frequency.setValueAtTime(220, now);
-        osc.frequency.linearRampToValueAtTime(180, now + 0.2);
-        g.gain.setValueAtTime(0.25, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        osc.start(now); osc.stop(now + 0.25);
-        break;
-      }
-      case 'victory': {
-        const melody = [523, 659, 784, 1047];
-        melody.forEach((freq, i) => {
-          const osc = ctx.createOscillator(); const g = ctx.createGain();
-          osc.connect(g); g.connect(ctx.destination);
-          osc.type = 'square'; osc.frequency.value = freq;
-          const t = now + i * 0.14;
-          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t + 0.06);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-          osc.start(t); osc.stop(t + 0.4);
-        });
-        break;
-      }
-      case 'faint': {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.exponentialRampToValueAtTime(60, now + 0.6);
-        g.gain.setValueAtTime(0.35, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-        osc.start(now); osc.stop(now + 0.6);
-        break;
-      }
-      case 'select': {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.type = 'square'; osc.frequency.value = 880;
-        g.gain.setValueAtTime(0.2, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        osc.start(now); osc.stop(now + 0.08);
-        break;
-      }
+      case 'attack': { const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='sawtooth'; o.frequency.setValueAtTime(320,now); o.frequency.exponentialRampToValueAtTime(80,now+.18); g.gain.setValueAtTime(.35,now); g.gain.exponentialRampToValueAtTime(.001,now+.18); o.start(now); o.stop(now+.18); break; }
+      case 'hit': { const n=Math.floor(ctx.sampleRate*.08), b=ctx.createBuffer(1,n,ctx.sampleRate), d=b.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1; const s=ctx.createBufferSource(); s.buffer=b; const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200; const g=ctx.createGain(); s.connect(f); f.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(.55,now); g.gain.exponentialRampToValueAtTime(.001,now+.08); s.start(now); s.stop(now+.08); break; }
+      case 'super': { [440,550,660].forEach((fr,i)=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='square'; o.frequency.value=fr; const t=now+i*.08; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.3,t+.04); g.gain.exponentialRampToValueAtTime(.001,t+.18); o.start(t); o.stop(t+.18); }); break; }
+      case 'weak': { const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.setValueAtTime(220,now); o.frequency.linearRampToValueAtTime(180,now+.2); g.gain.setValueAtTime(.25,now); g.gain.exponentialRampToValueAtTime(.001,now+.25); o.start(now); o.stop(now+.25); break; }
+      case 'victory': { [523,659,784,1047].forEach((fr,i)=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='square'; o.frequency.value=fr; const t=now+i*.14; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.3,t+.06); g.gain.exponentialRampToValueAtTime(.001,t+.4); o.start(t); o.stop(t+.4); }); break; }
+      case 'faint': { const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='triangle'; o.frequency.setValueAtTime(300,now); o.frequency.exponentialRampToValueAtTime(60,now+.6); g.gain.setValueAtTime(.35,now); g.gain.exponentialRampToValueAtTime(.001,now+.6); o.start(now); o.stop(now+.6); break; }
+      case 'select': { const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='square'; o.frequency.value=880; g.gain.setValueAtTime(.2,now); g.gain.exponentialRampToValueAtTime(.001,now+.08); o.start(now); o.stop(now+.08); break; }
+      case 'switch': { [600,800].forEach((fr,i)=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=fr; const t=now+i*.1; g.gain.setValueAtTime(.2,t); g.gain.exponentialRampToValueAtTime(.001,t+.12); o.start(t); o.stop(t+.12); }); break; }
     }
-  } catch (e) {}
+  } catch(e) {}
 }
-
 function toggleSound() {
-  battleState.soundEnabled = !battleState.soundEnabled;
-  document.getElementById('sound-icon').textContent = battleState.soundEnabled ? '🔊' : '🔇';
-  document.getElementById('sound-toggle').classList.toggle('muted', !battleState.soundEnabled);
-  if (battleState.soundEnabled) playSound('select');
+  soundOn.v = !soundOn.v;
+  document.getElementById('sound-icon').textContent = soundOn.v ? '🔊' : '🔇';
+  document.getElementById('sound-toggle').classList.toggle('muted', !soundOn.v);
+  if (soundOn.v) playSound('select');
 }
 
-// ── Load All Pokemon ──────────────────────────────────────────
+// ── Load Pokémon List ──────────────────────────────────
 async function preloadPokemon() {
-  document.getElementById('picker-loading').style.display = 'flex';
   try {
     const res = await fetch('/api/pokemon/all');
     const data = await res.json();
-    allPokemon = (data.pokemon || []).filter(p => p.id <= 386);
-    allPokemon.sort((a, b) => a.id - b.id);
-  } catch {
-    console.error('Failed to load pokemon list');
-  }
+    allPokemon = (data.pokemon || []).filter(p => p.id <= 386).sort((a, b) => a.id - b.id);
+  } catch { console.error('Failed to load pokemon list'); }
 }
 
-// ── Picker Modal ──────────────────────────────────────────────
-function openPicker(slot) {
-  activePickerSlot = slot;
-  document.getElementById('picker-title').textContent = `Elegir Pokémon ${slot}`;
+// ── Picker ─────────────────────────────────────────────
+function openPicker(team, index) {
+  activePickerTeam = team;
+  activePickerIndex = index;
+  const lbl = index === 0 ? 'Líder' : `Reserva ${index}`;
+  const side = team === 1 ? 'Tu equipo' : 'Rival';
+  document.getElementById('picker-title').textContent = `${side} · ${lbl}`;
   document.getElementById('picker-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('picker-search').focus(), 150);
   renderPickerGrid();
 }
-
 function closePicker() {
   document.getElementById('picker-overlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-
 function closePickerOutside(e) {
   if (e.target === document.getElementById('picker-overlay')) closePicker();
 }
-
 function filterPickerGen(gen, btn) {
   pickerGen = gen;
   document.querySelectorAll('.picker-gen-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderPickerGrid();
 }
-
-function getPickerFiltered() {
+function pickerFiltered() {
   let list = allPokemon;
-  if (pickerGen !== 'all') {
-    const [lo, hi] = GEN_RANGES[pickerGen];
-    list = list.filter(p => p.id >= lo && p.id <= hi);
-  }
-  if (pickerType) {
-    list = list.filter(p => (p.types || []).some(t => t.name === pickerType));
-  }
-  if (pickerQuery) {
-    const q = pickerQuery.toLowerCase();
-    list = list.filter(p => p.name.includes(q) || String(p.id).includes(q));
-  }
+  if (pickerGen !== 'all') { const [lo,hi] = GEN_RANGES[pickerGen]; list = list.filter(p => p.id>=lo && p.id<=hi); }
+  if (pickerType) list = list.filter(p => (p.types||[]).some(t => t.name===pickerType));
+  if (pickerQuery) { const q=pickerQuery; list = list.filter(p => p.name.includes(q) || String(p.id).includes(q)); }
   return list;
 }
-
 function renderPickerGrid() {
   const grid = document.getElementById('picker-grid-v2');
   const loading = document.getElementById('picker-loading');
-
-  if (!allPokemon.length) {
-    loading.style.display = 'flex';
-    setTimeout(renderPickerGrid, 400);
-    return;
-  }
-
+  if (!allPokemon.length) { loading.style.display='flex'; setTimeout(renderPickerGrid,400); return; }
   loading.style.display = 'none';
-  const filtered = getPickerFiltered();
+  const filtered = pickerFiltered();
   document.getElementById('picker-count-v2').textContent = `${filtered.length} Pokémon`;
-
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="picker-empty-v2">No se encontró ningún Pokémon</div>';
-    return;
-  }
-
+  if (!filtered.length) { grid.innerHTML='<div class="picker-empty-v2">Sin resultados</div>'; return; }
   grid.innerHTML = filtered.map(p => {
-    const gen = getGenForId(p.id);
-    const genLabel = GEN_LABELS[gen];
-    const typeColors = (p.types || []).map(t => `<span class="pk-type-dot" style="background:${t.color}" title="${t.name}"></span>`).join('');
-    return `
-      <div class="picker-card-v2 ripple-container" onclick="selectPokemon('${p.name}', ${p.id})">
-        <div class="pkc-gen-tag" data-gen="${gen}">${genLabel}</div>
-        <div class="pkc-img-wrap">
-          <img class="pkc-img" src="${p.sprite_url}" alt="${p.name}"
-            onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png'">
-        </div>
-        <div class="pkc-id">#${String(p.id).padStart(3,'0')}</div>
-        <div class="pkc-name">${capitalize(p.name)}</div>
-        <div class="pkc-types">${typeColors}</div>
-      </div>`;
+    const gen = getGen(p.id);
+    const dots = (p.types||[]).map(t=>`<span class="pk-type-dot" style="background:${t.color}" title="${t.name}"></span>`).join('');
+    return `<div class="picker-card-v2 ripple-container" onclick="selectPokemon('${p.name}',${p.id})">
+      <div class="pkc-gen-tag" data-gen="${gen}">${GEN_LABELS[gen]}</div>
+      <div class="pkc-img-wrap"><img class="pkc-img" src="${p.sprite_url}" alt="${p.name}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png'"></div>
+      <div class="pkc-id">#${String(p.id).padStart(3,'0')}</div>
+      <div class="pkc-name">${cap(p.name)}</div>
+      <div class="pkc-types">${dots}</div>
+    </div>`;
   }).join('');
 }
 
-// ── Select Pokemon ────────────────────────────────────────────
+// ── Select & Render Pick Card ──────────────────────────
 async function selectPokemon(name, id) {
   closePicker();
   playSound('select');
-  setStatus(`Cargando ${capitalize(name)}…`, 'loading');
+  setStatus(`Cargando ${cap(name)}…`, 'loading');
   try {
     const res = await fetch(`/api/pokemon/${encodeURIComponent(name.toLowerCase())}`);
     if (!res.ok) throw new Error();
     const data = await res.json();
-    battleState[`p${activePickerSlot}`] = data;
-    renderPickCard(activePickerSlot, data);
+    const t = activePickerTeam, i = activePickerIndex;
+    teams[t][i] = data;
+    if (i === 0) renderLeadCard(t, data);
+    else renderBenchSlot(t, i, data);
     clearStatus();
     playPokemonCry(data.id);
+    checkFightReady();
+    updateURL();
+  } catch { setStatus(`⚠️ No se pudo cargar "${cap(name)}"`, 'error'); }
+}
 
-    const url = new URL(window.location);
-    url.searchParams.set(`p${activePickerSlot}`, name.toLowerCase());
-    window.history.replaceState({}, '', url);
+function renderLeadCard(side, data) {
+  document.getElementById(`pick-empty-${side}`).style.display = 'none';
+  document.getElementById(`pick-filled-${side}`).style.display = 'flex';
+  const gen = getGen(data.id);
+  document.getElementById(`pick-gen-${side}`).textContent = GEN_LABELS[gen];
+  document.getElementById(`pick-artwork-${side}`).src = data.sprite_url;
+  document.getElementById(`pick-artwork-${side}`).alt = data.name;
+  document.getElementById(`pick-number-${side}`).textContent = `#${String(data.id).padStart(3,'0')}`;
+  document.getElementById(`pick-name-v2-${side}`).textContent = cap(data.name);
+  document.getElementById(`pick-bst-${side}`).textContent = `BST ${data.stats.reduce((s,st)=>s+st.value,0)}`;
+  document.getElementById(`pick-types-v2-${side}`).innerHTML = (data.types||[]).map(t=>
+    `<span class="pick-type-badge" style="background:${t.color}">${t.name}</span>`).join('');
+  const color = data.types?.[0]?.color || '#e63946';
+  const el = document.getElementById(`pick-slot-${side}`);
+  el.style.setProperty('--pick-accent', color);
+  el.classList.add('filled');
+}
 
-    if (battleState.p1 && battleState.p2) {
-      const btn = document.getElementById('fight-btn');
-      btn.disabled = false;
-      btn.classList.add('ready');
-      document.getElementById('vs-bolt').style.opacity = '1';
-    }
+function renderBenchSlot(side, index, data) {
+  const slot = document.getElementById(`bench-${side}-${index}`);
+  if (!slot) return;
+  slot.classList.add('bench-has-pokemon');
+  slot.querySelector('.bench-empty-icon').style.display = 'none';
+  const wrap = document.getElementById(`bench-filled-${side}-${index}`);
+  wrap.style.display = 'flex';
+  document.getElementById(`bench-img-${side}-${index}`).src = data.sprite_url;
+  document.getElementById(`bench-name-${side}-${index}`).textContent = cap(data.name);
+}
+
+function checkFightReady() {
+  const ready = !!(teams[1][0] && teams[2][0]);
+  const btn = document.getElementById('fight-btn');
+  btn.disabled = !ready;
+  if (ready) { btn.classList.add('ready'); document.getElementById('vs-bolt').style.opacity = '1'; }
+}
+
+function updateURL() {
+  const url = new URL(window.location);
+  if (teams[1][0]) url.searchParams.set('p1', teams[1][0].name.toLowerCase());
+  if (teams[2][0]) url.searchParams.set('p2', teams[2][0].name.toLowerCase());
+  window.history.replaceState({}, '', url);
+}
+
+// ── Damage Formulas ────────────────────────────────────
+const TYPE_EFF = {
+  normal:{rock:.5,ghost:0,steel:.5}, fire:{fire:.5,water:.5,grass:2,ice:2,bug:2,rock:.5,dragon:.5,steel:2},
+  water:{fire:2,water:.5,grass:.5,ground:2,rock:2,dragon:.5}, electric:{water:2,electric:.5,grass:.5,ground:0,flying:2,dragon:.5},
+  grass:{fire:.5,water:2,grass:.5,poison:.5,ground:2,flying:.5,bug:.5,rock:2,dragon:.5,steel:.5},
+  ice:{fire:.5,water:.5,grass:2,ice:.5,ground:2,flying:2,dragon:2,steel:.5},
+  fighting:{normal:2,ice:2,poison:.5,flying:.5,psychic:.5,bug:.5,rock:2,ghost:0,dark:2,steel:2,fairy:.5},
+  poison:{grass:2,poison:.5,ground:.5,rock:.5,ghost:.5,steel:0,fairy:2},
+  ground:{fire:2,electric:2,grass:.5,poison:2,flying:0,bug:.5,rock:2,steel:2},
+  flying:{electric:.5,grass:2,fighting:2,bug:2,rock:.5,steel:.5},
+  psychic:{fighting:2,poison:2,psychic:.5,dark:0,steel:.5},
+  bug:{fire:.5,grass:2,fighting:.5,poison:.5,flying:.5,psychic:2,ghost:.5,dark:2,steel:.5,fairy:.5},
+  rock:{fire:2,ice:2,fighting:.5,ground:.5,flying:2,bug:2,steel:.5},
+  ghost:{normal:0,psychic:2,ghost:2,dark:.5}, dragon:{dragon:2,steel:.5,fairy:0},
+  dark:{fighting:.5,psychic:2,ghost:2,dark:.5,fairy:.5},
+  steel:{fire:.5,water:.5,electric:.5,ice:2,rock:2,steel:.5,fairy:2},
+  fairy:{fire:.5,fighting:2,poison:.5,dragon:2,dark:2,steel:.5}
+};
+function typeEff(atkType, defTypes) {
+  let m = 1;
+  for (const dt of defTypes) { const c = TYPE_EFF[atkType]; if (c && c[dt] !== undefined) m *= c[dt]; }
+  return m;
+}
+function calcMaxHP(p) { const b = p.stats.find(s=>s.name==='HP')?.value||50; return Math.floor(((2*b+15)*50)/100)+60; }
+function getStat(p, name) { const b = p.stats.find(s=>s.name===name)?.value||50; return Math.floor(((2*b+15)*50)/100)+5; }
+function calcDmg(atk, def, move) {
+  const pow = move.power || 40;
+  const phys = move.damage_class==='physical' || !['psychic','fire','water','grass','electric','ice','dragon','dark','fairy'].includes(move.type);
+  const a = getStat(atk, phys ? 'Attack' : 'Sp. Atk');
+  const d = getStat(def, phys ? 'Defense' : 'Sp. Def');
+  const atkTypes = (atk.types||[]).map(t=>t.name);
+  const defTypes = (def.types||[]).map(t=>t.name);
+  const stab = atkTypes.includes(move.type) ? 1.5 : 1;
+  const eff = typeEff(move.type, defTypes);
+  const rnd = .85 + Math.random() * .15;
+  const base = ((2*50/5+2)*pow*(a/d))/50 + 2;
+  return { damage: Math.max(1, Math.floor(base*stab*eff*rnd)), eff };
+}
+
+// ── Fetch Moves ────────────────────────────────────────
+async function loadMoves(pokemon) {
+  if (pokemon.battleMoves?.length) { pokemon.battleMoves.forEach(m => m.currentPP = m.pp||15); return; }
+  try {
+    const res = await fetch(`/api/pokemon/${encodeURIComponent(pokemon.name)}/moves`);
+    const data = await res.json();
+    let moves = (data.moves||[]).filter(m => m.power>0);
+    if (!moves.length) moves = defaultMoves(pokemon);
+    pokemon.battleMoves = moves.map(m => ({ ...m, currentPP: m.pp||15 }));
   } catch {
-    setStatus(`⚠️ No se pudo cargar "${capitalize(name)}"`, 'error');
+    pokemon.battleMoves = defaultMoves(pokemon).map(m => ({ ...m, currentPP: m.pp }));
   }
 }
-
-function renderPickCard(slot, data) {
-  document.getElementById(`pick-empty-${slot}`).style.display = 'none';
-  const filled = document.getElementById(`pick-filled-${slot}`);
-  filled.style.display = 'flex';
-
-  const gen = getGenForId(data.id);
-  document.getElementById(`pick-gen-${slot}`).textContent = GEN_LABELS[gen];
-  document.getElementById(`pick-artwork-${slot}`).src = data.sprite_url;
-  document.getElementById(`pick-artwork-${slot}`).alt = data.name;
-  document.getElementById(`pick-number-${slot}`).textContent = `#${String(data.id).padStart(3,'0')}`;
-  document.getElementById(`pick-name-v2-${slot}`).textContent = capitalize(data.name);
-
-  const bst = data.stats.reduce((s, st) => s + st.value, 0);
-  document.getElementById(`pick-bst-${slot}`).textContent = `BST ${bst}`;
-
-  document.getElementById(`pick-types-v2-${slot}`).innerHTML = (data.types||[]).map(t =>
-    `<span class="pick-type-badge" style="background:${t.color}">${t.name}</span>`).join('');
-
-  const color = (data.types && data.types[0]) ? data.types[0].color : '#e63946';
-  const slot_el = document.getElementById(`pick-slot-${slot}`);
-  slot_el.style.setProperty('--pick-accent', color);
-  slot_el.classList.add('filled');
+function defaultMoves(p) {
+  return (p.types||[{name:'normal'}]).map(t => ({
+    name:`${t.name}-ataque`, type:t.name, power:60, pp:20, accuracy:100, damage_class:'physical', type_color:t.color||'#A8A77A'
+  })).concat([{name:'placaje',type:'normal',power:40,pp:35,accuracy:100,damage_class:'physical',type_color:'#A8A77A'}]);
 }
 
-// ── Battle ────────────────────────────────────────────────────
-
-// Type effectiveness lookup (simplified)
-const TYPE_WEAK = {
-  fire:['water','rock','ground'], water:['electric','grass'], grass:['fire','ice','poison','flying','bug'],
-  electric:['ground'], ice:['fire','fighting','rock','steel'], fighting:['flying','psychic','fairy'],
-  poison:['ground','psychic'], ground:['water','grass','ice'], flying:['electric','ice','rock'],
-  psychic:['bug','ghost','dark'], bug:['fire','flying','rock'], rock:['water','grass','fighting','ground','steel'],
-  ghost:['ghost','dark'], dragon:['ice','dragon','fairy'], dark:['fighting','bug','fairy'],
-  steel:['fire','fighting','ground'], fairy:['poison','steel'], normal:['fighting'],
-};
-
-function typeMultiplier(atkType, defTypes) {
-  let mult = 1;
-  (defTypes||[]).forEach(dt => {
-    const weakTo = TYPE_WEAK[dt.name] || [];
-    if (weakTo.includes(atkType)) mult *= 2;
-    // Resistances (simplified: no immunity)
-  });
-  return mult;
-}
-
-function calcDamage(attacker, defender, move) {
-  const isSpecial = ['psychic','fire','water','grass','electric','ice','dragon','dark','fairy'].includes(move.type);
-  const atk = isSpecial
-    ? (attacker.stats.find(s => s.name === 'Sp. Atk')?.value || 50)
-    : (attacker.stats.find(s => s.name === 'Attack')?.value || 50);
-  const def = isSpecial
-    ? (defender.stats.find(s => s.name === 'Sp. Def')?.value || 50)
-    : (defender.stats.find(s => s.name === 'Defense')?.value || 50);
-  const power = move.power || 60;
-  const stab = (attacker.types||[]).some(t => t.name === move.type) ? 1.5 : 1;
-  const mult = typeMultiplier(move.type, defender.types);
-  const raw = Math.floor((atk / def) * power * stab * mult / 8);
-  const variation = 0.85 + Math.random() * 0.15;
-  return { damage: Math.max(1, Math.floor(raw * variation)), multiplier: mult, stab };
-}
-
-async function fetchMoves(name) {
-  try {
-    const res = await fetch(`/api/pokemon/${encodeURIComponent(name)}/moves`);
-    const data = await res.json();
-    return (data.moves || []).filter(m => m.power > 0);
-  } catch { return []; }
-}
-
-function generateDefaultMoves(pokemon) {
-  return (pokemon.types || [{name:'normal'}]).map(t => ({
-    name: `${t.name}-attack`, type: t.name, power: 60, pp: 20, category: 'physical'
-  })).concat([
-    { name: 'tackle', type: 'normal', power: 40, pp: 35, category: 'physical' },
-    { name: 'quick-attack', type: 'normal', power: 40, pp: 30, category: 'physical' }
-  ]);
-}
-
-const wait = ms => new Promise(r => setTimeout(r, ms));
-
+// ── Start Battle ───────────────────────────────────────
 async function startBattle() {
-  if (!battleState.p1 || !battleState.p2 || battleState.battleActive) return;
-  battleState.battleActive = true;
-
+  if (!teams[1][0] || !teams[2][0]) return;
   const fightBtn = document.getElementById('fight-btn');
   fightBtn.disabled = true;
-  fightBtn.innerHTML = '<span class="fight-btn-icon">⚡</span><span>Luchando…</span>';
+  fightBtn.innerHTML = '<span class="fight-btn-icon">⚡</span><span>Preparando…</span>';
 
-  // Show arena
   const arena = document.getElementById('battle-arena');
   arena.style.display = 'block';
-  arena.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  arena.scrollIntoView({ behavior:'smooth', block:'start' });
   document.getElementById('post-battle-stats').style.display = 'none';
+  document.getElementById('arena-control-panel').style.display = 'none';
 
-  const p1 = battleState.p1, p2 = battleState.p2;
+  const buildSide = side => teams[side].filter(Boolean).map(p => ({
+    ...p, maxHP: calcMaxHP(p), currentHP: calcMaxHP(p), fainted: false, battleMoves: null
+  }));
 
-  // Setup arena
-  setupArenaFighter(1, p1);
-  setupArenaFighter(2, p2);
-  setArenaBg(p1, p2);
+  battle = { playerTeam: buildSide(1), enemyTeam: buildSide(2), playerActive: 0, enemyActive: 0, phase:'action', turn: 0 };
+
   clearBattleLog();
+  setArenaBg(teams[1][0], teams[2][0]);
+  addLog('⚙️ <em>Cargando movimientos…</em>');
 
-  // Fetch moves
-  addLog(`⚔️ <strong>${capitalize(p1.name)}</strong> y <strong>${capitalize(p2.name)}</strong> entran en la arena!`);
-  await wait(600);
+  await Promise.all([...battle.playerTeam.map(loadMoves), ...battle.enemyTeam.map(loadMoves)]);
 
-  let [moves1, moves2] = await Promise.all([fetchMoves(p1.name), fetchMoves(p2.name)]);
-  if (!moves1.length) moves1 = generateDefaultMoves(p1);
-  if (!moves2.length) moves2 = generateDefaultMoves(p2);
+  setupFighter(1, battle.playerTeam[0]);
+  setupFighter(2, battle.enemyTeam[0]);
+  renderBalls();
 
-  // Play entry cries
-  playPokemonCry(p1.id);
+  addLog(`⚔️ <strong>${cap(battle.playerTeam[0].name)}</strong> vs <strong>${cap(battle.enemyTeam[0].name)}</strong> — ¡Comienza la batalla!`);
+  playPokemonCry(battle.playerTeam[0].id);
   document.getElementById('arena-p1').classList.add('fighter-enter');
   await wait(900);
-  playPokemonCry(p2.id);
+  playPokemonCry(battle.enemyTeam[0].id);
   document.getElementById('arena-p2').classList.add('fighter-enter');
   await wait(600);
 
-  // Speed determines first mover
-  const p1Speed = p1.stats.find(s => s.name === 'Speed')?.value || 50;
-  const p2Speed = p2.stats.find(s => s.name === 'Speed')?.value || 50;
-  const p1MaxHP = p1.stats.find(s => s.name === 'HP')?.value || 100;
-  const p2MaxHP = p2.stats.find(s => s.name === 'HP')?.value || 100;
+  fightBtn.style.display = 'none';
+  showActions();
+}
 
-  let p1CurHP = p1MaxHP, p2CurHP = p2MaxHP;
-  updateHPBar(1, p1CurHP, p1MaxHP);
-  updateHPBar(2, p2CurHP, p2MaxHP);
+// ── Action Panel ───────────────────────────────────────
+function showActions() {
+  const p = battle.playerTeam[battle.playerActive];
+  document.getElementById('arena-control-panel').style.display = 'grid';
+  document.getElementById('acp-actions').style.display = 'grid';
+  document.getElementById('acp-moves').style.display = 'none';
+  document.getElementById('acp-poke-name').textContent = cap(p.name);
+  document.getElementById('acp-narration').innerHTML = `¿Qué hará <strong>${cap(p.name)}</strong>?`;
+  battle.phase = 'action';
+}
 
-  if (p1Speed > p2Speed) {
-    addLog(`⚡ ${capitalize(p1.name)} es más veloz (${p1Speed} > ${p2Speed})! Va primero.`);
-    document.getElementById('speed-ind').textContent = `⚡ ${capitalize(p1.name)} primero`;
-  } else if (p2Speed > p1Speed) {
-    addLog(`⚡ ${capitalize(p2.name)} es más veloz (${p2Speed} > ${p1Speed})! Va primero.`);
-    document.getElementById('speed-ind').textContent = `⚡ ${capitalize(p2.name)} primero`;
-  } else {
-    addLog(`⚡ Ambos tienen la misma velocidad (${p1Speed}). Turno aleatorio!`);
-    document.getElementById('speed-ind').textContent = `⚡ Velocidad empatada`;
+function showMoveMenu() {
+  if (battle.phase !== 'action') return;
+  const p = battle.playerTeam[battle.playerActive];
+  const moves = p.battleMoves || [];
+  const grid = document.getElementById('acp-moves-grid');
+  grid.innerHTML = moves.map((m,i) => {
+    const off = !m.currentPP || m.power<=0;
+    return `<button class="acp-move-btn" style="border-color:${m.type_color||'#888'}44;color:${m.type_color||'#ddd'}"
+      ${off?'disabled':''} onmouseover="showMoveDetail(${i})" onclick="selectMove(${i})">
+      ${(m.name||'').replace(/-/g,' ')}</button>`;
+  }).join('');
+  for (let i=moves.length; i<4; i++) grid.innerHTML += `<button class="acp-move-btn" disabled>---</button>`;
+  if (moves.length) showMoveDetail(0);
+  document.getElementById('acp-actions').style.display = 'none';
+  document.getElementById('acp-moves').style.display = 'grid';
+}
+
+function showMoveDetail(i) {
+  const m = battle.playerTeam[battle.playerActive].battleMoves?.[i];
+  if (!m) return;
+  document.getElementById('acp-move-pp').textContent = `PP ${m.currentPP||0}/${m.pp||15}`;
+  document.getElementById('acp-move-type').textContent = (m.type||'---').toUpperCase();
+  document.getElementById('acp-move-type').style.color = m.type_color || '#ddd';
+  document.getElementById('acp-move-power').textContent = `Poder: ${m.power||'--'}`;
+}
+function hideMoveMenu() {
+  document.getElementById('acp-actions').style.display = 'grid';
+  document.getElementById('acp-moves').style.display = 'none';
+}
+
+function showSwitchMenu() {
+  if (battle.phase !== 'action') return;
+  const grid = document.getElementById('acp-switch-grid');
+  grid.innerHTML = battle.playerTeam.map((p,i) => {
+    const isActive = i === battle.playerActive;
+    const pct = p.maxHP > 0 ? p.currentHP/p.maxHP : 0;
+    const hc = pct>.5 ? '#2dc653' : pct>.25 ? '#f4c430' : '#e63946';
+    const cls = p.fainted ? 'fainted' : isActive ? 'acp-active' : '';
+    const onclick = !p.fainted && !isActive ? `doSwitch(${i})` : '';
+    return `<div class="acp-switch-card ${cls}" ${onclick?`onclick="${onclick}"`:''}>
+      <img src="${p.sprite_url}" alt="${p.name}">
+      <div class="acp-switch-info">
+        <div class="acp-switch-name">${cap(p.name)}</div>
+        <div class="acp-switch-hp-bar"><div class="acp-switch-hp-fill" style="width:${pct*100}%;background:${hc}"></div></div>
+        <div class="acp-switch-hp-txt">${Math.max(0,p.currentHP)}/${p.maxHP} HP${p.fainted?' · Debilitado':isActive?' · En batalla':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('acp-switch-overlay').style.display = 'flex';
+}
+function hideSwitchMenu() { document.getElementById('acp-switch-overlay').style.display = 'none'; }
+
+function tryRun() {
+  if (battle.phase !== 'action') return;
+  addLog('🏃 ¡No puedes escapar de esta batalla!');
+  narrate('¡No puedes huir de este combate!');
+  setTimeout(() => showActions(), 1400);
+}
+
+// ── Select Move → Execute Turn ─────────────────────────
+async function selectMove(idx) {
+  if (battle.phase !== 'action') return;
+  battle.phase = 'animating';
+  hideMoveMenu();
+  document.getElementById('acp-actions').style.display = 'none';
+  document.getElementById('acp-moves').style.display = 'none';
+
+  battle.turn++;
+  document.getElementById('round-badge').textContent = `Turno ${battle.turn}`;
+
+  const player = battle.playerTeam[battle.playerActive];
+  const enemy  = battle.enemyTeam[battle.enemyActive];
+  const pm = player.battleMoves[idx];
+  pm.currentPP = Math.max(0, (pm.currentPP||0) - 1);
+
+  const usable = (enemy.battleMoves||[]).filter(m => m.currentPP>0 && m.power>0);
+  const em = usable.length ? usable[Math.floor(Math.random()*usable.length)]
+    : { name:'forcejeo', power:50, accuracy:100, pp:99, currentPP:99, type:'normal', type_color:'#A8A77A', damage_class:'physical' };
+  if (em.currentPP>0) em.currentPP--;
+
+  const pSpd = getStat(player,'Speed'), eSpd = getStat(enemy,'Speed');
+  const playerFirst = pSpd >= eSpd;
+  document.getElementById('speed-ind').textContent = playerFirst
+    ? `⚡ ${cap(player.name)} primero` : `⚡ ${cap(enemy.name)} primero`;
+
+  try {
+    if (playerFirst) {
+      await executeTurn(player, enemy, pm, 1, 2);
+      if (!enemy.fainted) await executeTurn(enemy, player, em, 2, 1);
+    } else {
+      await executeTurn(enemy, player, em, 2, 1);
+      if (!player.fainted) await executeTurn(player, enemy, pm, 1, 2);
+    }
+    await checkFaintsAndContinue();
+  } catch(err) {
+    console.error('Battle error:', err);
+    battle.phase = 'action';
+    showActions();
   }
-  await wait(800);
+}
 
-  // Turn order: first by speed, then alternate
-  let turn = p1Speed >= p2Speed ? 1 : 2;
-  const MAX_ROUNDS = 6;
+// ── Switch Pokémon ─────────────────────────────────────
+async function doSwitch(idx) {
+  hideSwitchMenu();
+  if (battle.phase === 'result') return;
+  battle.phase = 'animating';
+  const old = battle.playerTeam[battle.playerActive];
+  battle.playerActive = idx;
+  const next = battle.playerTeam[idx];
 
-  for (let round = 1; round <= MAX_ROUNDS; round++) {
-    if (p1CurHP <= 0 || p2CurHP <= 0) break;
+  addLog(`↩️ <strong>${cap(old.name)}</strong>, ¡regresa!`);
+  narrate(`¡${cap(old.name)}, vuelve!`);
+  document.getElementById('arena-p1').classList.add('fighter-faint');
+  await wait(450);
+  document.getElementById('arena-p1').classList.remove('fighter-faint');
 
-    document.getElementById('round-badge').textContent = `Ronda ${round}`;
+  setupFighter(1, next);
+  renderBalls();
+  document.getElementById('arena-p1').classList.add('fighter-enter');
+  playSound('switch'); playPokemonCry(next.id);
+  addLog(`⚡ <strong>${cap(next.name)}</strong> entra al combate!`);
+  narrate(`¡Adelante, ${cap(next.name)}!`);
+  await wait(750);
+  document.getElementById('arena-p1').classList.remove('fighter-enter');
 
-    // Attacker and defender
-    const atk = turn === 1 ? p1 : p2;
-    const def = turn === 1 ? p2 : p1;
-    const atkMoves = turn === 1 ? moves1 : moves2;
-    const defSlot = turn === 1 ? 2 : 1;
-    const atkSlot = turn;
+  // Enemy gets a free turn on switch
+  const enemy = battle.enemyTeam[battle.enemyActive];
+  const usable = (enemy.battleMoves||[]).filter(m=>m.currentPP>0&&m.power>0);
+  if (usable.length) {
+    const em = usable[Math.floor(Math.random()*usable.length)];
+    if (em.currentPP>0) em.currentPP--;
+    await executeTurn(enemy, next, em, 2, 1);
+  }
+  await checkFaintsAndContinue();
+}
 
-    const move = atkMoves[Math.floor(Math.random() * atkMoves.length)];
-    const { damage, multiplier } = calcDamage(atk, def, move);
+// ── Execute One Turn ───────────────────────────────────
+async function executeTurn(attacker, defender, move, atkSlot, defSlot) {
+  const moveName = cap((move.name||'').replace(/-/g,' '));
+  addLog(`🎯 <strong>${cap(attacker.name)}</strong> usa <em>${moveName}</em>!`);
+  narrate(`¡${cap(attacker.name)} usó ${moveName}!`);
+  await wait(280);
 
-    // Announce move
-    const moveName = capitalize(move.name.replace(/-/g,' '));
-    addLog(`🎯 <strong>${capitalize(atk.name)}</strong> usa <em>${moveName}</em>!`);
-    await wait(400);
+  playSound('attack');
+  document.getElementById(`arena-p${atkSlot}`).classList.add('attacker-lunge');
+  await wait(360);
+  document.getElementById(`arena-p${atkSlot}`).classList.remove('attacker-lunge');
 
-    // Attack animation
-    playSound('attack');
-    document.getElementById(`arena-p${atkSlot}`).classList.add('attacker-lunge');
-    await wait(350);
-    document.getElementById(`arena-p${atkSlot}`).classList.remove('attacker-lunge');
+  if (Math.random()*100 > (move.accuracy||100)) {
+    addLog(`💨 ¡Falló el ataque!`);
+    narrate(`¡${cap(attacker.name)} falló!`);
+    await wait(700);
+    return;
+  }
 
-    // Hit animation + sound
+  const { damage, eff } = move.power>0 ? calcDmg(attacker, defender, move) : { damage:0, eff:1 };
+
+  if (damage > 0) {
+    defender.currentHP = Math.max(0, defender.currentHP - damage);
     playSound('hit');
     showTypeFlash(defSlot, move.type);
     document.getElementById(`arena-p${defSlot}`).classList.add('hit-shake');
     await wait(150);
     document.getElementById(`arena-p${defSlot}`).classList.remove('hit-shake');
+    updateHP(defSlot, defender.currentHP, defender.maxHP);
+    showDmgPop(defSlot, damage);
+    addLog(`💥 <strong>${cap(defender.name)}</strong> pierde <strong>${damage} HP</strong> (${Math.max(0,defender.currentHP)}/${defender.maxHP})`);
 
-    // Type effectiveness
-    if (multiplier >= 2) {
-      playSound('superEffective');
-      addLog(`✨ ¡Es muy eficaz! (×${multiplier})`);
-    } else if (multiplier <= 0.5) {
-      playSound('notVeryEffective');
-      addLog(`💤 No es muy eficaz… (×${multiplier})`);
-    }
-    await wait(300);
-
-    // Apply damage
-    if (turn === 1) {
-      p2CurHP = Math.max(0, p2CurHP - damage);
-      updateHPBar(2, p2CurHP, p2MaxHP);
-      showDamageNumber(2, damage);
-    } else {
-      p1CurHP = Math.max(0, p1CurHP - damage);
-      updateHPBar(1, p1CurHP, p1MaxHP);
-      showDamageNumber(1, damage);
-    }
-
-    addLog(`💥 <strong>${capitalize(def.name)}</strong> pierde <strong>${damage} HP</strong> (${turn===1?p2CurHP:p1CurHP}/${turn===1?p2MaxHP:p1MaxHP})`);
-    await wait(700);
-
-    if (p1CurHP <= 0 || p2CurHP <= 0) break;
-    turn = turn === 1 ? 2 : 1;
-    await wait(200);
+    if (eff >= 2) { playSound('super'); addLog('✨ ¡Es muy eficaz!'); narrate('¡Es súper efectivo!'); await wait(600); }
+    else if (eff > 0 && eff < 1) { playSound('weak'); addLog('💤 No es muy eficaz…'); narrate('No es muy efectivo…'); await wait(600); }
+    else if (eff === 0) { addLog(`🚫 No afecta a ${cap(defender.name)}…`); narrate(`No afecta a ${cap(defender.name)}…`); await wait(600); }
   }
 
-  // ── Determine winner ──
-  await wait(500);
-  let winnerPoke, loserSlot, winnerSlot;
-  if (p1CurHP <= 0 && p2CurHP <= 0) {
-    addLog(`🤝 ¡Ambos han caído! ¡Es un empate!`);
-    winnerPoke = null;
-  } else if (p1CurHP <= 0) {
-    winnerPoke = p2; loserSlot = 1; winnerSlot = 2;
-  } else if (p2CurHP <= 0) {
-    winnerPoke = p1; loserSlot = 2; winnerSlot = 1;
-  } else {
-    // Decision by HP percentage
-    const p1Pct = p1CurHP / p1MaxHP;
-    const p2Pct = p2CurHP / p2MaxHP;
-    if (p1Pct > p2Pct) { winnerPoke = p1; loserSlot = 2; winnerSlot = 1; }
-    else if (p2Pct > p1Pct) { winnerPoke = p2; loserSlot = 1; winnerSlot = 2; }
-    else { winnerPoke = null; }
-    addLog(`⏱️ ¡Se acabó el tiempo! Decisión por HP restante.`);
-  }
-
-  if (loserSlot) {
+  if (defender.currentHP <= 0) {
+    defender.fainted = true;
     playSound('faint');
-    document.getElementById(`arena-p${loserSlot}`).classList.add('fighter-faint');
-    document.getElementById(`a-p${loserSlot}-sprite`).classList.add('sprite-faint');
-    await wait(700);
-    addLog(`😵 <strong>${capitalize(loserSlot === 1 ? p1.name : p2.name)}</strong> se ha debilitado!`);
+    document.getElementById(`arena-p${defSlot}`).classList.add('fighter-faint');
+    document.getElementById(`a-p${defSlot}-sprite`).classList.add('sprite-faint');
+    addLog(`😵 <strong>${cap(defender.name)}</strong> se ha debilitado!`);
+    narrate(`¡${cap(defender.name)} se debilitó!`);
+    await wait(850);
+    document.getElementById(`arena-p${defSlot}`).classList.remove('fighter-faint');
+    document.getElementById(`a-p${defSlot}-sprite`).classList.remove('sprite-faint');
+    renderBalls();
   }
-
-  if (winnerPoke) {
-    await wait(600);
-    playSound('victory');
-    playPokemonCry(winnerPoke.id);
-    addLog(`🏆 ¡<strong>${capitalize(winnerPoke.name)}</strong> gana la batalla!`);
-    document.getElementById(`arena-p${winnerSlot}`).classList.add('fighter-victory');
-  }
-
-  // Show stats comparison
-  await wait(800);
-  renderPostBattleStats(p1, p2);
-
-  // Reset btn
-  document.getElementById('reset-btn').style.display = 'inline-flex';
-  fightBtn.style.display = 'none';
-  battleState.battleActive = false;
 }
 
-function setupArenaFighter(slot, data) {
-  const bst = data.stats.reduce((s, st) => s + st.value, 0);
-  document.getElementById(`a-p${slot}-name`).textContent = capitalize(data.name);
+// ── After Turn: check faints, continue ────────────────
+async function checkFaintsAndContinue() {
+  const pAlive = battle.playerTeam.filter(p=>!p.fainted);
+  const eAlive = battle.enemyTeam.filter(p=>!p.fainted);
+
+  if (battle.enemyTeam[battle.enemyActive].fainted) {
+    if (!eAlive.length) { await endBattle(true); return; }
+    const ni = battle.enemyTeam.findIndex(p=>!p.fainted);
+    battle.enemyActive = ni;
+    const next = battle.enemyTeam[ni];
+    addLog(`⚡ El rival envía a <strong>${cap(next.name)}</strong>!`);
+    narrate(`¡El rival envía a ${cap(next.name)}!`);
+    setupFighter(2, next);
+    renderBalls();
+    document.getElementById('arena-p2').classList.add('fighter-enter');
+    playPokemonCry(next.id);
+    await wait(700);
+    document.getElementById('arena-p2').classList.remove('fighter-enter');
+  }
+
+  if (battle.playerTeam[battle.playerActive].fainted) {
+    if (!pAlive.length) { await endBattle(false); return; }
+    addLog('❗ ¡Tu Pokémon se debilitó! Elige el siguiente.');
+    narrate('¡Elige tu siguiente Pokémon!');
+    await wait(400);
+    showSwitchMenu();
+    battle.phase = 'action';
+    return;
+  }
+
+  showActions();
+}
+
+// ── End Battle ──────────────────────────────────────────
+async function endBattle(won) {
+  battle.phase = 'result';
+  document.getElementById('arena-control-panel').style.display = 'none';
+  await wait(500);
+
+  if (won) {
+    const winner = battle.playerTeam[battle.playerActive];
+    playSound('victory'); playPokemonCry(winner.id);
+    addLog(`🏆 ¡<strong>${cap(winner.name)}</strong> gana la batalla!`);
+    narrate(`¡${cap(winner.name)} ganó la batalla!`);
+    document.getElementById('arena-p1').classList.add('fighter-victory');
+    // compare leads for post-battle stats
+    renderPostStats(battle.playerTeam[0], battle.enemyTeam[0]);
+  } else {
+    addLog('💀 ¡Tu equipo se debilitó! El rival gana.');
+    narrate('Has perdido la batalla…');
+    renderPostStats(battle.playerTeam[0], battle.enemyTeam[0]);
+  }
+
+  document.getElementById('reset-btn').style.display = 'inline-flex';
+}
+
+function resetBattle() {
+  battle = null;
+  document.getElementById('battle-arena').style.display = 'none';
+  document.getElementById('arena-control-panel').style.display = 'none';
+  document.getElementById('fight-btn').style.display = 'inline-flex';
+  document.getElementById('fight-btn').innerHTML = '<span class="fight-btn-icon">⚔️</span><span>¡BATALLA!</span>';
+  document.getElementById('fight-btn').disabled = !(teams[1][0] && teams[2][0]);
+  document.getElementById('reset-btn').style.display = 'none';
+  document.getElementById('speed-ind').textContent = '';
+  document.getElementById('round-badge').textContent = 'Turno 1';
+}
+
+// ── Arena Helpers ──────────────────────────────────────
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function narrate(txt) { const el = document.getElementById('acp-narration'); if (el) el.innerHTML = txt; }
+
+function setupFighter(slot, data) {
+  document.getElementById(`a-p${slot}-name`).textContent = cap(data.name);
   document.getElementById(`a-p${slot}-sprite`).src = data.sprite_url;
-  document.getElementById(`a-p${slot}-bst`).textContent = `BST: ${bst}`;
-  document.getElementById(`a-p${slot}-types`).innerHTML = (data.types||[]).map(t =>
+  document.getElementById(`a-p${slot}-bst`).textContent = `BST: ${data.stats.reduce((s,st)=>s+st.value,0)}`;
+  document.getElementById(`a-p${slot}-types`).innerHTML = (data.types||[]).map(t=>
     `<span class="arena-type-tag" style="background:${t.color}">${t.name}</span>`).join('');
+  const maxHP = data.maxHP || calcMaxHP(data);
+  const curHP = data.currentHP !== undefined ? data.currentHP : maxHP;
+  updateHP(slot, curHP, maxHP);
+  const f = document.getElementById(`arena-p${slot}`);
+  f.classList.remove('fighter-enter','fighter-faint','fighter-victory','attacker-lunge','hit-shake');
+}
 
-  const maxHP = data.stats.find(s => s.name === 'HP')?.value || 100;
-  updateHPBar(slot, maxHP, maxHP);
-
-  // Reset classes
-  const fighter = document.getElementById(`arena-p${slot}`);
-  fighter.classList.remove('fighter-enter','fighter-faint','fighter-victory','attacker-lunge','hit-shake');
+function renderBalls() {
+  if (!battle) return;
+  const r = (slot, team) => {
+    document.getElementById(`p${slot}-balls`).innerHTML = team.map(p=>
+      `<span class="arena-pball ${p.fainted?'arena-pball-fainted':'arena-pball-alive'}"></span>`).join('');
+  };
+  r(1, battle.playerTeam); r(2, battle.enemyTeam);
 }
 
 function setArenaBg(p1, p2) {
   const bg = document.getElementById('arena-bg');
-  const t1 = p1.types?.[0]?.color || '#e63946';
-  const t2 = p2.types?.[0]?.color || '#4361ee';
-  bg.style.background = `linear-gradient(135deg, ${t1}22 0%, #0a0a14 50%, ${t2}22 100%)`;
+  const t1 = p1.types?.[0]?.color||'#e63946', t2 = p2.types?.[0]?.color||'#4361ee';
+  bg.style.background = `linear-gradient(135deg,${t1}22 0%,#0a0a14 50%,${t2}22 100%)`;
 }
 
-function updateHPBar(slot, current, max) {
-  const pct = Math.max(0, (current / max) * 100);
+function updateHP(slot, cur, max) {
+  const pct = Math.max(0, cur/max*100);
   const fill = document.getElementById(`p${slot}-hp-fill`);
-  fill.style.width = pct + '%';
-  fill.style.background = pct > 50 ? '#2dc653' : pct > 25 ? '#f4c430' : '#e63946';
-  document.getElementById(`p${slot}-hp-text`).textContent = `${current}/${max}`;
+  fill.style.width = pct+'%';
+  fill.style.background = pct>50?'#2dc653':pct>25?'#f4c430':'#e63946';
+  document.getElementById(`p${slot}-hp-text`).textContent = `${Math.max(0,cur)}/${max}`;
 }
 
-function showDamageNumber(slot, damage) {
+function showDmgPop(slot, dmg) {
   const pop = document.getElementById(`p${slot}-dmg-pop`);
-  pop.textContent = `-${damage}`;
-  pop.classList.remove('pop-animate');
-  void pop.offsetWidth;
-  pop.classList.add('pop-animate');
+  pop.textContent = `-${dmg}`; pop.classList.remove('pop-animate');
+  void pop.offsetWidth; pop.classList.add('pop-animate');
 }
 
 function showTypeFlash(slot, type) {
   const flash = document.getElementById(`p${slot}-type-flash`);
-  const typeColors = {
-    fire:'#EE8130',water:'#6390F0',grass:'#7AC74C',electric:'#F7D02C',
-    ice:'#96D9D6',psychic:'#F95587',dragon:'#6F35FC',dark:'#705746',
-    normal:'#A8A77A',fighting:'#C22E28',poison:'#A33EA1',ground:'#E2BF65',
-    flying:'#A98FF3',bug:'#A6B91A',rock:'#B6A136',ghost:'#735797',
-    steel:'#B7B7CE',fairy:'#D685AD'
-  };
-  flash.style.background = `radial-gradient(circle, ${typeColors[type] || '#fff'}88, transparent)`;
-  flash.classList.remove('flash-animate');
-  void flash.offsetWidth;
-  flash.classList.add('flash-animate');
+  const C={fire:'#EE8130',water:'#6390F0',grass:'#7AC74C',electric:'#F7D02C',ice:'#96D9D6',psychic:'#F95587',
+    dragon:'#6F35FC',dark:'#705746',normal:'#A8A77A',fighting:'#C22E28',poison:'#A33EA1',ground:'#E2BF65',
+    flying:'#A98FF3',bug:'#A6B91A',rock:'#B6A136',ghost:'#735797',steel:'#B7B7CE',fairy:'#D685AD'};
+  flash.style.background = `radial-gradient(circle,${C[type]||'#fff'}88,transparent)`;
+  flash.classList.remove('flash-animate'); void flash.offsetWidth; flash.classList.add('flash-animate');
 }
 
 function addLog(html) {
   const scroll = document.getElementById('battle-log-scroll');
-  const p = document.createElement('p');
-  p.className = 'log-line';
-  p.innerHTML = html;
-  scroll.appendChild(p);
-  scroll.scrollTop = scroll.scrollHeight;
+  const p = document.createElement('p'); p.className = 'log-line'; p.innerHTML = html;
+  scroll.appendChild(p); scroll.scrollTop = scroll.scrollHeight;
 }
+function clearBattleLog() { document.getElementById('battle-log-scroll').innerHTML = ''; }
 
-function clearBattleLog() {
-  document.getElementById('battle-log-scroll').innerHTML = '';
-}
-
-function renderPostBattleStats(p1, p2) {
+function renderPostStats(p1, p2) {
   const section = document.getElementById('post-battle-stats');
   section.style.display = 'block';
-  document.getElementById('pbs-p1-name').textContent = capitalize(p1.name);
-  document.getElementById('pbs-p2-name').textContent = capitalize(p2.name);
-  const labels = { 'HP':'HP','Attack':'Ataque','Defense':'Defensa','Sp. Atk':'Sp.Atq','Sp. Def':'Sp.Def','Speed':'Veloc.' };
-  document.getElementById('pbs-rows').innerHTML = p1.stats.map((st, i) => {
-    const s2 = p2.stats[i]; if (!s2) return '';
-    const l = labels[st.name] || st.name;
-    const p1w = Math.round((st.value/255)*100), p2w = Math.round((s2.value/255)*100);
+  document.getElementById('pbs-p1-name').textContent = cap(p1.name);
+  document.getElementById('pbs-p2-name').textContent = cap(p2.name);
+  const labels = {'HP':'HP','Attack':'Ataque','Defense':'Defensa','Sp. Atk':'Sp.Atq','Sp. Def':'Sp.Def','Speed':'Veloc.'};
+  document.getElementById('pbs-rows').innerHTML = p1.stats.map((st,i)=>{
+    const s2=p2.stats[i]; if(!s2) return '';
+    const l=labels[st.name]||st.name, p1w=Math.round(st.value/255*100), p2w=Math.round(s2.value/255*100);
     return `<div class="pbs-row">
       <span class="pbs-val ${st.value>s2.value?'pbs-win':''}">${st.value}</span>
-      <div class="pbs-bars">
-        <div class="pbs-label">${l}</div>
+      <div class="pbs-bars"><div class="pbs-label">${l}</div>
         <div class="pbs-track">
           <div class="pbs-fill pbs-p1-fill ${st.value>s2.value?'pbs-dominant':''}" style="width:${p1w}%"></div>
           <div class="pbs-fill pbs-p2-fill ${s2.value>st.value?'pbs-dominant':''}" style="width:${p2w}%"></div>
-        </div>
-      </div>
+        </div></div>
       <span class="pbs-val ${s2.value>st.value?'pbs-win':''}">${s2.value}</span>
     </div>`;
   }).join('');
-  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  section.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function resetBattle() {
-  battleState.battleActive = false;
-  document.getElementById('battle-arena').style.display = 'none';
-  document.getElementById('fight-btn').style.display = 'inline-flex';
-  document.getElementById('fight-btn').innerHTML = '<span class="fight-btn-icon">⚔️</span><span>¡BATALLA!</span>';
-  document.getElementById('fight-btn').disabled = false;
-  document.getElementById('reset-btn').style.display = 'none';
-}
+function setStatus(msg, type) { const el=document.getElementById('battle-status'); el.textContent=msg; el.className=`battle-status-v2 status-${type}`; }
+function clearStatus() { const el=document.getElementById('battle-status'); el.textContent=''; el.className='battle-status-v2'; }
+function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 
-// ── Status helpers ────────────────────────────────────────────
-function setStatus(msg, type) {
-  const el = document.getElementById('battle-status');
-  el.textContent = msg; el.className = `battle-status-v2 status-${type}`;
-}
-function clearStatus() {
-  const el = document.getElementById('battle-status');
-  el.textContent = ''; el.className = 'battle-status-v2';
-}
-
-function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
-
-// ── Init ──────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   preloadPokemon();
 
@@ -850,21 +1174,18 @@ document.addEventListener('DOMContentLoaded', () => {
     pickerQuery = e.target.value.trim().toLowerCase();
     renderPickerGrid();
   });
-
   document.getElementById('picker-type').addEventListener('change', e => {
     pickerType = e.target.value;
     renderPickerGrid();
   });
-
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePicker();
+    if (e.key === 'Escape') { closePicker(); hideSwitchMenu(); }
   });
 
-  // URL params
   const params = new URLSearchParams(window.location.search);
   const pr1 = params.get('p1'), pr2 = params.get('p2');
-  if (pr1) { activePickerSlot = 1; selectPokemon(pr1, 0); }
-  if (pr2) { activePickerSlot = 2; selectPokemon(pr2, 0); }
+  if (pr1) { activePickerTeam=1; activePickerIndex=0; selectPokemon(pr1,0); }
+  if (pr2) { activePickerTeam=2; activePickerIndex=0; selectPokemon(pr2,0); }
 });
 </script>
 {% endblock %}
